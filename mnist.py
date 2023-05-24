@@ -77,7 +77,7 @@ def auto_tuning(n_particles=n_particles, maxiter=maxiter, c0=c0, c1=c1, w=w):
     optimizer = keras.optimizers.SGD(lr=lr, momentum=momentun, decay=decay, nesterov=nestrov)
 
 
-    pso_m = PSO(model=model, loss_method=loss, n_particles=n_particles, x_train=x_train, y_train=y_train)
+    pso_m = PSO(model=model, loss_method=loss, n_particles=n_particles)
     # c0 : 지역 최적값 중요도
     # c1 : 전역 최적값 중요도
     # w : 관성 (현재 속도를 유지하는 정도)
@@ -128,7 +128,7 @@ def get_score(model):
         # plt.imshow(x_test[not_correct[i]].reshape(28,28), cmap='Greys')
     # plt.show() 
     
-get_score(auto_tuning(n_particles=30, maxiter=1000, c0=0.5, c1=1.5, w=0.75))
+get_score(auto_tuning(n_particles=30, maxiter=50, c0=0.5, c1=1.5, w=0.75))
 
 # %%
 
