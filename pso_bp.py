@@ -9,7 +9,7 @@ class PSO(object):
     Class implementing PSO algorithm
     """
 
-    def __init__(self, model: keras.models, x_train, y_train, loss_method=keras.losses.MeanSquaredError(), n_particles=5):
+    def __init__(self, model: keras.models, loss_method=keras.losses.MeanSquaredError(), optimizer='adam', n_particles=5):
         """
         Initialize the key variables.
 
@@ -22,6 +22,7 @@ class PSO(object):
         self.model = model                      # 모델
         self.n_particles = n_particles          # 파티클의 개수
         self.loss_method = loss_method          # 손실 함수
+        self.optimizer = optimizer              # 최적화 함수
         self.model_structure = self.model.to_json()  # 모델의 구조
         self.init_weights = self.model.get_weights()          # 검색할 차원
         self.particle_depth = len(self.model.get_weights())    # 검색할 차원의 깊이
@@ -30,8 +31,7 @@ class PSO(object):
             # particle_node = []
             m = keras.models.model_from_json(self.model_structure)
             m.compile(loss=self.loss_method,
-                      optimizer="adam", metrics=["accuracy"])
-            # m.fit(x_train, y_train, epochs=1, batch_size=32, verbose=0) # 결과가 너무 좋지 않아서 처음 초기화 할때 어느정도 위치를 수정
+                      optimizer=self.optimizer, metrics=["accuracy"])
             self.particles_weights[_] = m.get_weights()
             # print(f"shape > {self.particles_weights[_][0]}")
        
@@ -78,7 +78,6 @@ class PSO(object):
             n_particles)]  # 각 파티클의 최적값의 점수
         self.g_best_score = 0                  # 전역 최적값의 점수(초기화 - 무한대)
         self.g_history = []
-        self.all_cost_history = [[] for i in range(n_particles)]
         self.g_best_score_history = []
         self.history = []
 
@@ -177,7 +176,7 @@ class PSO(object):
 
         return score
 
-    def optimize(self, x_train, y_train, x_test, y_test, maxiter=10, c0=0.5, c1=1.5, w=0.75):
+    def optimize(self, x_train, y_train, x_test, y_test, maxiter=10, epochs=1, batch_size=32, c0=0.5, c1=1.5, w=0.75):
         """
         Run the PSO optimization process utill the stoping critera is met.
         Cas for minization. The aim is to minimize the cost function
@@ -190,8 +189,8 @@ class PSO(object):
         """
         for _ in range(maxiter):
             loss = 0
-            acc = 0
-            for i in tqdm(range(self.n_particles), desc=f"Iter {_}/{maxiter}", ascii=True):
+            acc = 1e-10
+            for i in tqdm(range(self.n_particles), desc=f"Iter {_}/{maxiter} | acc avg {round(acc/(_+1) ,4)}", ascii=True):
                 weights = self.particles_weights[i]  # 각 파티클 추출
                 v = self.velocities[i]    # 각 파티클의 다음 속도 추출
                 p_best = self.p_best[i]   # 결과치 저장할 변수 지정
@@ -205,9 +204,9 @@ class PSO(object):
                 # Update the besst position for particle i
                 # 내 현재 위치가 내 위치의 최소치보다 작으면 갱신
                 self.model.set_weights(self.particles_weights[i].copy())
-                # self.model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size,
-                #    verbose=0, validation_data=(x_test, y_test))
-                # self.particles_weights[i] = self.model.get_weights()
+                self.model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size,
+                   verbose=0, validation_data=(x_test, y_test))
+                self.particles_weights[i] = self.model.get_weights()
                 # 4. 평가
                 self.model.compile(loss=self.loss_method,
                                    optimizer='adam', metrics=['accuracy'])
@@ -228,8 +227,9 @@ class PSO(object):
                         self.g_best_score_history.append(
                             self.g_best_score)
 
-                self.score = score
-                self.all_cost_history[i].append(score)
+                self.score = score[1]
+                loss = loss + score[0]
+                acc = acc + score[1]
                 # if self.func(self.particles_weights[i]) < self.func(p_best):
                 # self.p_best[i] = self.particles_weights[i]
                 # if self.
@@ -240,7 +240,7 @@ class PSO(object):
                 # self.g_history.append(self.g_best)
                 # print(f"{i} particle score : {score[0]}")
             print(
-                f"loss avg : {self.score[0]/self.n_particles} | acc avg : {self.score[1]/self.n_particles} | best loss : {self.g_best_score}")
+                f"loss avg : {loss/self.n_particles} | acc avg : {acc/self.n_particles} | best loss : {self.g_best_score}")
 
             # self.history.append(self.particles_weights.copy())
 
@@ -278,6 +278,3 @@ class PSO(object):
 
     def global_score_history(self):
         return self.g_best_score_history.copy()
-    
-    def all_cost(self):
-        return self.all_cost_history.copy()
