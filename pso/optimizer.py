@@ -41,8 +41,11 @@ class Optimizer:
 
         for i in tqdm(range(self.n_particles), desc="Initializing Particles"):
             m = keras.models.model_from_json(model.to_json())
+            init_weights = m.get_weights()
+            w_, sh_, len_ = self._encode(init_weights)
+            w_ = np.random.uniform(-0.1, 0.1, len(w_))
+            m.set_weights(self._decode(w_, sh_, len_))
             m.compile(loss=self.loss, optimizer="sgd", metrics=["accuracy"])
-
             self.particles[i] = Particle(m, loss)
 
     """
@@ -256,6 +259,7 @@ class Optimizer:
             
             if check_point is not None:
                 if _ % check_point == 0:
+                    os.makedirs(f"./{save_path}/{self.day}", exist_ok=True)
                     self._check_point_save(f"./{save_path}/{self.day}/check_point_{_}.h5")
 
         return self.g_best, self.g_best_score

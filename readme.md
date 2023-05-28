@@ -13,7 +13,10 @@ pso 알고리즘을 사용하여 새로운 학습 방법을 찾는중 입니다
 
 다음 위치를 구하는 수식입니다
 
-> $$p_{id(t+1)} = \begin{cases} x_{id(t+1)} & \text{if } f(x_{id(t+1)}) < f(p_{id(t)}) \\ p_{id(t)} & \text{otherwise} \end{cases}$$
+> $$p_{id(t+1)} = \begin{cases} 
+x_{id(t+1)} & \text{if } f(x_{id(t+1)}) < f(p_{id(t)}) 
+\\ p_{id(t)} & \text{otherwise} 
+\end{cases}$$
 
 ### 위치를 가장 최적값으로 변경(덮어쓰기)하면 안되는 이유
 
@@ -24,6 +27,16 @@ pso 알고리즘을 사용하여 새로운 학습 방법을 찾는중 입니다
 ## 1. PSO 알고리즘 구현
 
 ```plain text
+|-- metacode   # pso 기본 코드
+|-- pso        # tensorflow 모델을 학습하기 위해 기본 pso 코드에서 수정 - (psokeras 코드 의 구조를 사용하여 만듬)
+|-- psokeras   # keras 모델을 이용가능한 PSO 알고리즘 - 다른 사람의 코드
+|-- pyswarms   # pyswarms 라이브러리를 이용가능한 PSO 알고리즘 - 다른 사람의 코드
+|-- examples.py # psokeras 코드를 이용한 예제
+|-- iris.py    # pso 코드를 이용한 iris 문제 풀이
+|-- mnist.py   # pso 코드를 이용한 mnist 문제 풀이
+|-- xor.ipynb     # pso 코드를 이용한 xor 문제 풀이
+|-- plt.ipynb     # pyplot 으로 학습 결과를 그래프로 표현
+
 pso_meta.py  # PSO 알고리즘 구현
 pso_tf.py # tensorflow 모델을 이용가능한 PSO 알고리즘 구현
 pso_bp.py # 오차역전파 함수를 최적화하는 PSO 알고리즘 구현 - 성능이 99% 이상으로 나오나 목적과 다름

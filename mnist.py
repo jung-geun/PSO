@@ -73,13 +73,13 @@ x_test, y_test = get_data_test()
 # loss = 'poisson'
 # loss = 'cosine_similarity'
 # loss = 'log_cosh'
-# loss = 'huber_loss'
+loss = 'huber_loss' 
 # loss = 'mean_absolute_error'
 # loss = 'mean_absolute_percentage_error'
-loss = 'mean_squared_error'
+# loss = 'mean_squared_error'
 
 
-pso_mnist = Optimizer(model, loss=loss, n_particles=50, c0=0.4, c1=0.8, w_min=0.75, w_max=1.4)
+pso_mnist = Optimizer(model, loss=loss, n_particles=50, c0=0.5, c1=0.8, w_min=0.75, w_max=1.3)
 weight, score = pso_mnist.fit(
     x_test, y_test, epochs=1000, save=True, save_path="./result/mnist", renewal="acc", empirical_balance=False, Dispersion=True)
 pso_mnist.model_save("./result/mnist")
