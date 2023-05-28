@@ -1,0 +1,11 @@
+2023-05-28 17:29:35,386 - pyswarms.single.global_best - INFO - Optimize for 20 iters with {'c1': 0.4, 'c2': 0.6, 'w': 0.4}
+2023-05-28 17:30:07,637 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 0.013333320617675781, best pos: [ 0.17027965  0.17696722 -0.07395054  0.31544984  0.17052408 -0.37810479
+  0.24267479  0.16931148  0.65606942 -0.24207116 -0.66562722  0.02191478
+  0.5870387   0.78966943 -0.4457816   0.0907434  -0.1808341   0.29282655
+  0.61472003  0.90660508  0.16469465 -0.55057763  0.54702005 -0.22636745
+  0.01125538  0.62431828  0.02128613 -0.26723577 -0.43527016  0.51223244
+  0.76388399 -0.02073011  0.15949622  0.45878514  0.01787211]
+2023-05-28 17:30:08,140 - matplotlib.animation - WARNING - MovieWriter pillowwritter unavailable; using Pillow instead.
+2023-05-28 17:30:08,141 - matplotlib.animation - INFO - Animation.save using <class 'matplotlib.animation.PillowWriter'>
+2023-05-28 17:31:01,885 - tensorflow - WARNING - 5 out of the last 3010 calls to <function Model.make_test_function.<locals>.test_function at 0x7fee6622df70> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+2023-05-28 17:31:08,794 - tensorflow - WARNING - 6 out of the last 3011 calls to <function Model.make_test_function.<locals>.test_function at 0x7fee66257b80> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
