@@ -6,14 +6,14 @@ from tensorflow import keras
 import numpy as np
 
 class Particle:
-    def __init__(self, model:keras.models, loss):
+    def __init__(self, model:keras.models, loss, random:bool = False):
         self.model = model
         self.loss = loss
         self.init_weights = self.model.get_weights()
         i_w_,s_,l_ = self._encode(self.init_weights)
         i_w_ = np.random.rand(len(i_w_)) / 5 - 0.10
         self.velocities = self._decode(i_w_,s_,l_)
-        
+        self.random = random
         self.best_score = 0
         self.best_weights = self.init_weights
 
@@ -94,6 +94,8 @@ class Particle:
     def _update_weights(self):
         encode_w, w_sh, w_len = self._encode(weights = self.model.get_weights())
         encode_v, _, _ = self._encode(weights = self.velocities)
+        if self.random:
+            encode_v = -1 * encode_v
         new_w = encode_w + encode_v
         self.model.set_weights(self._decode(new_w, w_sh, w_len))
 

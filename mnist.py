@@ -23,9 +23,9 @@ from tqdm import tqdm
 
 import gc
 
-print(tf.__version__)
-print(tf.config.list_physical_devices())
-print(f"Num GPUs Available: {len(tf.config.list_physical_devices('GPU'))}")
+# print(tf.__version__)
+# print(tf.config.list_physical_devices())
+# print(f"Num GPUs Available: {len(tf.config.list_physical_devices('GPU'))}")
 
 
 def get_data():
@@ -79,9 +79,9 @@ loss = 'huber_loss'
 # loss = 'mean_squared_error'
 
 
-pso_mnist = Optimizer(model, loss=loss, n_particles=50, c0=0.5, c1=0.8, w_min=0.75, w_max=1.3)
+pso_mnist = Optimizer(model, loss=loss, n_particles=50, c0=0.4, c1=0.8, w_min=0.7, w_max=1.2, random=0.3)
 weight, score = pso_mnist.fit(
-    x_test, y_test, epochs=1000, save=True, save_path="./result/mnist", renewal="acc", empirical_balance=False, Dispersion=True)
+    x_test, y_test, epochs=200, save=True, save_path="./result/mnist", renewal="acc", empirical_balance=False, Dispersion=False, check_point=10)
 pso_mnist.model_save("./result/mnist")
 pso_mnist.save_info("./result/mnist")
 
