@@ -58,7 +58,7 @@ class Optimizer:
             m = keras.models.model_from_json(model.to_json())
             init_weights = m.get_weights()
             w_, sh_, len_ = self._encode(init_weights)
-            w_ = np.random.uniform(-3, 3, len(w_))
+            w_ = np.random.uniform(-1.5, 1.5, len(w_))
             m.set_weights(self._decode(w_, sh_, len_))
             m.compile(loss=self.loss, optimizer="sgd", metrics=["accuracy"])
             if i < random * self.n_particles:
@@ -249,8 +249,6 @@ class Optimizer:
                         min_score = score[1]
                     if score[1] > max_score:
                         max_score = score[1]
-                        
-                    gc.collect()
 
                     if save:
                         with open(
@@ -261,7 +259,6 @@ class Optimizer:
                             if i != self.n_particles - 1:
                                 f.write(", ")
                                 
-
                 TS = self.c0 + np.random.rand() * (self.c1 - self.c0)
                 g_, g_sh, g_len = self._encode(self.g_best)
                 decrement = (epochs - (_) + 1) / epochs
@@ -278,7 +275,7 @@ class Optimizer:
                 # print(f"loss min : {min_loss} | loss max : {max_loss} | acc min : {min_score} | acc max : {max_score}")
                 # print(f"loss avg : {loss/self.n_particles} | acc avg : {acc/self.n_particles} | Best {renewal} : {self.g_best_score}")
                 print(
-                    f"loss min : {min_loss} | acc max : {max_score} | Best {renewal} : {self.g_best_score}"
+                    f"loss min : {round(min_loss, 4)} | acc max : {round(max_score, 4)} | Best {renewal} : {self.g_best_score}"
                 )
 
                 gc.collect()
@@ -289,22 +286,16 @@ class Optimizer:
                         self._check_point_save(f"./{save_path}/{self.day}/ckpt-{_}")
                 self.avg_score = acc/self.n_particles
         except KeyboardInterrupt:
-            print("Keyboard Interrupt")
-            self.model_save(save_path)
-            print("model saved")
-            self.save_info(save_path)
-            print("info saved")
-            sys.exit(0)
+            print("Ctrl + C : Stop Training")
         except MemoryError:
-            print("Memory Error")
+            print("Memory Error : Stop Training")
+        except Exception as e:
+            print(e)
+        finally:
             self.model_save(save_path)
             print("model save")
             self.save_info(save_path)
             print("save info")
-            sys.exit(1)
-        except Exception as e:
-            print(e)
-        finally:
             return self.g_best, self.g_best_score
             
 

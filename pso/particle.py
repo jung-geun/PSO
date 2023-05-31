@@ -17,7 +17,6 @@ class Particle:
         self.best_score = 0
         self.best_weights = self.init_weights
 
-
     """
     Returns:
         (cupy array) : 가중치 - 1차원으로 풀어서 반환
@@ -35,7 +34,6 @@ class Particle:
             lenght.append(len(w_))
             # w_gpu = cp.append(w_gpu, w_)
             w_gpu = np.append(w_gpu, w_)
-        
         return w_gpu, shape, lenght
 
     """
@@ -95,10 +93,9 @@ class Particle:
         encode_w, w_sh, w_len = self._encode(weights = self.model.get_weights())
         encode_v, _, _ = self._encode(weights = self.velocities)
         if self.random:
-            encode_v = -1 * encode_v
+            encode_v = -0.5 * encode_v
         new_w = encode_w + encode_v
         self.model.set_weights(self._decode(new_w, w_sh, w_len))
-
 
     def f(self, x, y, weights):
         self.model.set_weights(weights)
@@ -117,7 +114,6 @@ class Particle:
         self._update_velocity_w(local_rate, global_rate, w, w_p, w_g, g_best)
         self._update_weights()
         return self.get_score(x, y, renewal)
-    
     
     def get_best_score(self):
         return self.best_score
