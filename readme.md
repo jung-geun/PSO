@@ -72,7 +72,7 @@ pso 알고리즘을 이용하여 오차역전파 함수를 최적화 하는 방�
 
 <br>
 위의 아이디어는 원래의 목표와 다른 방향으로 가고 있습니다. 따라서 다른 방법을 모색해야할 것 같습니다
-<br><br>
+<br>
 
 ### Trouble Shooting
 
@@ -89,5 +89,11 @@ pso 알고리즘을 이용하여 오차역전파 함수를 최적화 하는 방�
 >
 > > pso 와 random forest 방식이 매우 유사하다고 생각하여 학습할 때 뿐만 아니라 예측 할 때도 이러한 방식으로 사용할 수 있을 것 같습니다
 
-이곳의 코드를 참고하여 좀더 효율적인 코드로 수정하였습니다
-> <https://github.com/mike-holcomb/PSOkeras>
+# 참고 자료
+
+> A partilce swarm optimization algorithm with empirical balance stategy - <https://www.sciencedirect.com/science/article/pii/S2590054422000185#bib0005> <br>
+> psokeras - <https://github.com/mike-holcomb/PSOkeras> <br>
+> PSO의 다양한 영역 탐색과
+지역적 미니멈 인식을 위한 전략 - <https://koreascience.kr/article/JAKO200925836515680.pdf> <br>
+> PC 클러스터 기반의 Multi-HPSO를 이용한 안전도 제약의 경제 급전 - <https://koreascience.kr/article/JAKO200932056732373.pdf> <br>
+> Particle 2-Swarm Optimization for Robust Search - <https://s-space.snu.ac.kr/bitstream/10371/29949/3/management_information_v18_01_p01.pdf> <br>

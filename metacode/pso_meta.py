@@ -16,7 +16,7 @@ class PSO(object):
         """
         self.func = func
         self.n_particles = n_particles
-        self.init_pos = init_pos           # 곰샥헐 차원
+        self.init_pos = init_pos           # 검색할 차원
         self.particle_dim = len(init_pos)  # 검색할 차원의 크기
         self.particles_pos = np.random.uniform(size=(n_particles, self.particle_dim)) \
             * self.init_pos

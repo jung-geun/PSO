@@ -79,9 +79,9 @@ loss = 'huber_loss'
 # loss = 'mean_squared_error'
 
 
-pso_mnist = Optimizer(model, loss=loss, n_particles=75, c0=0.4, c1=0.8, w_min=0.6, w_max=0.95, random=0.3)
+pso_mnist = Optimizer(model, loss=loss, n_particles=50, c0=0.4, c1=0.8, w_min=0.4, w_max=0.95, negative_swarm=0.3)
 weight, score = pso_mnist.fit(
-    x_test, y_test, epochs=500, save=True, save_path="./result/mnist", renewal="acc", empirical_balance=False, Dispersion=False, check_point=10)
+    x_test, y_test, epochs=500, save=True, save_path="./result/mnist", renewal="acc", empirical_balance=True, Dispersion=False, check_point=10)
 # pso_mnist.model_save("./result/mnist")
 # pso_mnist.save_info("./result/mnist")
 

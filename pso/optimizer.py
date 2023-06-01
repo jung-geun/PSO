@@ -12,9 +12,9 @@ from tqdm import tqdm
 from datetime import datetime
 import json
 import gc
+from copy import copy, deepcopy
 
 from pso.particle import Particle
-
 
 
 class Optimizer:
@@ -27,18 +27,19 @@ class Optimizer:
         c1 (float): global rate - 전역 최적값 관성 수치
         w_min (float): 최소 관성 수치
         w_max (float): 최대 관성 수치
-        random (float): 랜덤 파티클 비율 - 0 ~ 1 사이의 값
+        nefative_swarm (float): 최적해와 반대로 이동할 파티클 비율 - 0 ~ 1 사이의 값
     """
+
     def __init__(
         self,
         model: keras.models,
-        loss = "mse",
+        loss="mse",
         n_particles: int = 10,
         c0=0.5,
         c1=1.5,
         w_min=0.5,
         w_max=1.5,
-        random:float = 0,
+        negative_swarm: float = 0,
     ):
         self.model = model  # 모델 구조
         self.loss = loss  # 손실함수
@@ -61,10 +62,11 @@ class Optimizer:
             w_ = np.random.uniform(-1.5, 1.5, len(w_))
             m.set_weights(self._decode(w_, sh_, len_))
             m.compile(loss=self.loss, optimizer="sgd", metrics=["accuracy"])
-            if i < random * self.n_particles:
-                self.particles[i] = Particle(m, loss, random=True)
+            if i < negative_swarm * self.n_particles:
+                self.particles[i] = Particle(m, loss, negative=True)
             else:
-                self.particles[i] = Particle(m, loss, random=False)
+                self.particles[i] = Particle(m, loss, negative=False)
+        gc.collect()
 
     """
     Args:
@@ -74,6 +76,7 @@ class Optimizer:
         (list) : 가중치의 원본 shape
         (list) : 가중치의 원본 shape의 길이
     """
+
     def _encode(self, weights):
         # w_gpu = cp.array([])
         w_gpu = np.array([])
@@ -86,6 +89,8 @@ class Optimizer:
             # w_gpu = cp.append(w_gpu, w_)
             w_gpu = np.append(w_gpu, w_)
 
+        del weights
+        gc.collect()
         return w_gpu, shape, lenght
 
     """
@@ -119,6 +124,8 @@ class Optimizer:
         self.model.set_weights(weights)
         self.model.compile(loss=self.loss, optimizer="sgd", metrics=["accuracy"])
         score = self.model.evaluate(x, y, verbose=0)[1]
+
+        gc.collect()
         if score > 0:
             return 1 / (1 + score)
         else:
@@ -136,6 +143,7 @@ class Optimizer:
         Dispersion : bool - True : g_best 의 값을 분산시켜 전역해를 찾음, False : g_best 의 값만 사용
         check_point : int - 저장할 위치 - None : 저장 안함
     """
+
     def fit(
         self,
         x,
@@ -149,24 +157,27 @@ class Optimizer:
         check_point: int = None,
     ):
         self.save_path = save_path
-        
+
         self.renewal = renewal
         if renewal == "acc":
             self.g_best_score = 0
         elif renewal == "loss":
             self.g_best_score = np.inf
-
-        if save:
-            if save_path is None:
-                raise ValueError("save_path is None")
-            else:
-                self.save_path = save_path
-                os.makedirs(save_path, exist_ok=True)
-                self.day = datetime.now().strftime("%m-%d-%H-%M")
-
+        try:
+            if save:
+                if save_path is None:
+                    raise ValueError("save_path is None")
+                else:
+                    self.save_path = save_path
+                    if not os.path.exists(save_path):
+                        os.makedirs(save_path, exist_ok=True)
+                    self.day = datetime.now().strftime("%m-%d-%H-%M")
+        except ValueError as e:
+            print(e)
+            sys.exit(1)
         # for i, p in enumerate(self.particles):
         for i in tqdm(range(self.n_particles), desc="Initializing Particles"):
-            p = self.particles[i]
+            p = copy(self.particles[i])
             local_score = p.get_score(x, y, renewal=renewal)
 
             if renewal == "acc":
@@ -179,9 +190,12 @@ class Optimizer:
                     self.g_best_score = local_score[0]
                     self.g_best = p.get_best_weights()
                     self.g_best_ = p.get_best_weights()
-        
+            del local_score
+            del p
+            gc.collect()
+
         print(f"initial g_best_score : {self.g_best_score}")
-        
+
         try:
             for _ in range(epochs):
                 print(f"epoch {_ + 1}/{epochs}")
@@ -191,6 +205,12 @@ class Optimizer:
                 max_score = 0
                 min_loss = np.inf
                 max_loss = 0
+
+                ts = self.c0 + np.random.rand() * (self.c1 - self.c0)
+                g_, g_sh, g_len = self._encode(self.g_best)
+                decrement = (epochs - (_) + 1) / epochs
+                g_ = (1 - decrement) * g_ + decrement * ts
+                self.g_best_ = self._decode(g_, g_sh, g_len)
 
                 # for i in tqdm(range(len(self.particles)), desc=f"epoch {_ + 1}/{epochs}", ascii=True):
                 for i in range(len(self.particles)):
@@ -215,11 +235,19 @@ class Optimizer:
                             g_a = self.avg_score
                             l_b = p_b - g_a
                             l_b = np.sqrt(np.power(l_b, 2))
-                            p_ = 1 / (self.n_particles * np.linalg.norm(self.c1 - self.c0)) * l_b
+                            p_ = (
+                                1
+                                / (self.n_particles * np.linalg.norm(self.c1 - self.c0))
+                                * l_b
+                            )
                             p_ = np.exp(-1 * p_)
                             w_p = p_
                             w_g = 1 - p_
-                            
+                            del p_b
+                            del g_a
+                            del l_b
+                            del p_
+
                         score = self.particles[i].step_w(
                             x, y, self.c0, self.c1, w, g_best, w_p, w_g, renewal=renewal
                         )
@@ -238,8 +266,8 @@ class Optimizer:
                             self.g_best_score = score[0]
                             self.g_best = self.particles[i].get_best_weights()
 
-                    loss += score[0]
-                    acc += score[1]
+                    loss = loss + score[0]
+                    acc = acc + score[1]
                     if score[0] < min_loss:
                         min_loss = score[0]
                     if score[0] > max_loss:
@@ -258,19 +286,8 @@ class Optimizer:
                             f.write(f"{score[0]}, {score[1]}")
                             if i != self.n_particles - 1:
                                 f.write(", ")
-                                
-                TS = self.c0 + np.random.rand() * (self.c1 - self.c0)
-                g_, g_sh, g_len = self._encode(self.g_best)
-                decrement = (epochs - (_) + 1) / epochs
-                g_ = (1 - decrement) * g_ + decrement * TS
-                self.g_best_ = self._decode(g_, g_sh, g_len)
-
-                if save:
-                    with open(
-                        f"./{save_path}/{self.day}_{self.n_particles}_{epochs}_{self.c0}_{self.c1}_{self.w_min}_{renewal}.csv",
-                        "a",
-                    ) as f:
-                        f.write("\n")
+                            else:
+                                f.write("\n")
 
                 # print(f"loss min : {min_loss} | loss max : {max_loss} | acc min : {min_score} | acc max : {max_score}")
                 # print(f"loss avg : {loss/self.n_particles} | acc avg : {acc/self.n_particles} | Best {renewal} : {self.g_best_score}")
@@ -279,12 +296,13 @@ class Optimizer:
                 )
 
                 gc.collect()
-                
+
                 if check_point is not None:
                     if _ % check_point == 0:
                         os.makedirs(f"./{save_path}/{self.day}", exist_ok=True)
                         self._check_point_save(f"./{save_path}/{self.day}/ckpt-{_}")
-                self.avg_score = acc/self.n_particles
+                self.avg_score = acc / self.n_particles
+
         except KeyboardInterrupt:
             print("Ctrl + C : Stop Training")
         except MemoryError:
@@ -296,8 +314,8 @@ class Optimizer:
             print("model save")
             self.save_info(save_path)
             print("save info")
+
             return self.g_best, self.g_best_score
-            
 
     def get_best_model(self):
         model = keras.models.model_from_json(self.model.to_json())
@@ -329,12 +347,11 @@ class Optimizer:
             "a",
         ) as f:
             json.dump(json_save, f, indent=4)
-            f.write(",\n")
-            
+
     def _check_point_save(self, save_path: str = f"./result/check_point"):
         model = self.get_best_model()
         model.save_weights(save_path)
-            
+
     def model_save(self, save_path: str = "./result"):
         model = self.get_best_model()
         model.save(

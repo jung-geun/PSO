@@ -1,21 +1,26 @@
-
 import tensorflow as tf
 from tensorflow import keras
 
 # import cupy as cp
 import numpy as np
+import gc
+
 
 class Particle:
-    def __init__(self, model:keras.models, loss, random:bool = False):
+    def __init__(self, model: keras.models, loss, negative: bool = False):
         self.model = model
         self.loss = loss
-        self.init_weights = self.model.get_weights()
-        i_w_,s_,l_ = self._encode(self.init_weights)
+        init_weights = self.model.get_weights()
+        i_w_, s_, l_ = self._encode(init_weights)
         i_w_ = np.random.rand(len(i_w_)) / 5 - 0.10
-        self.velocities = self._decode(i_w_,s_,l_)
-        self.random = random
+        self.velocities = self._decode(i_w_, s_, l_)
+        self.negative = negative
         self.best_score = 0
-        self.best_weights = self.init_weights
+        self.best_weights = init_weights
+
+        del i_w_, s_, l_
+        del init_weights
+        gc.collect()
 
     """
     Returns:
@@ -23,7 +28,8 @@ class Particle:
         (list) : 가중치의 원본 shape
         (list) : 가중치의 원본 shape의 길이
     """
-    def _encode(self, weights:list):
+
+    def _encode(self, weights: list):
         # w_gpu = cp.array([])
         w_gpu = np.array([])
         lenght = []
@@ -34,6 +40,7 @@ class Particle:
             lenght.append(len(w_))
             # w_gpu = cp.append(w_gpu, w_)
             w_gpu = np.append(w_gpu, w_)
+        gc.collect()
         return w_gpu, shape, lenght
 
     """
@@ -41,7 +48,7 @@ class Particle:
         (list) : 가중치 원본 shape으로 복원
     """
 
-    def _decode(self, weight:list, shape, lenght):
+    def _decode(self, weight: list, shape, lenght):
         weights = []
         start = 0
         for i in range(len(shape)):
@@ -52,10 +59,13 @@ class Particle:
             # w_ = w_.reshape(shape[i])
             weights.append(w_)
             start = end
-
+        del start, end, w_
+        del shape, lenght
+        del weight
+        gc.collect()
         return weights
 
-    def get_score(self, x, y, renewal:str = "acc"):
+    def get_score(self, x, y, renewal: str = "acc"):
         self.model.compile(loss=self.loss, optimizer="sgd", metrics=["accuracy"])
         score = self.model.evaluate(x, y, verbose=0)
         # print(score)
@@ -67,56 +77,97 @@ class Particle:
             if score[0] < self.best_score:
                 self.best_score = score[0]
                 self.best_weights = self.model.get_weights()
-            
+        gc.collect()
         return score
+
     def _update_velocity(self, local_rate, global_rate, w, g_best):
-        encode_w, w_sh, w_len = self._encode(weights = self.model.get_weights())
-        encode_v, _, _ = self._encode(weights = self.velocities)
-        encode_p, _, _ = self._encode(weights = self.best_weights)
-        encode_g, _, _ = self._encode(weights = g_best)
+        encode_w, w_sh, w_len = self._encode(weights=self.model.get_weights())
+        encode_v, v_sh, v_len = self._encode(weights=self.velocities)
+        encode_p, p_sh, p_len = self._encode(weights=self.best_weights)
+        encode_g, g_sh, g_len = self._encode(weights=g_best)
         r0 = np.random.rand()
         r1 = np.random.rand()
-        new_v = w * encode_v + local_rate * r0 * (encode_p - encode_w) + global_rate * r1 * (encode_g - encode_w)
+        if self.negative:
+            new_v = (
+                w * encode_v
+                + -1 * local_rate * r0 * (encode_p - encode_w)
+                + -1 * global_rate * r1 * (encode_g - encode_w)
+            )
+        else:
+            new_v = (
+                w * encode_v
+                + local_rate * r0 * (encode_p - encode_w)
+                + global_rate * r1 * (encode_g - encode_w)
+            )
         self.velocities = self._decode(new_v, w_sh, w_len)
-    
+        del encode_w, w_sh, w_len
+        del encode_v, v_sh, v_len
+        del encode_p, p_sh, p_len
+        del encode_g, g_sh, g_len
+        del r0, r1
+        gc.collect()
+
     def _update_velocity_w(self, local_rate, global_rate, w, w_p, w_g, g_best):
-        encode_w, w_sh, w_len = self._encode(weights = self.model.get_weights())
-        encode_v, _, _ = self._encode(weights = self.velocities)
-        encode_p, _, _ = self._encode(weights = self.best_weights)
-        encode_g, _, _ = self._encode(weights = g_best)
+        encode_w, w_sh, w_len = self._encode(weights=self.model.get_weights())
+        encode_v, v_sh, v_len = self._encode(weights=self.velocities)
+        encode_p, p_sh, p_len = self._encode(weights=self.best_weights)
+        encode_g, g_sh, g_len = self._encode(weights=g_best)
         r0 = np.random.rand()
         r1 = np.random.rand()
-        new_v = w * encode_v + local_rate * r0 * (w_p * encode_p - encode_w) + global_rate * r1 * (w_g * encode_g - encode_w)
+        if self.negative:
+            new_v = (
+                w * encode_v
+                + -1 * local_rate * r0 * (w_p * encode_p - encode_w)
+                + -1 * global_rate * r1 * (w_g * encode_g - encode_w)
+            )
+        else:
+            new_v = (
+                w * encode_v
+                + local_rate * r0 * (w_p * encode_p - encode_w)
+                + global_rate * r1 * (w_g * encode_g - encode_w)
+            )
         self.velocities = self._decode(new_v, w_sh, w_len)
-    
+        del encode_w, w_sh, w_len
+        del encode_v, v_sh, v_len
+        del encode_p, p_sh, p_len
+        del encode_g, g_sh, g_len
+        del r0, r1
+        gc.collect()
+
     def _update_weights(self):
-        encode_w, w_sh, w_len = self._encode(weights = self.model.get_weights())
-        encode_v, _, _ = self._encode(weights = self.velocities)
-        if self.random:
-            encode_v = -0.5 * encode_v
+        encode_w, w_sh, w_len = self._encode(weights=self.model.get_weights())
+        encode_v, v_sh, v_len = self._encode(weights=self.velocities)
         new_w = encode_w + encode_v
         self.model.set_weights(self._decode(new_w, w_sh, w_len))
+        del encode_w, w_sh, w_len
+        del encode_v, v_sh, v_len
+        gc.collect()
 
     def f(self, x, y, weights):
         self.model.set_weights(weights)
-        score = self.model.evaluate(x, y, verbose = 0)[1]
+        score = self.model.evaluate(x, y, verbose=0)[1]
+        gc.collect()
         if score > 0:
             return 1 / (1 + score)
         else:
             return 1 + np.abs(score)
 
-    def step(self, x, y, local_rate, global_rate, w, g_best, renewal:str = "acc"):
+    def step(self, x, y, local_rate, global_rate, w, g_best, renewal: str = "acc"):
         self._update_velocity(local_rate, global_rate, w, g_best)
         self._update_weights()
+        gc.collect()
         return self.get_score(x, y, renewal)
-    
-    def step_w(self, x, y, local_rate, global_rate, w, g_best, w_p, w_g, renewal:str = "acc"):     
+
+    def step_w(
+        self, x, y, local_rate, global_rate, w, g_best, w_p, w_g, renewal: str = "acc"
+    ):
         self._update_velocity_w(local_rate, global_rate, w, w_p, w_g, g_best)
         self._update_weights()
+        gc.collect()
         return self.get_score(x, y, renewal)
-    
+
     def get_best_score(self):
         return self.best_score
-    
+
     def get_best_weights(self):
         return self.best_weights
