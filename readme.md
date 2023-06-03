@@ -104,7 +104,7 @@ pso 알고리즘을 이용하여 오차역전파 함수를 최적화 하는 방�
     )
 ```
 위의 파라미터 기준 40 세대 이후부터 정확도가 100%가 나오는 것을 확인하였습니다
-![xor](./xor_sigmoid_2_acc_40.png)
+![xor](./history_plt/xor_sigmoid_2_acc_40.png)
 
 2. iris 문제
 ``` python
@@ -134,7 +134,7 @@ best_score = pso_iris.fit(
     )
 ```
 위의 파라미터 기준 2 세대에 94%의 정확도를, 7 세대에 96%, 106 세대에 99.16%의 정확도를 보였습니다
-![iris](./iris_relu_acc_200.png)
+![iris](./history_plt/iris_relu_acc_200.png)
 
 3. mnist 문제
 ``` python
@@ -148,7 +148,7 @@ pso_mnist = Optimizer(
     c1=0.8, 
     w_min=0.7,
     w_max=1.0,
-    negative_swarm=0.2
+    negative_swarm=0.25
     )
 
 best_score = pso_mnist.fit(
@@ -163,6 +163,8 @@ best_score = pso_mnist.fit(
     check_point=25
     )
 ```
+위의 파라미터 기준 현재 정확도 38%를 보이고 있습니다
+![mnist](./history_plt/mnist_cnn_acc.png)
 
 ### Trouble Shooting
 

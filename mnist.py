@@ -57,8 +57,6 @@ def make_model():
     model.add(Dense(128, activation='relu'))
     model.add(Dense(10, activation='softmax'))
 
-    # model.summary()
-
     return model
 
 # %%
@@ -83,7 +81,7 @@ pso_mnist = Optimizer(
     c0=0.35, 
     c1=0.8, 
     w_min=0.7,
-    w_max=1.1,
+    w_max=1.0,
     negative_swarm=0.25
     )
 
