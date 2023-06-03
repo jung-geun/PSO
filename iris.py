@@ -39,9 +39,27 @@ x_train, x_test, y_train, y_test = load_data()
 
 loss = 'categorical_crossentropy'
 
-pso_iris = Optimizer(model, loss=loss, n_particles=50, c0=0.4, c1=0.8, w_min=0.7, w_max=1.0, random=0.2)
+pso_iris = Optimizer(
+    model,
+    loss=loss, 
+    n_particles=75, 
+    c0=0.4, 
+    c1=0.8, 
+    w_min=0.7,
+    w_max=1.0, 
+    negative_swarm=0.25
+    )
 
-weight, score = pso_iris.fit(
-    x_train, y_train, epochs=500, save=True, save_path="./result/iris", renewal="acc", empirical_balance=False, Dispersion=False, check_point=25)
+best_score = pso_iris.fit(
+    x_train, 
+    y_train, 
+    epochs=200, 
+    save=True, 
+    save_path="./result/iris", 
+    renewal="acc", 
+    empirical_balance=False, 
+    Dispersion=False, 
+    check_point=25
+    )
 
 gc.collect()

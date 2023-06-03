@@ -61,9 +61,7 @@ def make_model():
 
     return model
 
-
 # %%
-
 model = make_model()
 x_test, y_test = get_data_test()
 # loss = 'binary_crossentropy'
@@ -73,16 +71,32 @@ x_test, y_test = get_data_test()
 # loss = 'poisson'
 # loss = 'cosine_similarity'
 # loss = 'log_cosh'
-loss = 'huber_loss' 
+# loss = 'huber_loss' 
 # loss = 'mean_absolute_error'
 # loss = 'mean_absolute_percentage_error'
-# loss = 'mean_squared_error'
+loss = 'mean_squared_error'
 
+pso_mnist = Optimizer(
+    model,
+    loss=loss, 
+    n_particles=50,
+    c0=0.35, 
+    c1=0.8, 
+    w_min=0.7,
+    w_max=1.1,
+    negative_swarm=0.25
+    )
 
-pso_mnist = Optimizer(model, loss=loss, n_particles=50, c0=0.4, c1=0.8, w_min=0.4, w_max=0.95, negative_swarm=0.3)
-weight, score = pso_mnist.fit(
-    x_test, y_test, epochs=500, save=True, save_path="./result/mnist", renewal="acc", empirical_balance=True, Dispersion=False, check_point=10)
+best_score = pso_mnist.fit(
+    x_test,
+    y_test,
+    epochs=200,
+    save=True,
+    save_path="./result/mnist", 
+    renewal="acc", 
+    empirical_balance=False,
+    Dispersion=False, 
+    check_point=25
+    )
 # pso_mnist.model_save("./result/mnist")
 # pso_mnist.save_info("./result/mnist")
-
-gc.collect()

@@ -74,6 +74,96 @@ pso 알고리즘을 이용하여 오차역전파 함수를 최적화 하는 방�
 위의 아이디어는 원래의 목표와 다른 방향으로 가고 있습니다. 따라서 다른 방법을 모색해야할 것 같습니다
 <br>
 
+## 3. PSO 알고리즘을 이용하여 풀이한 문제들의 정확도
+
+### 1. xor 문제
+``` python
+ loss = 'mean_squared_error'
+
+ pso_xor = Optimizer(
+    model,
+    loss=loss, 
+    n_particles=75, 
+    c0=0.35, 
+    c1=0.8, 
+    w_min=0.6, 
+    w_max=1.2, 
+    negative_swarm=0.25
+    )
+
+ best_score = pso_xor.fit(
+    x_test, 
+    y_test, 
+    epochs=200, 
+    save=True, 
+    save_path="./result/xor", 
+    renewal="acc", 
+    empirical_balance=False, 
+    Dispersion=False, 
+    check_point=25
+    )
+```
+위의 파라미터 기준 40 세대 이후부터 정확도가 100%가 나오는 것을 확인하였습니다
+![xor](./xor_sigmoid_2_acc_40.png)
+
+2. iris 문제
+``` python
+loss = 'categorical_crossentropy'
+
+pso_iris = Optimizer(
+    model,
+    loss=loss, 
+    n_particles=50, 
+    c0=0.4, 
+    c1=0.8, 
+    w_min=0.7,
+    w_max=1.0, 
+    negative_swarm=0.2
+    )
+
+best_score = pso_iris.fit(
+    x_train, 
+    y_train, 
+    epochs=200, 
+    save=True, 
+    save_path="./result/iris", 
+    renewal="acc", 
+    empirical_balance=False, 
+    Dispersion=False, 
+    check_point=25
+    )
+```
+위의 파라미터 기준 2 세대에 94%의 정확도를, 7 세대에 96%, 106 세대에 99.16%의 정확도를 보였습니다
+![iris](./iris_relu_acc_200.png)
+
+3. mnist 문제
+``` python
+loss = 'mean_squared_error'
+
+pso_mnist = Optimizer(
+    model,
+    loss=loss, 
+    n_particles=50,
+    c0=0.35, 
+    c1=0.8, 
+    w_min=0.7,
+    w_max=1.0,
+    negative_swarm=0.2
+    )
+
+best_score = pso_mnist.fit(
+    x_test,
+    y_test,
+    epochs=200,
+    save=True,
+    save_path="./result/mnist", 
+    renewal="acc", 
+    empirical_balance=False,
+    Dispersion=False, 
+    check_point=25
+    )
+```
+
 ### Trouble Shooting
 
 > 1. 딥러닝 알고리즘 특성상 weights는 처음 컴파일시 무작위하게 생성된다. weights의 각 지점의 중요도는 매번 무작위로 정해지기에 전역 최적값으로 찾아갈 때 값이 높은 loss를 향해서 상승하는 현상이 나타난다.<br>

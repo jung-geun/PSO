@@ -16,6 +16,13 @@ from copy import copy, deepcopy
 
 from pso.particle import Particle
 
+gpus = tf.config.experimental.list_physical_devices("GPU")
+if gpus:
+    try:
+        # tf.config.experimental.set_visible_devices(gpus[0], "GPU")
+        tf.config.experimental.set_memory_growth(gpus[0], True)
+    except RuntimeError as e:
+        print(e)
 
 class Optimizer:
     """
@@ -90,7 +97,6 @@ class Optimizer:
             w_gpu = np.append(w_gpu, w_)
 
         del weights
-        gc.collect()
         return w_gpu, shape, lenght
 
     """
@@ -116,7 +122,6 @@ class Optimizer:
         del weight
         del shape
         del lenght
-        gc.collect()
 
         return weights
 
@@ -124,8 +129,6 @@ class Optimizer:
         self.model.set_weights(weights)
         self.model.compile(loss=self.loss, optimizer="sgd", metrics=["accuracy"])
         score = self.model.evaluate(x, y, verbose=0)[1]
-
-        gc.collect()
         if score > 0:
             return 1 / (1 + score)
         else:
@@ -163,6 +166,7 @@ class Optimizer:
             self.g_best_score = 0
         elif renewal == "loss":
             self.g_best_score = np.inf
+
         try:
             if save:
                 if save_path is None:
@@ -175,9 +179,9 @@ class Optimizer:
         except ValueError as e:
             print(e)
             sys.exit(1)
-        # for i, p in enumerate(self.particles):
+            
         for i in tqdm(range(self.n_particles), desc="Initializing Particles"):
-            p = copy(self.particles[i])
+            p = self.particles[i]
             local_score = p.get_score(x, y, renewal=renewal)
 
             if renewal == "acc":
@@ -190,8 +194,24 @@ class Optimizer:
                     self.g_best_score = local_score[0]
                     self.g_best = p.get_best_weights()
                     self.g_best_ = p.get_best_weights()
+
+            if local_score[0] == None:
+                local_score[0] = np.inf
+
+            if local_score[1] == None:
+                local_score[1] = 0
+                
+            if save:
+                with open(
+                    f"./{save_path}/{self.day}_{self.n_particles}_{epochs}_{self.c0}_{self.c1}_{self.w_min}_{renewal}.csv",
+                    "a",
+                ) as f:
+                    f.write(f"{local_score[0]}, {local_score[1]}")
+                    if i != self.n_particles - 1:
+                        f.write(", ")
+                    else:
+                        f.write("\n")
             del local_score
-            del p
             gc.collect()
 
         print(f"initial g_best_score : {self.g_best_score}")
@@ -266,6 +286,10 @@ class Optimizer:
                             self.g_best_score = score[0]
                             self.g_best = self.particles[i].get_best_weights()
 
+                    if score[0] == None:
+                        score[0] = np.inf
+                    if score[1] == None:
+                        score[1] = 0
                     loss = loss + score[0]
                     acc = acc + score[1]
                     if score[0] < min_loss:
@@ -295,7 +319,6 @@ class Optimizer:
                     f"loss min : {round(min_loss, 4)} | acc max : {round(max_score, 4)} | Best {renewal} : {self.g_best_score}"
                 )
 
-                gc.collect()
 
                 if check_point is not None:
                     if _ % check_point == 0:
@@ -303,6 +326,8 @@ class Optimizer:
                         self._check_point_save(f"./{save_path}/{self.day}/ckpt-{_}")
                 self.avg_score = acc / self.n_particles
 
+                gc.collect()
+                
         except KeyboardInterrupt:
             print("Ctrl + C : Stop Training")
         except MemoryError:
@@ -315,7 +340,7 @@ class Optimizer:
             self.save_info(save_path)
             print("save info")
 
-            return self.g_best, self.g_best_score
+            return self.g_best_score
 
     def get_best_model(self):
         model = keras.models.model_from_json(self.model.to_json())
