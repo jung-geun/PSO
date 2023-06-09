@@ -21,6 +21,15 @@ class Particle:
         del i_w_, s_, l_
         del init_weights
         gc.collect()
+        
+    def __del__(self):
+        del self.model
+        del self.loss
+        del self.velocities
+        del self.negative
+        del self.best_score
+        del self.best_weights
+        gc.collect()
 
     """
     Returns:

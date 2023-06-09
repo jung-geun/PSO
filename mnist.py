@@ -62,39 +62,35 @@ def make_model():
 # %%
 model = make_model()
 x_test, y_test = get_data_test()
-# loss = 'binary_crossentropy'
-# loss = 'categorical_crossentropy'
-# loss = 'sparse_categorical_crossentropy'
-# loss = 'kullback_leibler_divergence'
-# loss = 'poisson'
-# loss = 'cosine_similarity'
-# loss = 'log_cosh'
-# loss = 'huber_loss' 
-# loss = 'mean_absolute_error'
-# loss = 'mean_absolute_percentage_error'
-loss = 'mean_squared_error'
 
-pso_mnist = Optimizer(
-    model,
-    loss=loss, 
-    n_particles=50,
-    c0=0.35, 
-    c1=0.8, 
-    w_min=0.7,
-    w_max=1.0,
-    negative_swarm=0.25
-    )
+loss = ['mse', 'categorical_crossentropy', 'binary_crossentropy', 'kullback_leibler_divergence', 'poisson', 'cosine_similarity', 'log_cosh', 'huber_loss', 'mean_absolute_error', 'mean_absolute_percentage_error']
 
-best_score = pso_mnist.fit(
-    x_test,
-    y_test,
-    epochs=200,
-    save=True,
-    save_path="./result/mnist", 
-    renewal="acc", 
-    empirical_balance=False,
-    Dispersion=False, 
-    check_point=25
-    )
+if __name__ == "__main__":
+    try:
+        pso_mnist = Optimizer(
+            model,
+            loss=loss[0], 
+            n_particles=200,
+            c0=0.35, 
+            c1=0.8, 
+            w_min=0.7,
+            w_max=1.15,
+            negative_swarm=0.25
+            )
+
+        best_score = pso_mnist.fit(
+            x_test,
+            y_test,
+            epochs=200,
+            save=True,
+            save_path="./result/mnist", 
+            renewal="acc", 
+            empirical_balance=False,
+            Dispersion=False, 
+            check_point=25
+            )
+    except Exception as e:
+        print(e)
+
 # pso_mnist.model_save("./result/mnist")
 # pso_mnist.save_info("./result/mnist")

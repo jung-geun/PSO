@@ -56,7 +56,7 @@ class Optimizer:
         self.c1 = c1  # global rate - 전역 최적값 관성 수치
         self.w_min = w_min  # 최소 관성 수치
         self.w_max = w_max  # 최대 관성 수치
-
+        self.negative_swarm = negative_swarm  # 최적해와 반대로 이동할 파티클 비율 - 0 ~ 1 사이의 값
         self.g_best_score = 0  # 최고 점수 - 시작은 0으로 초기화
         self.g_best = None  # 최고 점수를 받은 가중치
         self.g_best_ = None  # 최고 점수를 받은 가중치 - 값의 분산을 위한 변수
@@ -73,6 +73,22 @@ class Optimizer:
                 self.particles[i] = Particle(m, loss, negative=True)
             else:
                 self.particles[i] = Particle(m, loss, negative=False)
+        gc.collect()
+        
+    def __del__(self):
+        del self.model
+        del self.loss
+        del self.n_particles
+        del self.particles
+        del self.c0
+        del self.c1
+        del self.w_min
+        del self.w_max
+        del self.negative_swarm
+        del self.g_best_score
+        del self.g_best
+        del self.g_best_
+        del self.avg_score
         gc.collect()
 
     """
@@ -160,6 +176,8 @@ class Optimizer:
         check_point: int = None,
     ):
         self.save_path = save_path
+        self.empirical_balance = empirical_balance
+        self.Dispersion = Dispersion
 
         self.renewal = renewal
         if renewal == "acc":
@@ -180,7 +198,7 @@ class Optimizer:
             print(e)
             sys.exit(1)
             
-        for i in tqdm(range(self.n_particles), desc="Initializing Particles"):
+        for i in tqdm(range(self.n_particles), desc="Initializing velocity"):
             p = self.particles[i]
             local_score = p.get_score(x, y, renewal=renewal)
 
@@ -364,6 +382,9 @@ class Optimizer:
             "w_min": self.w_min,
             "w_max": self.w_max,
             "loss_method": self.loss,
+            "empirical_balance": self.empirical_balance,
+            "Dispersion": self.Dispersion,
+            "negative_swarm": self.negative_swarm,
             "renewal": self.renewal,
         }
 
