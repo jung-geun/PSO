@@ -70,7 +70,7 @@ if __name__ == "__main__":
         pso_mnist = Optimizer(
             model,
             loss=loss[0], 
-            n_particles=200,
+            n_particles=50,
             c0=0.35, 
             c1=0.8, 
             w_min=0.7,
