@@ -7,7 +7,16 @@ import gc
 
 
 class Particle:
-    def __init__(self, model: keras.models, loss, negative: bool = False):
+    """
+    Particle Swarm Optimization의 Particle을 구현한 클래스
+    """
+    def __init__(self, model: keras.models, loss, negative: bool = False|True):
+        """
+        Args:
+            model (keras.models): 학습 및 검증을 위한 모델
+            loss (str|): 손실 함수
+            negative (bool, optional): 음의 가중치 사용 여부 - 전역 탐색 용도(조기 수렴 방지). Defaults to False.
+        """
         self.model = model
         self.loss = loss
         init_weights = self.model.get_weights()
@@ -31,14 +40,17 @@ class Particle:
         del self.best_weights
         gc.collect()
 
-    """
-    Returns:
-        (cupy array) : 가중치 - 1차원으로 풀어서 반환
-        (list) : 가중치의 원본 shape
-        (list) : 가중치의 원본 shape의 길이
-    """
-
     def _encode(self, weights: list):
+        """
+        가중치를 1차원으로 풀어서 반환
+        
+        Args:
+            weights (list) : keras model의 가중치
+        Returns:
+            (numpy array) : 가중치 - 1차원으로 풀어서 반환
+            (list) : 가중치의 원본 shape
+            (list) : 가중치의 원본 shape의 길이
+        """
         # w_gpu = cp.array([])
         w_gpu = np.array([])
         lenght = []
@@ -52,12 +64,19 @@ class Particle:
 
         return w_gpu, shape, lenght
 
-    """
-    Returns:
-        (list) : 가중치 원본 shape으로 복원
-    """
 
     def _decode(self, weight: list, shape, lenght):
+        """
+        _encode 로 인코딩된 가중치를 원본 shape으로 복원
+        파라미터는 encode의 리턴값을 그대로 사용을 권장
+        
+        Args:
+            weight (numpy|cupy array): 가중치 - 1차원으로 풀어서 반환
+            shape (list): 가중치의 원본 shape
+            lenght (list): 가중치의 원본 shape의 길이
+        Returns:
+            (list) : 가중치 원본 shape으로 복원
+        """
         weights = []
         start = 0
         for i in range(len(shape)):
@@ -75,6 +94,17 @@ class Particle:
         return weights
 
     def get_score(self, x, y, renewal: str = "acc"):
+        """
+        모델의 성능을 평가하여 점수를 반환
+
+        Args:
+            x (list): 입력 데이터
+            y (list): 출력 데이터
+            renewal (str, optional): 점수 갱신 방식. Defaults to "acc" | "acc" or "loss".
+
+        Returns:
+            _type_: _description_
+        """
         self.model.compile(loss=self.loss, optimizer="sgd", metrics=["accuracy"])
         score = self.model.evaluate(x, y, verbose=0)
         # print(score)
@@ -90,6 +120,15 @@ class Particle:
         return score
 
     def _update_velocity(self, local_rate, global_rate, w, g_best):
+        """
+        현재 속도 업데이트
+
+        Args:
+            local_rate (flost): 지역 최적해의 영향력
+            global_rate (float): 전역 최적해의 영향력
+            w (float): 현재 속도의 영향력 - 관성 | 0.9 ~ 0.4 이 적당
+            g_best (list): 전역 최적해
+        """
         encode_w, w_sh, w_len = self._encode(weights=self.model.get_weights())
         encode_v, v_sh, v_len = self._encode(weights=self.velocities)
         encode_p, p_sh, p_len = self._encode(weights=self.best_weights)
@@ -116,6 +155,18 @@ class Particle:
         del r0, r1
 
     def _update_velocity_w(self, local_rate, global_rate, w, w_p, w_g, g_best):
+        """
+        현재 속도 업데이트
+        기본 업데이트의 변형으로 지역 최적해와 전역 최적해를 분산시켜 조기 수렴을 방지
+
+        Args:
+            local_rate (float): 지역 최적해의 영향력
+            global_rate (float): 전역 최적해의 영향력
+            w (float): 현재 속도의 영향력 - 관성 | 0.9 ~ 0.4 이 적당
+            w_p (float): 지역 최적해의 분산 정도
+            w_g (float): 전역 최적해의 분산 정도
+            g_best (list):  전역 최적해
+        """
         encode_w, w_sh, w_len = self._encode(weights=self.model.get_weights())
         encode_v, v_sh, v_len = self._encode(weights=self.velocities)
         encode_p, p_sh, p_len = self._encode(weights=self.best_weights)
@@ -142,6 +193,9 @@ class Particle:
         del r0, r1
 
     def _update_weights(self):
+        """
+        가중치 업데이트
+        """
         encode_w, w_sh, w_len = self._encode(weights=self.model.get_weights())
         encode_v, v_sh, v_len = self._encode(weights=self.velocities)
         new_w = encode_w + encode_v
@@ -150,6 +204,17 @@ class Particle:
         del encode_v, v_sh, v_len
 
     def f(self, x, y, weights):
+        """
+        EBPSO의 목적함수(예상)
+
+        Args:
+            x (list): 입력 데이터
+            y (list): 출력 데이터
+            weights (list): 가중치
+
+        Returns:
+            flost: 목적함수 값
+        """
         self.model.set_weights(weights)
         score = self.model.evaluate(x, y, verbose=0)[1]
         if score > 0:
@@ -158,6 +223,21 @@ class Particle:
             return 1 + np.abs(score)
 
     def step(self, x, y, local_rate, global_rate, w, g_best, renewal: str = "acc"):
+        """
+        파티클의 한 스텝을 진행합니다.
+
+        Args:
+            x (list): 입력 데이터
+            y (list): 출력 데이터
+            local_rate (float): 지역최적해의 영향력
+            global_rate (float): 전역최적해의 영향력
+            w (float): 관성
+            g_best (list): 전역최적해
+            renewal (str, optional): 최고점수 갱신 방식. Defaults to "acc" | "acc" or "loss"
+
+        Returns:
+            list: 현재 파티클의 점수
+        """
         self._update_velocity(local_rate, global_rate, w, g_best)
         self._update_weights()
         return self.get_score(x, y, renewal)
@@ -165,12 +245,42 @@ class Particle:
     def step_w(
         self, x, y, local_rate, global_rate, w, g_best, w_p, w_g, renewal: str = "acc"
     ):
+        """
+        파티클의 한 스텝을 진행합니다.
+        기본 스텝의 변형으로, 지역최적해와 전역최적해의 분산 정도를 조정할 수 있습니다
+
+        Args:
+            x (list): 입력 데이터
+            y (list): 출력 데이터
+            local_rate (float): 지역 최적해의 영향력
+            global_rate (float): 전역 최적해의 영향력
+            w (float): 관성
+            g_best (list): 전역 최적해
+            w_p (float): 지역 최적해의 분산 정도
+            w_g (float): 전역 최적해의 분산 정도
+            renewal (str, optional): 최고점수 갱신 방식. Defaults to "acc" | "acc" or "loss"
+
+        Returns:
+            float: 현재 파티클의 점수
+        """
         self._update_velocity_w(local_rate, global_rate, w, w_p, w_g, g_best)
         self._update_weights()
         return self.get_score(x, y, renewal)
 
     def get_best_score(self):
+        """
+        파티클의 최고점수를 반환합니다.
+
+        Returns:
+            float: 최고점수
+        """
         return self.best_score
 
     def get_best_weights(self):
+        """
+        파티클의 최고점수를 받은 가중치를 반환합니다
+
+        Returns:
+            list: 가중치 리스트
+        """
         return self.best_weights

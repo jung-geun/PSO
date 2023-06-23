@@ -14,7 +14,6 @@ from keras import backend as K
 
 # from pso_tf import PSO
 from pso import Optimizer
-# from optimizer import Optimizer
 
 import numpy as np
 
@@ -26,7 +25,6 @@ import gc
 # print(tf.__version__)
 # print(tf.config.list_physical_devices())
 # print(f"Num GPUs Available: {len(tf.config.list_physical_devices('GPU'))}")
-
 
 def get_data():
     (x_train, y_train), (x_test, y_test) = mnist.load_data()

@@ -5,6 +5,9 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
 tf.random.set_seed(777)  # for reproducibility
 
+import numpy as np
+np.random.seed(777)
+
 from tensorflow import keras
 from keras.datasets import mnist
 from keras.models import Sequential
@@ -16,7 +19,6 @@ from keras import backend as K
 from pso import Optimizer
 # from optimizer import Optimizer
 
-import numpy as np
 
 from datetime import date
 from tqdm import tqdm
@@ -58,6 +60,8 @@ def make_model():
     model.add(Dense(10, activation='softmax'))
 
     return model
+
+# %%
 
 # %%
 model = make_model()

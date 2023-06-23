@@ -25,17 +25,6 @@ if gpus:
         print(e)
 
 class Optimizer:
-    """
-    Args:
-        model (keras.models): 모델 구조
-        loss (str): 손실함수
-        n_particles (int): 파티클 개수
-        c0 (float): local rate - 지역 최적값 관성 수치
-        c1 (float): global rate - 전역 최적값 관성 수치
-        w_min (float): 최소 관성 수치
-        w_max (float): 최대 관성 수치
-        nefative_swarm (float): 최적해와 반대로 이동할 파티클 비율 - 0 ~ 1 사이의 값
-    """
 
     def __init__(
         self,
@@ -48,6 +37,17 @@ class Optimizer:
         w_max=1.5,
         negative_swarm: float = 0,
     ):
+        """
+        Args:
+            model (keras.models): 모델 구조
+            loss (str): 손실함수
+            n_particles (int): 파티클 개수
+            c0 (float): local rate - 지역 최적값 관성 수치
+            c1 (float): global rate - 전역 최적값 관성 수치
+            w_min (float): 최소 관성 수치
+            w_max (float): 최대 관성 수치
+            nefative_swarm (float): 최적해와 반대로 이동할 파티클 비율 - 0 ~ 1 사이의 값
+        """
         self.model = model  # 모델 구조
         self.loss = loss  # 손실함수
         self.n_particles = n_particles  # 파티클 개수
@@ -91,16 +91,18 @@ class Optimizer:
         del self.avg_score
         gc.collect()
 
-    """
-    Args:
-        weights (list) : keras model의 가중치
-    Returns:
-        (numpy array) : 가중치 - 1차원으로 풀어서 반환
-        (list) : 가중치의 원본 shape
-        (list) : 가중치의 원본 shape의 길이
-    """
 
     def _encode(self, weights):
+        """
+        가중치를 1차원으로 풀어서 반환
+        
+        Args:
+            weights (list) : keras model의 가중치
+        Returns:
+            (numpy array) : 가중치 - 1차원으로 풀어서 반환
+            (list) : 가중치의 원본 shape
+            (list) : 가중치의 원본 shape의 길이
+        """
         # w_gpu = cp.array([])
         w_gpu = np.array([])
         lenght = []
@@ -115,16 +117,19 @@ class Optimizer:
         del weights
         return w_gpu, shape, lenght
 
-    """
-    Args:
-        weight (numpy array) : 가중치 - 1차원으로 풀어진 상태
-        shape (list) : 가중치의 원본 shape
-        lenght (list) : 가중치의 원본 shape의 길이
-    Returns:
-        (list) : 가중치 원본 shape으로 복원
-    """
 
     def _decode(self, weight, shape, lenght):
+        """
+        _encode 로 인코딩된 가중치를 원본 shape으로 복원
+        파라미터는 encode의 리턴값을 그대로 사용을 권장
+        
+        Args:
+            weight (numpy|cupy array): 가중치 - 1차원으로 풀어서 반환
+            shape (list): 가중치의 원본 shape
+            lenght (list): 가중치의 원본 shape의 길이
+        Returns:
+            (list) : 가중치 원본 shape으로 복원
+        """
         weights = []
         start = 0
         for i in range(len(shape)):
@@ -142,6 +147,17 @@ class Optimizer:
         return weights
 
     def f(self, x, y, weights):
+        """
+        EBPSO의 목적함수 (예상)
+
+        Args:
+            x (list): 입력 데이터
+            y (list): 출력 데이터
+            weights (list): 가중치
+
+        Returns:
+            (float): 목적 함수 값
+        """
         self.model.set_weights(weights)
         self.model.compile(loss=self.loss, optimizer="sgd", metrics=["accuracy"])
         score = self.model.evaluate(x, y, verbose=0)[1]
@@ -150,18 +166,6 @@ class Optimizer:
         else:
             return 1 + np.abs(score)
 
-    """
-    Args:
-        x_test : numpy.ndarray,
-        y_test : numpy.ndarray,
-        epochs : int,
-        save : bool - True : save, False : not save
-        save_path : str ex) "./result",
-        renewal : str ex) "acc" or "loss",
-        empirical_balance : bool - True : 
-        Dispersion : bool - True : g_best 의 값을 분산시켜 전역해를 찾음, False : g_best 의 값만 사용
-        check_point : int - 저장할 위치 - None : 저장 안함
-    """
 
     def fit(
         self,
@@ -175,6 +179,18 @@ class Optimizer:
         Dispersion: bool = False,
         check_point: int = None,
     ):
+        """
+        Args:
+            x_test : numpy.ndarray,
+            y_test : numpy.ndarray,
+            epochs : int,
+            save : bool - True : save, False : not save
+            save_path : str ex) "./result",
+            renewal : str ex) "acc" or "loss",
+            empirical_balance : bool - True : 
+            Dispersion : bool - True : g_best 의 값을 분산시켜 전역해를 찾음, False : g_best 의 값만 사용
+            check_point : int - 저장할 위치 - None : 저장 안함
+        """
         self.save_path = save_path
         self.empirical_balance = empirical_balance
         self.Dispersion = Dispersion
@@ -235,8 +251,10 @@ class Optimizer:
         print(f"initial g_best_score : {self.g_best_score}")
 
         try:
-            for _ in range(epochs):
-                print(f"epoch {_ + 1}/{epochs}")
+            epochs_pbar = tqdm(range(epochs), desc=f"best {self.renewal} : {self.g_best_score:.4f}", ascii=True, leave=True)
+            for _ in epochs_pbar:
+                epochs_pbar.set_description(f"best {self.renewal} : {self.g_best_score:.4f}")
+
                 acc = 0
                 loss = 0
                 min_score = np.inf
@@ -250,8 +268,9 @@ class Optimizer:
                 g_ = (1 - decrement) * g_ + decrement * ts
                 self.g_best_ = self._decode(g_, g_sh, g_len)
 
-                # for i in tqdm(range(len(self.particles)), desc=f"epoch {_ + 1}/{epochs}", ascii=True):
-                for i in range(len(self.particles)):
+                part_pbar = tqdm(range(len(self.particles)), desc=f"acc : {max_score:.4f} loss : {min_loss:.4f}", ascii=True, leave=False)
+                for i in part_pbar:
+                    part_pbar.set_description(f"acc : {max_score:.4f} loss : {min_loss:.4f}")
                     w = self.w_max - (self.w_max - self.w_min) * _ / epochs
 
                     if Dispersion:
@@ -333,10 +352,9 @@ class Optimizer:
 
                 # print(f"loss min : {min_loss} | loss max : {max_loss} | acc min : {min_score} | acc max : {max_score}")
                 # print(f"loss avg : {loss/self.n_particles} | acc avg : {acc/self.n_particles} | Best {renewal} : {self.g_best_score}")
-                print(
-                    f"loss min : {round(min_loss, 4)} | acc max : {round(max_score, 4)} | Best {renewal} : {self.g_best_score}"
-                )
-
+                # print(
+                    # f"loss min : {round(min_loss, 4)} | acc max : {round(max_score, 4)} | Best {renewal} : {self.g_best_score}"
+                # )
 
                 if check_point is not None:
                     if _ % check_point == 0:
@@ -361,18 +379,42 @@ class Optimizer:
             return self.g_best_score
 
     def get_best_model(self):
+        """
+        최고 점수를 받은 모델을 반환
+
+        Returns:
+            (keras.models): 모델
+        """ 
         model = keras.models.model_from_json(self.model.to_json())
         model.set_weights(self.g_best)
         model.compile(loss=self.loss, optimizer="sgd", metrics=["accuracy"])
         return model
 
     def get_best_score(self):
+        """
+        최고 점수를 반환
+
+        Returns:
+            (float): 점수
+        """
         return self.g_best_score
 
     def get_best_weights(self):
+        """
+        최고 점수를 받은 가중치를 반환
+
+        Returns:
+            (float): 가중치
+        """
         return self.g_best
 
     def save_info(self, path: str = "./result"):
+        """
+        학습 정보를 저장
+
+        Args:
+            path (str, optional): 저장 위치. Defaults to "./result".
+        """
         json_save = {
             "name": f"{self.day}_{self.n_particles}_{self.c0}_{self.c1}_{self.w_min}.h5",
             "n_particles": self.n_particles,
@@ -395,10 +437,25 @@ class Optimizer:
             json.dump(json_save, f, indent=4)
 
     def _check_point_save(self, save_path: str = f"./result/check_point"):
+        """
+        중간 저장
+
+        Args:
+            save_path (str, optional): checkpoint 저장 위치 및 이름. Defaults to f"./result/check_point".
+        """
         model = self.get_best_model()
         model.save_weights(save_path)
 
     def model_save(self, save_path: str = "./result"):
+        """
+        최고 점수를 받은 모델 저장
+
+        Args:
+            save_path (str, optional): 모델의 저장 위치. Defaults to "./result".
+
+        Returns:
+            (keras.models): 모델
+        """
         model = self.get_best_model()
         model.save(
             f"./{save_path}/{self.day}/{self.n_particles}_{self.c0}_{self.c1}_{self.w_min}.h5"

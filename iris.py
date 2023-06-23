@@ -4,6 +4,9 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
 tf.random.set_seed(777)  # for reproducibility
 
+import numpy as np
+np.random.seed(777)
+
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 
@@ -37,11 +40,11 @@ def load_data():
 model = make_model()
 x_train, x_test, y_train, y_test = load_data()
 
-loss = 'categorical_crossentropy'
+loss = ['categorical_crossentropy', 'accuracy','mse']
 
 pso_iris = Optimizer(
     model,
-    loss=loss, 
+    loss=loss[0], 
     n_particles=75, 
     c0=0.4, 
     c1=0.8, 
