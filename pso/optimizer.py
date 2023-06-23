@@ -5,7 +5,6 @@ import tensorflow as tf
 from tensorflow import keras
 
 import numpy as np
-
 # import cupy as cp
 
 from tqdm import tqdm
@@ -57,7 +56,7 @@ class Optimizer:
         self.w_min = w_min  # 최소 관성 수치
         self.w_max = w_max  # 최대 관성 수치
         self.negative_swarm = negative_swarm  # 최적해와 반대로 이동할 파티클 비율 - 0 ~ 1 사이의 값
-        self.g_best_score = 0  # 최고 점수 - 시작은 0으로 초기화
+        self.g_best_score = [0 , np.inf]  # 최고 점수 - 시작은 0으로 초기화
         self.g_best = None  # 최고 점수를 받은 가중치
         self.g_best_ = None  # 최고 점수를 받은 가중치 - 값의 분산을 위한 변수
         self.avg_score = 0  # 평균 점수
@@ -196,10 +195,6 @@ class Optimizer:
         self.Dispersion = Dispersion
 
         self.renewal = renewal
-        if renewal == "acc":
-            self.g_best_score = 0
-        elif renewal == "loss":
-            self.g_best_score = np.inf
 
         try:
             if save:
@@ -219,13 +214,13 @@ class Optimizer:
             local_score = p.get_score(x, y, renewal=renewal)
 
             if renewal == "acc":
-                if local_score[1] > self.g_best_score:
-                    self.g_best_score = local_score[1]
+                if local_score[1] > self.g_best_score[0]:
+                    self.g_best_score[0] = local_score[1]
                     self.g_best = p.get_best_weights()
                     self.g_best_ = p.get_best_weights()
             elif renewal == "loss":
-                if local_score[0] < self.g_best_score:
-                    self.g_best_score = local_score[0]
+                if local_score[0] < self.g_best_score[1]:
+                    self.g_best_score[1] = local_score[0]
                     self.g_best = p.get_best_weights()
                     self.g_best_ = p.get_best_weights()
 
@@ -248,13 +243,11 @@ class Optimizer:
             del local_score
             gc.collect()
 
-        print(f"initial g_best_score : {self.g_best_score}")
+        print(f"initial g_best_score : {self.g_best_score[0] if self.renewal == 'acc' else self.g_best_score[1]}")
 
         try:
-            epochs_pbar = tqdm(range(epochs), desc=f"best {self.renewal} : {self.g_best_score:.4f}", ascii=True, leave=True)
+            epochs_pbar = tqdm(range(epochs), desc=f"best {self.g_best_score[0]:.4f}|{self.g_best_score[1]:.4f}", ascii=True, leave=True)
             for _ in epochs_pbar:
-                epochs_pbar.set_description(f"best {self.renewal} : {self.g_best_score:.4f}")
-
                 acc = 0
                 loss = 0
                 min_score = np.inf
@@ -315,13 +308,19 @@ class Optimizer:
                         )
 
                     if renewal == "acc":
-                        if score[1] >= self.g_best_score:
-                            self.g_best_score = score[1]
+                        if score[1] >= self.g_best_score[0]:
+                            self.g_best_score[0] = score[1]
+                            if score[0] <= self.g_best_score[1]:
+                                self.g_best_score[1] = score[0]
                             self.g_best = self.particles[i].get_best_weights()
+                            epochs_pbar.set_description(f"best {self.g_best_score[0]:.4f} | {self.g_best_score[1]:.4f}")
                     elif renewal == "loss":
-                        if score[0] <= self.g_best_score:
-                            self.g_best_score = score[0]
+                        if score[0] <= self.g_best_score[1]:
+                            self.g_best_score[1] = score[0]
+                            if score[1] >= self.g_best_score[0]:
+                                self.g_best_score[0] = score[1]
                             self.g_best = self.particles[i].get_best_weights()
+                            epochs_pbar.set_description(f"best {self.g_best_score[0]:.4f} | {self.g_best_score[1]:.4f}")
 
                     if score[0] == None:
                         score[0] = np.inf
@@ -349,12 +348,6 @@ class Optimizer:
                                 f.write(", ")
                             else:
                                 f.write("\n")
-
-                # print(f"loss min : {min_loss} | loss max : {max_loss} | acc min : {min_score} | acc max : {max_score}")
-                # print(f"loss avg : {loss/self.n_particles} | acc avg : {acc/self.n_particles} | Best {renewal} : {self.g_best_score}")
-                # print(
-                    # f"loss min : {round(min_loss, 4)} | acc max : {round(max_score, 4)} | Best {renewal} : {self.g_best_score}"
-                # )
 
                 if check_point is not None:
                     if _ % check_point == 0:

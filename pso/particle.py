@@ -5,7 +5,6 @@ from tensorflow import keras
 import numpy as np
 import gc
 
-
 class Particle:
     """
     Particle Swarm Optimization의 Particle을 구현한 클래스

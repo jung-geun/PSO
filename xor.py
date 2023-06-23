@@ -10,14 +10,10 @@ np.random.seed(777)
 
 # from pso_tf import PSO
 from pso import Optimizer
-from tensorflow import keras
-
 
 from tensorflow import keras
 from tensorflow.keras.models import Sequential
 from tensorflow.keras import layers
-
-from datetime import datetime
 
 print(tf.__version__)
 print(tf.config.list_physical_devices())

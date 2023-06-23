@@ -11,8 +11,8 @@ from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 
 from tensorflow import keras
-from tensorflow.keras.models import Sequential
 from tensorflow.keras import layers
+from tensorflow.keras.models import Sequential
 
 from pso import Optimizer
 
@@ -40,7 +40,7 @@ def load_data():
 model = make_model()
 x_train, x_test, y_train, y_test = load_data()
 
-loss = ['categorical_crossentropy', 'accuracy','mse']
+loss = ['categorical_crossentropy']
 
 pso_iris = Optimizer(
     model,
