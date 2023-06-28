@@ -60,8 +60,6 @@ def make_model():
     return model
 
 # %%
-
-# %%
 model = make_model()
 x_test, y_test = get_data_test()
 
@@ -73,12 +71,12 @@ if __name__ == "__main__":
             model,
             loss=loss[0], 
             n_particles=75,
-            c0=0.35, 
-            c1=0.8, 
-            w_min=0.7,
-            w_max=1.15,
+            c0=0.3, 
+            c1=0.7, 
+            w_min=0.6,
+            w_max=0.9,
             negative_swarm=0.25,
-            momentun_swarm=0.25,
+            momentun_swarm=0,
             )
 
         best_score = pso_mnist.fit(
@@ -87,13 +85,12 @@ if __name__ == "__main__":
             epochs=200,
             save=True,
             save_path="./result/mnist", 
-            renewal="loss", 
+            renewal="acc", 
             empirical_balance=False,
             Dispersion=False, 
             check_point=25
             )
     except Exception as e:
         print(e)
-
-# pso_mnist.model_save("./result/mnist")
-# pso_mnist.save_info("./result/mnist")
+    finally:
+        gc.collect()

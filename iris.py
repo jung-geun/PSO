@@ -1,22 +1,24 @@
 import os
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 import tensorflow as tf
+
 tf.random.set_seed(777)  # for reproducibility
 
 import numpy as np
+
 np.random.seed(777)
 
+import gc
+
+from pso import Optimizer
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
-
 from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
 
-from pso import Optimizer
-
-import gc
 
 def make_model():
     model = Sequential()
@@ -45,7 +47,7 @@ loss = ['categorical_crossentropy']
 pso_iris = Optimizer(
     model,
     loss=loss[0], 
-    n_particles=75, 
+    n_particles=100, 
     c0=0.4, 
     c1=0.8, 
     w_min=0.7,

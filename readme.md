@@ -147,7 +147,7 @@ best_score = pso_iris.fit(
 ```
 
 위의 파라미터 기준 2 세대에 94%의 정확도를, 7 세대에 96%, 106 세대에 99.16%의 정확도를 보였습니다
-![iris](./history_plt/iris_relu_acc_200.png)
+![iris](./history_plt/iris_0624_1.png)
 
 3. mnist 문제
 

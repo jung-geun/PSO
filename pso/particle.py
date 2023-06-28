@@ -114,6 +114,8 @@ class Particle:
                 self.best_score = score[1]
                 self.best_weights = self.model.get_weights()
         elif renewal == "loss":
+            if score[0] == 'nan':
+                score[0] = np.inf
             if score[0] < self.best_score:
                 self.best_score = score[0]
                 self.best_weights = self.model.get_weights()

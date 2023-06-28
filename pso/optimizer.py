@@ -12,8 +12,6 @@ from tqdm import tqdm
 
 # import cupy as cp
 
-
-
 gpus = tf.config.experimental.list_physical_devices("GPU")
 if gpus:
     try:
@@ -37,6 +35,8 @@ class Optimizer:
         momentun_swarm: float = 0,
     ):
         """
+        particle swarm optimization
+        
         Args:
             model (keras.models): 모델 구조
             loss (str): 손실함수
@@ -67,7 +67,8 @@ class Optimizer:
             m = keras.models.model_from_json(model.to_json())
             init_weights = m.get_weights()
             w_, sh_, len_ = self._encode(init_weights)
-            w_ = np.random.uniform(-1.5, 1.5, len(w_))
+            w_ = np.random.rand(len(w_)) * 4 - 2 
+            # w_ = np.random.uniform(-1.5, 1.5, len(w_))
             m.set_weights(self._decode(w_, sh_, len_))
             m.compile(loss=self.loss, optimizer="sgd", metrics=["accuracy"])
             self.particles[i] = Particle(m, loss, negative=True if i < negative_swarm * self.n_particles else False, momentun=True if i > self.n_particles * (1 - self.momentun_swarm) else False)
@@ -309,17 +310,23 @@ class Optimizer:
 
                     if renewal == "acc":
                         if score[1] >= self.g_best_score[0]:
-                            self.g_best_score[0] = score[1]
-                            if score[0] <= self.g_best_score[1]:
-                                self.g_best_score[1] = score[0]
-                            self.g_best = self.particles[i].get_best_weights()
+                            if score[1] > self.g_best_score[0]:
+                                self.g_best_score[0] = score[1]
+                                self.g_best = self.particles[i].get_best_weights()
+                            else:
+                                if score[0] < self.g_best_score[1]:
+                                    self.g_best_score[1] = score[0]
+                                    self.g_best = self.particles[i].get_best_weights()
                             epochs_pbar.set_description(f"best {self.g_best_score[0]:.4f} | {self.g_best_score[1]:.4f}")
                     elif renewal == "loss":
                         if score[0] <= self.g_best_score[1]:
-                            self.g_best_score[1] = score[0]
-                            if score[1] >= self.g_best_score[0]:
-                                self.g_best_score[0] = score[1]
-                            self.g_best = self.particles[i].get_best_weights()
+                            if score[0] < self.g_best_score[1]:
+                                self.g_best_score[1] = score[0]
+                                self.g_best = self.particles[i].get_best_weights()
+                            else:
+                                if score[1] > self.g_best_score[0]:
+                                    self.g_best_score[0] = score[1]
+                                    self.g_best = self.particles[i].get_best_weights()
                             epochs_pbar.set_description(f"best {self.g_best_score[0]:.4f} | {self.g_best_score[1]:.4f}")
 
                     if score[0] == None:
@@ -420,6 +427,7 @@ class Optimizer:
             "empirical_balance": self.empirical_balance,
             "Dispersion": self.Dispersion,
             "negative_swarm": self.negative_swarm,
+            "momentun_swarm": self.momentun_swarm,
             "renewal": self.renewal,
         }
 
