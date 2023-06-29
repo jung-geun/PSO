@@ -1,5 +1,13 @@
 *.pyc
 __pycache__/
+*.py[cod]
+*$py.class
+
 .ipynb_checkpoints/
-*.pdf
+
+# 결과 저장용 디렉토리
 result/
+
+# 논문 관련 파일
+*.pdf
+*.pptx

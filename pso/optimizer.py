@@ -32,7 +32,7 @@ class Optimizer:
         w_min=0.5,
         w_max=1.5,
         negative_swarm: float = 0,
-        momentun_swarm: float = 0,
+        mutation_swarm: float = 0,
     ):
         """
         particle swarm optimization
@@ -57,7 +57,7 @@ class Optimizer:
         self.w_min = w_min  # 최소 관성 수치
         self.w_max = w_max  # 최대 관성 수치
         self.negative_swarm = negative_swarm  # 최적해와 반대로 이동할 파티클 비율 - 0 ~ 1 사이의 값
-        self.momentun_swarm = momentun_swarm  # 관성을 추가로 사용할 파티클 비율 - 0 ~ 1 사이의 값
+        self.mutation_swarm = mutation_swarm  # 관성을 추가로 사용할 파티클 비율 - 0 ~ 1 사이의 값
         self.g_best_score = [0 , np.inf]  # 최고 점수 - 시작은 0으로 초기화
         self.g_best = None  # 최고 점수를 받은 가중치
         self.g_best_ = None  # 최고 점수를 받은 가중치 - 값의 분산을 위한 변수
@@ -67,11 +67,11 @@ class Optimizer:
             m = keras.models.model_from_json(model.to_json())
             init_weights = m.get_weights()
             w_, sh_, len_ = self._encode(init_weights)
-            w_ = np.random.rand(len(w_)) * 4 - 2 
+            w_ = np.random.rand(len(w_)) * 5 - 2.5 
             # w_ = np.random.uniform(-1.5, 1.5, len(w_))
             m.set_weights(self._decode(w_, sh_, len_))
             m.compile(loss=self.loss, optimizer="sgd", metrics=["accuracy"])
-            self.particles[i] = Particle(m, loss, negative=True if i < negative_swarm * self.n_particles else False, momentun=True if i > self.n_particles * (1 - self.momentun_swarm) else False)
+            self.particles[i] = Particle(m, loss, negative=True if i < negative_swarm * self.n_particles else False, mutation=True if i > self.n_particles * (1 - self.mutation_swarm) else False)
                 
         gc.collect()
         
