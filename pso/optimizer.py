@@ -33,6 +33,8 @@ class Optimizer:
         w_max=1.5,
         negative_swarm: float = 0,
         mutation_swarm: float = 0,
+        np_seed: int = 777,
+        tf_seed: int = 777,
     ):
         """
         particle swarm optimization
@@ -48,6 +50,8 @@ class Optimizer:
             nefative_swarm (float): 최적해와 반대로 이동할 파티클 비율 - 0 ~ 1 사이의 값
             momentun_swarm (float): 관성을 추가로 사용할 파티클 비율 - 0 ~ 1 사이의 값
         """
+        np.random.seed(np_seed)
+        tf.random.set_seed(tf_seed)
         self.model = model  # 모델 구조
         self.loss = loss  # 손실함수
         self.n_particles = n_particles  # 파티클 개수
@@ -67,11 +71,14 @@ class Optimizer:
             m = keras.models.model_from_json(model.to_json())
             init_weights = m.get_weights()
             w_, sh_, len_ = self._encode(init_weights)
-            w_ = np.random.rand(len(w_)) * 5 - 2.5 
-            # w_ = np.random.uniform(-1.5, 1.5, len(w_))
+            w_ = np.random.uniform(-0.5, 0.5, len(w_))
             m.set_weights(self._decode(w_, sh_, len_))
             m.compile(loss=self.loss, optimizer="sgd", metrics=["accuracy"])
-            self.particles[i] = Particle(m, loss, negative=True if i < negative_swarm * self.n_particles else False, mutation=True if i > self.n_particles * (1 - self.mutation_swarm) else False)
+            self.particles[i] = Particle(
+                m, loss, 
+                negative=True if i < negative_swarm * self.n_particles else False, 
+                mutation=True if i > self.n_particles * (1 - self.mutation_swarm) else False
+                )
                 
         gc.collect()
         
@@ -427,7 +434,7 @@ class Optimizer:
             "empirical_balance": self.empirical_balance,
             "Dispersion": self.Dispersion,
             "negative_swarm": self.negative_swarm,
-            "momentun_swarm": self.momentun_swarm,
+            "mutation_swarm": self.mutation_swarm,
             "renewal": self.renewal,
         }
 

@@ -3,17 +3,9 @@ import os
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-import tensorflow as tf
-
-tf.random.set_seed(777)  # for reproducibility
-
-import numpy as np
-
-np.random.seed(777)
-
 import gc
-from datetime import date
 
+import tensorflow as tf
 from keras import backend as K
 from keras.datasets import mnist
 from keras.layers import Conv2D, Dense, Dropout, Flatten, MaxPooling2D
@@ -76,7 +68,7 @@ if __name__ == "__main__":
             w_min=0.6,
             w_max=0.9,
             negative_swarm=0.25,
-            momentun_swarm=0,
+            mutation_swarm=0,
             )
 
         best_score = pso_mnist.fit(

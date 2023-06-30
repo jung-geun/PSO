@@ -2,16 +2,10 @@ import os
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-import tensorflow as tf
-
-tf.random.set_seed(777)  # for reproducibility
-
-import numpy as np
-
-np.random.seed(777)
-
 import gc
 
+import numpy as np
+import tensorflow as tf
 from pso import Optimizer
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
@@ -52,7 +46,8 @@ pso_iris = Optimizer(
     c1=0.8, 
     w_min=0.7,
     w_max=1.0, 
-    negative_swarm=0.25
+    negative_swarm=0,
+    mutation_swarm=0,
     )
 
 best_score = pso_iris.fit(
