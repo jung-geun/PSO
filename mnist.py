@@ -10,14 +10,9 @@ from keras import backend as K
 from keras.datasets import mnist
 from keras.layers import Conv2D, Dense, Dropout, Flatten, MaxPooling2D
 from keras.models import Sequential
-# from pso_tf import PSO
 from pso import Optimizer
 from tensorflow import keras
 from tqdm import tqdm
-
-# print(tf.__version__)
-# print(tf.config.list_physical_devices())
-# print(f"Num GPUs Available: {len(tf.config.list_physical_devices('GPU'))}")
 
 
 def get_data():
@@ -62,13 +57,13 @@ if __name__ == "__main__":
         pso_mnist = Optimizer(
             model,
             loss=loss[0], 
-            n_particles=75,
-            c0=0.3, 
-            c1=0.7, 
-            w_min=0.6,
-            w_max=0.9,
-            negative_swarm=0.25,
-            mutation_swarm=0,
+            n_particles=100,
+            c0=0.35, 
+            c1=0.8, 
+            w_min=0.7,
+            w_max=1.0,
+            negative_swarm=0.2,
+            mutation_swarm=0.2,
             )
 
         best_score = pso_mnist.fit(

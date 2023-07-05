@@ -1,6 +1,5 @@
 import gc
 
-# import cupy as cp
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
@@ -9,8 +8,14 @@ from tensorflow import keras
 class Particle:
     """
     Particle Swarm Optimization의 Particle을 구현한 클래스
+    한 파티클의 life cycle은 다음과 같다.
+    1. 초기화
+    2. 손실 함수 계산
+    3. 속도 업데이트
+    4. 가중치 업데이트
+    5. 2번으로 돌아가서 반복
     """
-    def __init__(self, model: keras.models, loss, negative: bool = False, mutation: bool = False):
+    def __init__(self, model: keras.models, loss, negative: bool = False, mutation: float = 0):
         """
         Args:
             model (keras.models): 학습 및 검증을 위한 모델
@@ -21,7 +26,7 @@ class Particle:
         self.loss = loss
         init_weights = self.model.get_weights()
         i_w_, s_, l_ = self._encode(init_weights)
-        i_w_ = np.random.rand(len(i_w_)) / 2 - 0.25
+        i_w_ = np.random.uniform(-0.5, 0.5, len(i_w_))
         self.velocities = self._decode(i_w_, s_, l_)
         self.negative = negative
         self.mutation = mutation
@@ -52,44 +57,40 @@ class Particle:
             (list) : 가중치의 원본 shape
             (list) : 가중치의 원본 shape의 길이
         """
-        # w_gpu = cp.array([])
         w_gpu = np.array([])
-        lenght = []
+        length = []
         shape = []
         for layer in weights:
             shape.append(layer.shape)
             w_ = layer.reshape(-1)
-            lenght.append(len(w_))
-            # w_gpu = cp.append(w_gpu, w_)
+            length.append(len(w_))
             w_gpu = np.append(w_gpu, w_)
 
-        return w_gpu, shape, lenght
+        return w_gpu, shape, length
 
 
-    def _decode(self, weight: list, shape, lenght):
+    def _decode(self, weight: list, shape, length):
         """
         _encode 로 인코딩된 가중치를 원본 shape으로 복원
         파라미터는 encode의 리턴값을 그대로 사용을 권장
         
         Args:
-            weight (numpy|cupy array): 가중치 - 1차원으로 풀어서 반환
+            weight (numpy array): 가중치 - 1차원으로 풀어서 반환
             shape (list): 가중치의 원본 shape
-            lenght (list): 가중치의 원본 shape의 길이
+            length (list): 가중치의 원본 shape의 길이
         Returns:
             (list) : 가중치 원본 shape으로 복원
         """
         weights = []
         start = 0
         for i in range(len(shape)):
-            end = start + lenght[i]
+            end = start + length[i]
             w_ = weight[start:end]
-            # w_ = weight[start:end].get()
             w_ = np.reshape(w_, shape[i])
-            # w_ = w_.reshape(shape[i])
             weights.append(w_)
             start = end
         del start, end, w_
-        del shape, lenght
+        del shape, length
         del weight
 
         return weights
@@ -104,11 +105,10 @@ class Particle:
             renewal (str, optional): 점수 갱신 방식. Defaults to "acc" | "acc" or "loss".
 
         Returns:
-            _type_: _description_
+            (float): 점수
         """
         self.model.compile(loss=self.loss, optimizer="sgd", metrics=["accuracy"])
         score = self.model.evaluate(x, y, verbose=0)
-        # print(score)
         if renewal == "acc":
             if score[1] > self.best_score:
                 self.best_score = score[1]
@@ -127,7 +127,7 @@ class Particle:
         현재 속도 업데이트
 
         Args:
-            local_rate (flost): 지역 최적해의 영향력
+            local_rate (float): 지역 최적해의 영향력
             global_rate (float): 전역 최적해의 영향력
             w (float): 현재 속도의 영향력 - 관성 | 0.9 ~ 0.4 이 적당
             g_best (list): 전역 최적해
@@ -150,9 +150,11 @@ class Particle:
                 + local_rate * r0 * (encode_p - encode_w)
                 + global_rate * r1 * (encode_g - encode_w)
             )
-        if self.mutation:
+        if np.random.rand() < self.mutation:
+            
             new_v += 0.5 * encode_v
         self.velocities = self._decode(new_v, w_sh, w_len)
+        
         del encode_w, w_sh, w_len
         del encode_v, v_sh, v_len
         del encode_p, p_sh, p_len
@@ -178,6 +180,7 @@ class Particle:
         encode_g, g_sh, g_len = self._encode(weights=g_best)
         r0 = np.random.rand()
         r1 = np.random.rand()
+        
         if self.negative:
             new_v = (
                 w * encode_v
@@ -193,6 +196,7 @@ class Particle:
         if self.mutation:
             new_v += 0.5 * encode_v
         self.velocities = self._decode(new_v, w_sh, w_len)
+        
         del encode_w, w_sh, w_len
         del encode_v, v_sh, v_len
         del encode_p, p_sh, p_len
@@ -207,6 +211,7 @@ class Particle:
         encode_v, v_sh, v_len = self._encode(weights=self.velocities)
         new_w = encode_w + encode_v
         self.model.set_weights(self._decode(new_w, w_sh, w_len))
+        
         del encode_w, w_sh, w_len
         del encode_v, v_sh, v_len
 
@@ -220,10 +225,11 @@ class Particle:
             weights (list): 가중치
 
         Returns:
-            flost: 목적함수 값
+            float: 목적함수 값
         """
         self.model.set_weights(weights)
         score = self.model.evaluate(x, y, verbose=0)[1]
+        
         if score > 0:
             return 1 / (1 + score)
         else:
@@ -247,6 +253,7 @@ class Particle:
         """
         self._update_velocity(local_rate, global_rate, w, g_best)
         self._update_weights()
+        
         return self.get_score(x, y, renewal)
 
     def step_w(
@@ -272,6 +279,7 @@ class Particle:
         """
         self._update_velocity_w(local_rate, global_rate, w, w_p, w_g, g_best)
         self._update_weights()
+        
         return self.get_score(x, y, renewal)
 
     def get_best_score(self):

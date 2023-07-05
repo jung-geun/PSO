@@ -46,8 +46,8 @@ pso_iris = Optimizer(
     c1=0.8, 
     w_min=0.7,
     w_max=1.0, 
-    negative_swarm=0,
-    mutation_swarm=0,
+    negative_swarm=0.1,
+    mutation_swarm=0.2,
     )
 
 best_score = pso_iris.fit(

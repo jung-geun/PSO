@@ -6,11 +6,10 @@ from datetime import datetime
 
 import numpy as np
 import tensorflow as tf
-from pso.particle import Particle
 from tensorflow import keras
 from tqdm import tqdm
 
-# import cupy as cp
+from .particle import Particle
 
 gpus = tf.config.experimental.list_physical_devices("GPU")
 if gpus:
@@ -21,6 +20,10 @@ if gpus:
         print(e)
 
 class Optimizer:
+    """
+    particle swarm optimization
+    PSO 실행을 위한 클래스
+    """
 
     def __init__(
         self,
@@ -47,11 +50,12 @@ class Optimizer:
             c1 (float): global rate - 전역 최적값 관성 수치
             w_min (float): 최소 관성 수치
             w_max (float): 최대 관성 수치
-            nefative_swarm (float): 최적해와 반대로 이동할 파티클 비율 - 0 ~ 1 사이의 값
-            momentun_swarm (float): 관성을 추가로 사용할 파티클 비율 - 0 ~ 1 사이의 값
+            negative_swarm (float): 최적해와 반대로 이동할 파티클 비율 - 0 ~ 1 사이의 값
+            mutation_swarm (float): 돌연변이가 일어날 확률
         """
         np.random.seed(np_seed)
         tf.random.set_seed(tf_seed)
+        
         self.model = model  # 모델 구조
         self.loss = loss  # 손실함수
         self.n_particles = n_particles  # 파티클 개수
@@ -66,22 +70,30 @@ class Optimizer:
         self.g_best = None  # 최고 점수를 받은 가중치
         self.g_best_ = None  # 최고 점수를 받은 가중치 - 값의 분산을 위한 변수
         self.avg_score = 0  # 평균 점수
+        
+        negative_count = 0
 
         for i in tqdm(range(self.n_particles), desc="Initializing Particles"):
             m = keras.models.model_from_json(model.to_json())
             init_weights = m.get_weights()
             w_, sh_, len_ = self._encode(init_weights)
-            w_ = np.random.uniform(-0.5, 0.5, len(w_))
+            w_ = np.random.uniform(-1, 2, len(w_))
             m.set_weights(self._decode(w_, sh_, len_))
             m.compile(loss=self.loss, optimizer="sgd", metrics=["accuracy"])
             self.particles[i] = Particle(
-                m, loss, 
+                m, 
+                loss, 
                 negative=True if i < negative_swarm * self.n_particles else False, 
-                mutation=True if i > self.n_particles * (1 - self.mutation_swarm) else False
+                mutation=mutation_swarm,
                 )
+            if i < negative_swarm * self.n_particles:
+                negative_count += 1
                 
+        print(f"negative swarm : {negative_count} / {self.n_particles}")
+        print(f"mutation swarm : {mutation_swarm*100/self.n_particles} / {self.n_particles}")
+
         gc.collect()
-        
+
     def __del__(self):
         del self.model
         del self.loss
@@ -110,46 +122,44 @@ class Optimizer:
             (list) : 가중치의 원본 shape
             (list) : 가중치의 원본 shape의 길이
         """
-        # w_gpu = cp.array([])
         w_gpu = np.array([])
-        lenght = []
+        length = []
         shape = []
         for layer in weights:
             shape.append(layer.shape)
             w_ = layer.reshape(-1)
-            lenght.append(len(w_))
-            # w_gpu = cp.append(w_gpu, w_)
+            length.append(len(w_))
             w_gpu = np.append(w_gpu, w_)
 
         del weights
-        return w_gpu, shape, lenght
+        
+        return w_gpu, shape, length
 
 
-    def _decode(self, weight, shape, lenght):
+    def _decode(self, weight, shape, length):
         """
         _encode 로 인코딩된 가중치를 원본 shape으로 복원
         파라미터는 encode의 리턴값을 그대로 사용을 권장
         
         Args:
-            weight (numpy|cupy array): 가중치 - 1차원으로 풀어서 반환
+            weight (numpy array): 가중치 - 1차원으로 풀어서 반환
             shape (list): 가중치의 원본 shape
-            lenght (list): 가중치의 원본 shape의 길이
+            length (list): 가중치의 원본 shape의 길이
         Returns:
             (list) : 가중치 원본 shape으로 복원
         """
         weights = []
         start = 0
         for i in range(len(shape)):
-            end = start + lenght[i]
+            end = start + length[i]
             w_ = weight[start:end]
-            # w_ = weight[start:end].get()
             w_ = np.reshape(w_, shape[i])
-            # w_ = w_.reshape(shape[i])
             weights.append(w_)
             start = end
+            
         del weight
         del shape
-        del lenght
+        del length
 
         return weights
 
@@ -188,8 +198,8 @@ class Optimizer:
     ):
         """
         Args:
-            x_test : numpy.ndarray,
-            y_test : numpy.ndarray,
+            x_test : numpy array,
+            y_test : numpy array,
             epochs : int,
             save : bool - True : save, False : not save
             save_path : str ex) "./result",
@@ -248,6 +258,8 @@ class Optimizer:
                         f.write(", ")
                     else:
                         f.write("\n")
+                        
+                    f.close()
             del local_score
             gc.collect()
 
@@ -255,7 +267,7 @@ class Optimizer:
 
         try:
             epochs_pbar = tqdm(range(epochs), desc=f"best {self.g_best_score[0]:.4f}|{self.g_best_score[1]:.4f}", ascii=True, leave=True)
-            for _ in epochs_pbar:
+            for epoch in epochs_pbar:
                 acc = 0
                 loss = 0
                 min_score = np.inf
@@ -264,15 +276,16 @@ class Optimizer:
                 max_loss = 0
 
                 ts = self.c0 + np.random.rand() * (self.c1 - self.c0)
-                g_, g_sh, g_len = self._encode(self.g_best)
-                decrement = (epochs - (_) + 1) / epochs
-                g_ = (1 - decrement) * g_ + decrement * ts
-                self.g_best_ = self._decode(g_, g_sh, g_len)
 
                 part_pbar = tqdm(range(len(self.particles)), desc=f"acc : {max_score:.4f} loss : {min_loss:.4f}", ascii=True, leave=False)
                 for i in part_pbar:
                     part_pbar.set_description(f"acc : {max_score:.4f} loss : {min_loss:.4f}")
-                    w = self.w_max - (self.w_max - self.w_min) * _ / epochs
+                    w = self.w_max - (self.w_max - self.w_min) * epoch / epochs
+
+                    g_, g_sh, g_len = self._encode(self.g_best)
+                    decrement = (epochs - (epoch) + 1) / epochs
+                    g_ = (1 - decrement) * g_ + decrement * ts
+                    self.g_best_ = self._decode(g_, g_sh, g_len)
 
                     if Dispersion:
                         g_best = self.g_best_
@@ -280,11 +293,12 @@ class Optimizer:
                         g_best = self.g_best
 
                     if empirical_balance:
-                        if np.random.rand() < np.exp(-(_) / epochs):
+                        if np.random.rand() < np.exp(-(epoch) / epochs):
                             w_p_ = self.f(x, y, self.particles[i].get_best_weights())
                             w_g_ = self.f(x, y, self.g_best)
                             w_p = w_p_ / (w_p_ + w_g_)
                             w_g = w_p_ / (w_p_ + w_g_)
+                            
                             del w_p_
                             del w_g_
 
@@ -301,6 +315,7 @@ class Optimizer:
                             p_ = np.exp(-1 * p_)
                             w_p = p_
                             w_g = 1 - p_
+                            
                             del p_b
                             del g_a
                             del l_b
@@ -362,11 +377,12 @@ class Optimizer:
                                 f.write(", ")
                             else:
                                 f.write("\n")
+                        f.close()
 
                 if check_point is not None:
-                    if _ % check_point == 0:
+                    if epoch % check_point == 0:
                         os.makedirs(f"./{save_path}/{self.day}", exist_ok=True)
-                        self._check_point_save(f"./{save_path}/{self.day}/ckpt-{_}")
+                        self._check_point_save(f"./{save_path}/{self.day}/ckpt-{epoch}")
                 self.avg_score = acc / self.n_particles
 
                 gc.collect()
@@ -439,10 +455,12 @@ class Optimizer:
         }
 
         with open(
-            f"./{path}/{self.day}/{self.loss}_{self.n_particles}.json",
+            f"./{path}/{self.day}/{self.loss}_{self.g_best_score}.json",
             "a",
         ) as f:
             json.dump(json_save, f, indent=4)
+            
+        f.close()
 
     def _check_point_save(self, save_path: str = f"./result/check_point"):
         """
