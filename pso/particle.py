@@ -15,7 +15,10 @@ class Particle:
     4. 가중치 업데이트
     5. 2번으로 돌아가서 반복
     """
-    def __init__(self, model: keras.models, loss, negative: bool = False, mutation: float = 0):
+
+    def __init__(
+        self, model: keras.models, loss, negative: bool = False, mutation: float = 0
+    ):
         """
         Args:
             model (keras.models): 학습 및 검증을 위한 모델
@@ -36,7 +39,7 @@ class Particle:
         del i_w_, s_, l_
         del init_weights
         gc.collect()
-        
+
     def __del__(self):
         del self.model
         del self.loss
@@ -49,7 +52,7 @@ class Particle:
     def _encode(self, weights: list):
         """
         가중치를 1차원으로 풀어서 반환
-        
+
         Args:
             weights (list) : keras model의 가중치
         Returns:
@@ -68,12 +71,11 @@ class Particle:
 
         return w_gpu, shape, length
 
-
     def _decode(self, weight: list, shape, length):
         """
         _encode 로 인코딩된 가중치를 원본 shape으로 복원
         파라미터는 encode의 리턴값을 그대로 사용을 권장
-        
+
         Args:
             weight (numpy array): 가중치 - 1차원으로 풀어서 반환
             shape (list): 가중치의 원본 shape
@@ -114,7 +116,7 @@ class Particle:
                 self.best_score = score[1]
                 self.best_weights = self.model.get_weights()
         elif renewal == "loss":
-            if score[0] == 'nan':
+            if score[0] == "nan":
                 score[0] = np.inf
             if score[0] < self.best_score:
                 self.best_score = score[0]
@@ -150,13 +152,13 @@ class Particle:
                 + local_rate * r0 * (encode_p - encode_w)
                 + global_rate * r1 * (encode_g - encode_w)
             )
-            
+
         if np.random.rand() < self.mutation:
             m_v = np.random.uniform(-0.1, 0.1, len(encode_v))
             new_v = m_v
-        
+
         self.velocities = self._decode(new_v, w_sh, w_len)
-        
+
         del encode_w, w_sh, w_len
         del encode_v, v_sh, v_len
         del encode_p, p_sh, p_len
@@ -182,7 +184,7 @@ class Particle:
         encode_g, g_sh, g_len = self._encode(weights=g_best)
         r0 = np.random.rand()
         r1 = np.random.rand()
-        
+
         if self.negative:
             new_v = (
                 w * encode_v
@@ -195,13 +197,13 @@ class Particle:
                 + local_rate * r0 * (w_p * encode_p - encode_w)
                 + global_rate * r1 * (w_g * encode_g - encode_w)
             )
-            
+
         if np.random.rand() < self.mutation:
             m_v = np.random.uniform(-0.1, 0.1, len(encode_v))
-            new_v  = m_v
-            
+            new_v = m_v
+
         self.velocities = self._decode(new_v, w_sh, w_len)
-        
+
         del encode_w, w_sh, w_len
         del encode_v, v_sh, v_len
         del encode_p, p_sh, p_len
@@ -216,7 +218,7 @@ class Particle:
         encode_v, v_sh, v_len = self._encode(weights=self.velocities)
         new_w = encode_w + encode_v
         self.model.set_weights(self._decode(new_w, w_sh, w_len))
-        
+
         del encode_w, w_sh, w_len
         del encode_v, v_sh, v_len
 
@@ -234,7 +236,7 @@ class Particle:
         """
         self.model.set_weights(weights)
         score = self.model.evaluate(x, y, verbose=0)[1]
-        
+
         if score > 0:
             return 1 / (1 + score)
         else:
@@ -258,7 +260,7 @@ class Particle:
         """
         self._update_velocity(local_rate, global_rate, w, g_best)
         self._update_weights()
-        
+
         return self.get_score(x, y, renewal)
 
     def step_w(
@@ -284,7 +286,7 @@ class Particle:
         """
         self._update_velocity_w(local_rate, global_rate, w, w_p, w_g, g_best)
         self._update_weights()
-        
+
         return self.get_score(x, y, renewal)
 
     def get_best_score(self):
