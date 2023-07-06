@@ -2,10 +2,6 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/miniconda
 {
 	"name": "Miniconda (Python 3)",
-	"build": {
-		"context": "..",
-		"dockerfile": "Dockerfile"
-	},
 	"customizations": {
 		"vscode": {
 			"extensions": [
