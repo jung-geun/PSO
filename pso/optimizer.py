@@ -90,7 +90,7 @@ class Optimizer:
                 negative_count += 1
                 
         print(f"negative swarm : {negative_count} / {self.n_particles}")
-        print(f"mutation swarm : {mutation_swarm*100/self.n_particles} / {self.n_particles}")
+        print(f"mutation swarm : {mutation_swarm * self.n_particles} / {self.n_particles}")
 
         gc.collect()
 

@@ -150,9 +150,11 @@ class Particle:
                 + local_rate * r0 * (encode_p - encode_w)
                 + global_rate * r1 * (encode_g - encode_w)
             )
-        if np.random.rand() < self.mutation:
             
-            new_v += 0.5 * encode_v
+        if np.random.rand() < self.mutation:
+            m_v = np.random.uniform(-0.1, 0.1, len(encode_v))
+            new_v = m_v
+        
         self.velocities = self._decode(new_v, w_sh, w_len)
         
         del encode_w, w_sh, w_len
@@ -193,8 +195,11 @@ class Particle:
                 + local_rate * r0 * (w_p * encode_p - encode_w)
                 + global_rate * r1 * (w_g * encode_g - encode_w)
             )
-        if self.mutation:
-            new_v += 0.5 * encode_v
+            
+        if np.random.rand() < self.mutation:
+            m_v = np.random.uniform(-0.1, 0.1, len(encode_v))
+            new_v  = m_v
+            
         self.velocities = self._decode(new_v, w_sh, w_len)
         
         del encode_w, w_sh, w_len
