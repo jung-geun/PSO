@@ -4,14 +4,13 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 import gc
 
-import numpy as np
-import tensorflow as tf
-from pso import Optimizer
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
+
+from pso import Optimizer
 
 
 def make_model():

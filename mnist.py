@@ -5,14 +5,11 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 import gc
 
-import tensorflow as tf
-from keras import backend as K
 from keras.datasets import mnist
 from keras.layers import Conv2D, Dense, Dropout, Flatten, MaxPooling2D
 from keras.models import Sequential
+
 from pso import Optimizer
-from tensorflow import keras
-from tqdm import tqdm
 
 
 def get_data():
@@ -24,6 +21,7 @@ def get_data():
 
     print(f"x_train : {x_train[0].shape} | y_train : {y_train[0].shape}")
     print(f"x_test : {x_test[0].shape} | y_test : {y_test[0].shape}")
+
     return x_train, y_train, x_test, y_test
 
 
@@ -92,6 +90,7 @@ if __name__ == "__main__":
             Dispersion=False,
             check_point=25,
         )
+
     except Exception as e:
         print(e)
     finally:

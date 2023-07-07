@@ -73,7 +73,11 @@ class Optimizer:
         self.g_best = None  # 최고 점수를 받은 가중치
         self.g_best_ = None  # 최고 점수를 받은 가중치 - 값의 분산을 위한 변수
         self.avg_score = 0  # 평균 점수
+
         self.save_path = None  # 저장 위치
+        self.renewal = "acc"
+        self.Dispersion = False
+        self.day = datetime.now().strftime("%m-%d-%H-%M")
 
         negative_count = 0
 
@@ -225,7 +229,6 @@ class Optimizer:
                     self.save_path = save_path
                     if not os.path.exists(save_path):
                         os.makedirs(save_path, exist_ok=True)
-                    self.day = datetime.now().strftime("%m-%d-%H-%M")
         except ValueError as e:
             print(e)
             sys.exit(1)

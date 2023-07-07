@@ -5,15 +5,12 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 import numpy as np
 import tensorflow as tf
-
-# from pso_tf import PSO
-from pso import Optimizer
 from tensorflow import keras
 from tensorflow.keras import layers
+from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import Sequential
 
-print(tf.__version__)
-print(tf.config.list_physical_devices())
+from pso import Optimizer
 
 
 def get_data():
@@ -23,12 +20,9 @@ def get_data():
 
 
 def make_model():
-    leyer = []
-    leyer.append(layers.Dense(2, activation="sigmoid", input_shape=(2,)))
-    # leyer.append(layers.Dense(2, activation='sigmoid'))
-    leyer.append(layers.Dense(1, activation="sigmoid"))
-
-    model = Sequential(leyer)
+    model = Sequential()
+    model.add(layers.Dense(2, activation="sigmoid", input_shape=(2,)))
+    model.add(layers.Dense(1, activation="sigmoid"))
 
     return model
 

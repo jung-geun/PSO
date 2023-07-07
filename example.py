@@ -7,19 +7,19 @@ results with a number of independent runs of standard Backpropagation algorithm 
 @author Mike Holcomb (mjh170630@utdallas.edu)
 """
 
+import tensorflow as tf
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
-import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
+from tensorflow.keras.models import Sequential
 
 from psokeras import Optimizer
 
-N = 50 # number of particles
-STEPS = 500 # number of steps
-LOSS = 'mse' # Loss function
-BATCH_SIZE = 32 # Size of batches to train on
+N = 50  # number of particles
+STEPS = 500  # number of steps
+LOSS = "mse"  # Loss function
+BATCH_SIZE = 32  # Size of batches to train on
 
 
 def build_model(loss):
@@ -30,12 +30,11 @@ def build_model(loss):
     :return: Keras dense model of predefined structure
     """
     model = Sequential()
-    model.add(Dense(4, activation='sigmoid', input_dim=4, use_bias=True))
-    model.add(Dense(4, activation='sigmoid', use_bias=True))
-    model.add(Dense(3, activation='softmax', use_bias=True))
+    model.add(Dense(4, activation="sigmoid", input_dim=4, use_bias=True))
+    model.add(Dense(4, activation="sigmoid", use_bias=True))
+    model.add(Dense(3, activation="softmax", use_bias=True))
 
-    model.compile(loss=loss,
-                  optimizer='adam')
+    model.compile(loss=loss, optimizer="adam")
 
     return model
 
@@ -52,11 +51,10 @@ def vanilla_backpropagation(x_train, y_train):
 
     for i in range(N):
         model_s = build_model(LOSS)
-        model_s.fit(x_train, y_train,
-                    epochs=STEPS,
-                    batch_size=BATCH_SIZE,
-                    verbose=0)
-        train_score = model_s.evaluate(x_train, y_train, batch_size=BATCH_SIZE, verbose=0)
+        model_s.fit(x_train, y_train, epochs=STEPS, batch_size=BATCH_SIZE, verbose=0)
+        train_score = model_s.evaluate(
+            x_train, y_train, batch_size=BATCH_SIZE, verbose=0
+        )
         if train_score < best_score:
             best_model = model_s
             best_score = train_score
@@ -66,11 +64,13 @@ def vanilla_backpropagation(x_train, y_train):
 if __name__ == "__main__":
     # Section I: Build the data set
     iris = load_iris()
-    x_train, x_test, y_train, y_test = train_test_split(iris.data,
-                                                        keras.utils.to_categorical(iris.target, num_classes=None),
-                                                        test_size=0.5,
-                                                        random_state=0,
-                                                        stratify=iris.target)
+    x_train, x_test, y_train, y_test = train_test_split(
+        iris.data,
+        keras.utils.to_categorical(iris.target, num_classes=None),
+        test_size=0.5,
+        random_state=0,
+        stratify=iris.target,
+    )
 
     # Section II: First run the backpropagation simulation
     model_s = vanilla_backpropagation(x_train=x_train, y_train=y_train)
@@ -84,13 +84,14 @@ if __name__ == "__main__":
     model_p = build_model(LOSS)
 
     # Instantiate optimizer with model, loss function, and hyperparameters
-    pso = Optimizer(model=model_p,
-                    loss=LOSS,
-                    n=N,  # Number of particles
-                    acceleration=1.0,  # Contribution of recursive particle velocity (acceleration)
-                    local_rate=0.6,    # Contribution of locally best weights to new velocity
-                    global_rate=0.4    # Contribution of globally best weights to new velocity
-                    )
+    pso = Optimizer(
+        model=model_p,
+        loss=LOSS,
+        n=N,  # Number of particles
+        acceleration=1.0,  # Contribution of recursive particle velocity (acceleration)
+        local_rate=0.6,  # Contribution of locally best weights to new velocity
+        global_rate=0.4,  # Contribution of globally best weights to new velocity
+    )
 
     # Train model on provided data
     pso.fit(x_train, y_train, steps=STEPS, batch_size=BATCH_SIZE)
