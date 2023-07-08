@@ -50,11 +50,12 @@ def make_model():
 
 # %%
 model = make_model()
-x_test, y_test = get_data_test()
+x_train, y_train, x_test, y_test = get_data()
 
 loss = [
     "mse",
     "categorical_crossentropy",
+    "sparse_categorical_crossentropy",
     "binary_crossentropy",
     "kullback_leibler_divergence",
     "poisson",
@@ -69,7 +70,7 @@ if __name__ == "__main__":
     try:
         pso_mnist = Optimizer(
             model,
-            loss=loss[0],
+            loss=loss[2],
             n_particles=100,
             c0=0.35,
             c1=0.8,
@@ -80,8 +81,8 @@ if __name__ == "__main__":
         )
 
         best_score = pso_mnist.fit(
-            x_test,
-            y_test,
+            x_train,
+            y_train,
             epochs=200,
             save=True,
             save_path="./result/mnist",

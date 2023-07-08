@@ -1,0 +1,79 @@
+# %%
+import os
+
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+import tensorflow as tf
+
+gpus = tf.config.experimental.list_physical_devices("GPU")
+if gpus:
+    try:
+        tf.config.experimental.set_memory_growth(gpus[0], True)
+    except Exception as e:
+        print(e)
+    finally:
+        del gpus
+
+from keras.datasets import mnist
+from keras.layers import Conv2D, Dense, Dropout, Flatten, MaxPooling2D
+from keras.models import Sequential
+
+from pso import Optimizer
+
+
+def get_data():
+    (x_train, y_train), (x_test, y_test) = mnist.load_data()
+
+    x_train, x_test = x_train / 255.0, x_test / 255.0
+    x_train = x_train.reshape((60000, 28, 28, 1))
+    x_test = x_test.reshape((10000, 28, 28, 1))
+
+    print(f"x_train : {x_train[0].shape} | y_train : {y_train[0].shape}")
+    print(f"x_test : {x_test[0].shape} | y_test : {y_test[0].shape}")
+
+    return x_train, y_train, x_test, y_test
+
+
+def get_data_test():
+    (x_train, y_train), (x_test, y_test) = mnist.load_data()
+    x_test = x_test.reshape((10000, 28, 28, 1))
+
+    return x_test, y_test
+
+
+def make_model():
+    model = Sequential()
+    model.add(
+        Conv2D(
+            32,
+            kernel_size=(5, 5),
+            strides=(1, 1),
+            padding="same",
+            activation="relu",
+            input_shape=(28, 28, 1),
+        )
+    )
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
+    model.add(Conv2D(64, kernel_size=(2, 2), activation="relu", padding="same"))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.25))
+    model.add(Flatten())
+    model.add(Dense(1000, activation="relu"))
+    model.add(Dense(10, activation="softmax"))
+
+    return model
+
+
+model = make_model()
+x_train, y_train, x_test, y_test = get_data()
+
+model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+
+print("Training model...")
+model.fit(x_train, y_train, epochs=1000, batch_size=128, verbose=1)
+
+print("Evaluating model...")
+model.evaluate(x_test, y_test, verbose=1)
+
+weights = model.get_weights()
+
+# %%
