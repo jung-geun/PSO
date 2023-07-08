@@ -73,7 +73,7 @@ if __name__ == "__main__":
             n_particles=100,
             c0=0.35,
             c1=0.8,
-            w_min=0.7,
+            w_min=0.4,
             w_max=1.1,
             negative_swarm=0.2,
             mutation_swarm=0.1,

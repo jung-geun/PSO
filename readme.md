@@ -46,10 +46,6 @@ $$
 |  |-- __init__.py  # pso 모듈을 사용하기 위한 초기화 파일
 |  |-- optimizer.py # pso 알고리즘 이용을 위한 기본 코드
 |  |-- particle.py  # 각 파티클의 정보 및 위치를 저장하는 코드
-|-- /psokeras       # keras 모델을 이용가능한 PSO 알고리즘 - 다른 사람의 코드
-|  |-- ***
-|-- /pyswarms       # pyswarms 라이브러리를 이용가능한 PSO 알고리즘 - 다른 사람의 코드
-|  |-- ***
 |-- examples.py     # psokeras 코드를 이용한 예제
 |-- xor.ipynb       # pso 를 이용한 xor 문제 풀이
 |-- iris.py         # pso 를 이용한 iris 문제 풀이
