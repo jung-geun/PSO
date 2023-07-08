@@ -379,8 +379,10 @@ class Optimizer:
                         score[0] = np.inf
                     if score[1] == None:
                         score[1] = 0
+
                     loss = loss + score[0]
                     acc = acc + score[1]
+
                     if score[0] < min_loss:
                         min_loss = score[0]
                     if score[0] > max_loss:

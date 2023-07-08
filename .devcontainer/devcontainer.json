@@ -16,7 +16,9 @@
 				"donjayamanne.python-extension-pack",
 				"tht13.python",
 				"esbenp.prettier-vscode",
-				"ms-python.black-formatter"
+				"ms-python.black-formatter",
+				"github.vscode-github-actions",
+				"eamodio.gitlens"
 			]
 		}
 	},
