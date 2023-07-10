@@ -5,6 +5,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 import gc
 
+import tensorflow as tf
 from tensorflow import keras
 from keras.datasets import mnist
 from keras.layers import Conv2D, Dense, Dropout, Flatten, MaxPooling2D
@@ -22,6 +23,8 @@ def get_data():
     x_train = x_train.reshape((60000, 28, 28, 1))
     x_test = x_test.reshape((10000, 28, 28, 1))
 
+    y_train, y_test = tf.one_hot(y_train, 10), tf.one_hot(y_test, 10)
+
     print(f"x_train : {x_train[0].shape} | y_train : {y_train[0].shape}")
     print(f"x_test : {x_test[0].shape} | y_test : {y_test[0].shape}")
 
@@ -32,6 +35,8 @@ def get_data_test():
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
     x_test = x_test / 255.0
     x_test = x_test.reshape((10000, 28, 28, 1))
+
+    y_test = tf.one_hot(y_test, 10)
 
     print(f"x_test : {x_test[0].shape} | y_test : {y_test[0].shape}")
 
@@ -60,6 +65,7 @@ x_train, y_train = get_data_test()
 
 loss = [
     "mse",
+    "categorical_crossentropy",
     "sparse_categorical_crossentropy",
     "binary_crossentropy",
     "kullback_leibler_divergence",
@@ -84,7 +90,7 @@ if __name__ == "__main__":
             c1=0.4,
             w_min=0.3,
             w_max=0.7,
-            negative_swarm=0.2,
+            negative_swarm=0.1,
             mutation_swarm=0.2,
         )
 
