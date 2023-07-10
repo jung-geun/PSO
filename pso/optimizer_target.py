@@ -22,7 +22,7 @@ if gpus:
         print(e)
 
 
-class Optimizer:
+class Optimizer_Target:
     """
     particle swarm optimization
     PSO 실행을 위한 클래스
@@ -41,6 +41,7 @@ class Optimizer:
         mutation_swarm: float = 0,
         np_seed: int = None,
         tf_seed: int = None,
+        target_weights=None,
     ):
         """
         particle swarm optimization
@@ -57,6 +58,7 @@ class Optimizer:
             mutation_swarm (float): 돌연변이가 일어날 확률
             np_seed (int, optional): numpy seed. Defaults to None.
             tf_seed (int, optional): tensorflow seed. Defaults to None.
+            target_weights (list, optional): 목표 가중치. Defaults to None.
         """
         if np_seed is not None:
             np.random.seed(np_seed)
@@ -76,6 +78,7 @@ class Optimizer:
         self.g_best_score = [0, np.inf]  # 최고 점수 - 시작은 0으로 초기화
         self.g_best = None  # 최고 점수를 받은 가중치
         self.g_best_ = None  # 최고 점수를 받은 가중치 - 값의 분산을 위한 변수
+        self.target_weights = target_weights  # 목표 가중치
         self.avg_score = 0  # 평균 점수
 
         self.save_path = None  # 저장 위치
@@ -89,7 +92,7 @@ class Optimizer:
             m = keras.models.model_from_json(model.to_json())
             init_weights = m.get_weights()
             w_, sh_, len_ = self._encode(init_weights)
-            w_ = np.random.uniform(-3, 3, len(w_))
+            w_ = np.random.uniform(-1, 2, len(w_))
             m.set_weights(self._decode(w_, sh_, len_))
             m.compile(loss=self.loss, optimizer="sgd", metrics=["accuracy"])
             self.particles[i] = Particle(
@@ -251,11 +254,6 @@ class Optimizer:
                     self.g_best_score[1] = local_score[0]
                     self.g_best = p.get_best_weights()
                     self.g_best_ = p.get_best_weights()
-            elif renewal == "both":
-                if local_score[1] > self.g_best_score[0]:
-                    self.g_best_score[0] = local_score[1]
-                    self.g_best = p.get_best_weights()
-                    self.g_best_ = p.get_best_weights()
 
             if local_score[0] == None:
                 local_score[0] = np.inf
@@ -315,6 +313,8 @@ class Optimizer:
                     decrement = (epochs - (epoch) + 1) / epochs
                     g_ = (1 - decrement) * g_ + decrement * ts
                     self.g_best_ = self._decode(g_, g_sh, g_len)
+
+                    self.g_best = self.target_weights.get_weights()
 
                     if Dispersion:
                         g_best = self.g_best_
@@ -383,19 +383,7 @@ class Optimizer:
                             epochs_pbar.set_description(
                                 f"best {self.g_best_score[0]:.4f} | {self.g_best_score[1]:.4f}"
                             )
-                    elif renewal == "both":
-                        if score[1] > self.g_best_score[0]:
-                            self.g_best_score[0] = score[1]
-                            self.g_best = self.particles[i].get_best_weights()
-                            epochs_pbar.set_description(
-                                f"best {self.g_best_score[0]:.4f} | {self.g_best_score[1]:.4f}"
-                            )
-                        if score[0] < self.g_best_score[1]:
-                            self.g_best_score[1] = score[0]
-                            self.g_best = self.particles[i].get_best_weights()
-                            epochs_pbar.set_description(
-                                f"best {self.g_best_score[0]:.4f} | {self.g_best_score[1]:.4f}"
-                            )
+
                     if score[0] == None:
                         score[0] = np.inf
                     if score[1] == None:

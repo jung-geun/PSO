@@ -5,11 +5,14 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 import gc
 
+from tensorflow import keras
 from keras.datasets import mnist
 from keras.layers import Conv2D, Dense, Dropout, Flatten, MaxPooling2D
 from keras.models import Sequential
 
 from pso import Optimizer
+
+# from pso import Optimizer_Test
 
 
 def get_data():
@@ -27,7 +30,10 @@ def get_data():
 
 def get_data_test():
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
+    x_test = x_test / 255.0
     x_test = x_test.reshape((10000, 28, 28, 1))
+
+    print(f"x_test : {x_test[0].shape} | y_test : {y_test[0].shape}")
 
     return x_test, y_test
 
@@ -54,7 +60,6 @@ x_train, y_train = get_data_test()
 
 loss = [
     "mse",
-    "categorical_crossentropy",
     "sparse_categorical_crossentropy",
     "binary_crossentropy",
     "kullback_leibler_divergence",
@@ -66,18 +71,21 @@ loss = [
     "mean_absolute_percentage_error",
 ]
 
+# target = make_model()
+# target.load_weights("weights.h5")
+
 if __name__ == "__main__":
     try:
         pso_mnist = Optimizer(
             model,
-            loss=loss[2],
-            n_particles=100,
+            loss=loss[1],
+            n_particles=75,
             c0=0.35,
             c1=0.7,
-            w_min=0.5,
+            w_min=0.45,
             w_max=0.9,
             negative_swarm=0.2,
-            mutation_swarm=0.1,
+            mutation_swarm=0.2,
         )
 
         best_score = pso_mnist.fit(

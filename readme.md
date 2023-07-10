@@ -14,12 +14,12 @@ pso 알고리즘을 사용하여 새로운 학습 방법을 찾는중 입니다
 다음 위치를 구하는 수식입니다
 
 > $$
-p_{id(t+1)} =
-\begin{cases}
-x_{id(t+1)} & \text{if } f(x_{id(t+1)}) < f(p_{id(t)})\\
-p_{id(t)} & \text{otherwise}
-\end{cases}
-$$
+> p_{id(t+1)} =
+> \begin{cases}
+> x_{id(t+1)} & \text{if } f(x_{id(t+1)}) < f(p_{id(t)})\\
+> p_{id(t)} & \text{otherwise}
+> \end{cases}
+> $$
 
 ### 위치를 현재 전역해로 변경(덮어쓰기)하면 안되는 이유
 
@@ -27,8 +27,8 @@ $$
 
 # 초기 세팅
 
-``` shell
- conda env create -f env.yaml 
+```shell
+ conda env create -f env.yaml
 ```
 
 # 현재 진행 상황
@@ -37,7 +37,7 @@ $$
 
 ### 파일 구조
 
-``` plain text
+```plain text
 |-- /metacode       # pso 기본 코드
 |  |-- pso_bp.py    # 오차역전파 함수를 최적화하는 PSO 알고리즘 구현 - 성능이 99% 이상으로 나오나 목적과 다름
 |  |-- pso_meta.py  # PSO 기본 알고리즘 구현
@@ -69,9 +69,9 @@ pso 알고리즘을 이용하여 오차역전파 함수를 최적화 하는 방�
 > 1. 오차역전파 함수를 1~5회 실행하여 오차를 구합니다
 > 2. 오차가 가장 적은 다른 노드(particle) 가중치로 유도합니다.
 >
->> 2-1. 만약 오차가 가장 작은 다른 노드가 현재 노드보다 오차가 크다면, 현재 노드의 가중치를 유지합니다. - 현재의 가중치를 최적값으로 업로드합니다
->>
->> 2-2. 지역 최적값을 찾았다면, 전역 최적값을 찾을 때까지 1~2 과정을 반복합니다
+> > 2-1. 만약 오차가 가장 작은 다른 노드가 현재 노드보다 오차가 크다면, 현재 노드의 가중치를 유지합니다. - 현재의 가중치를 최적값으로 업로드합니다
+> >
+> > 2-2. 지역 최적값을 찾았다면, 전역 최적값을 찾을 때까지 1~2 과정을 반복합니다
 >
 > 3. 전역 최적값이 특정 임계치에서 변화율이 적다면 학습을 종료합니다 - 현재 결과가 정확도가 높지 않아서 이 기능은 추후에 추가할 예정입니다
 
@@ -83,29 +83,29 @@ pso 알고리즘을 이용하여 오차역전파 함수를 최적화 하는 방�
 
 ### 1. xor 문제
 
-``` python
+```python
  loss = 'mean_squared_error'
 
  pso_xor = Optimizer(
     model,
-    loss=loss, 
-    n_particles=75, 
-    c0=0.35, 
-    c1=0.8, 
-    w_min=0.6, 
-    w_max=1.2, 
+    loss=loss,
+    n_particles=75,
+    c0=0.35,
+    c1=0.8,
+    w_min=0.6,
+    w_max=1.2,
     negative_swarm=0.25
     )
 
  best_score = pso_xor.fit(
-    x_test, 
-    y_test, 
-    epochs=200, 
-    save=True, 
-    save_path="./result/xor", 
-    renewal="acc", 
-    empirical_balance=False, 
-    Dispersion=False, 
+    x_test,
+    y_test,
+    epochs=200,
+    save=True,
+    save_path="./result/xor",
+    renewal="acc",
+    empirical_balance=False,
+    Dispersion=False,
     check_point=25
     )
 ```
@@ -115,29 +115,29 @@ pso 알고리즘을 이용하여 오차역전파 함수를 최적화 하는 방�
 
 2. iris 문제
 
-``` python
+```python
 loss = 'categorical_crossentropy'
 
 pso_iris = Optimizer(
     model,
-    loss=loss, 
-    n_particles=50, 
-    c0=0.4, 
-    c1=0.8, 
+    loss=loss,
+    n_particles=50,
+    c0=0.4,
+    c1=0.8,
     w_min=0.7,
-    w_max=1.0, 
+    w_max=1.0,
     negative_swarm=0.2
     )
 
 best_score = pso_iris.fit(
-    x_train, 
-    y_train, 
-    epochs=200, 
-    save=True, 
-    save_path="./result/iris", 
-    renewal="acc", 
-    empirical_balance=False, 
-    Dispersion=False, 
+    x_train,
+    y_train,
+    epochs=200,
+    save=True,
+    save_path="./result/iris",
+    renewal="acc",
+    empirical_balance=False,
+    Dispersion=False,
     check_point=25
     )
 ```
@@ -147,40 +147,41 @@ best_score = pso_iris.fit(
 
 3. mnist 문제
 
-``` python
-loss = 'mean_squared_error'
+```python
+loss = 'sparse_categorical_crossentropy'
 
 pso_mnist = Optimizer(
     model,
-    loss=loss, 
-    n_particles=50,
-    c0=0.35, 
-    c1=0.8, 
-    w_min=0.7,
-    w_max=1.0,
-    negative_swarm=0.25
-    )
+    loss=loss,
+    n_particles=75,
+    c0=0.35,
+    c1=0.7,
+    w_min=0.45,
+    w_max=0.9,
+    negative_swarm=0.2,
+    mutation_swarm=0.2,
+)
 
 best_score = pso_mnist.fit(
     x_test,
     y_test,
     epochs=200,
     save=True,
-    save_path="./result/mnist", 
-    renewal="acc", 
+    save_path="./result/mnist",
+    renewal="acc",
     empirical_balance=False,
-    Dispersion=False, 
+    Dispersion=False,
     check_point=25
     )
 ```
 
-위의 파라미터 기준 현재 정확도 38%를 보이고 있습니다
-![mnist](./history_plt/mnist_cnn_acc.png)
+위의 파라미터 기준 현재 정확도 46%를 보이고 있습니다
+![mnist](./history_plt/mnist_46.57.png)
 
 ### Trouble Shooting
 
 > 1. 딥러닝 알고리즘 특성상 weights는 처음 컴파일시 무작위하게 생성된다. weights의 각 지점의 중요도는 매번 무작위로 정해지기에 전역 최적값으로 찾아갈 때 값이 높은 loss를 향해서 상승하는 현상이 나타난다.<br>
-> 따라서 weights의 이동 방법을 더 탐구하거나, weights를 초기화 할때 random 중요도를 좀더 노이즈가 적게 생성하는 방향을 모색해야할 것 같다.
+>    따라서 weights의 이동 방법을 더 탐구하거나, weights를 초기화 할때 random 중요도를 좀더 노이즈가 적게 생성하는 방향을 모색해야할 것 같다.
 
 -> 고르게 초기화 하기 위해 np.random.uniform 함수를 사용하였습니다
 
