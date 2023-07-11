@@ -5,12 +5,14 @@ __pycache__/
 
 .ipynb_checkpoints/
 
+# 테스트용 파일
+test.ipynb
+
 # 결과 저장용 디렉토리
 result/
 
 # 논문 관련 파일
 *.pdf
 *.pptx
-
 관련 논문/
 발표 자료/

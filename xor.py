@@ -1,5 +1,6 @@
 # %%
 import os
+import sys
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
@@ -49,13 +50,15 @@ loss = [
 pso_xor = Optimizer(
     model,
     loss=loss[0],
-    n_particles=75,
+    n_particles=50,
     c0=0.35,
     c1=0.8,
     w_min=0.6,
     w_max=1.2,
-    negative_swarm=0.25,
-    mutation_swarm=0.25,
+    negative_swarm=0.1,
+    mutation_swarm=0.2,
+    particle_min=-3,
+    particle_max=3,
 )
 best_score = pso_xor.fit(
     x_test,
@@ -69,4 +72,6 @@ best_score = pso_xor.fit(
     check_point=25,
 )
 
+print("Done!")
+sys.exit(0)
 # %%

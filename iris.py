@@ -1,4 +1,5 @@
 import os
+import sys
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
@@ -39,11 +40,11 @@ def load_data():
 model = make_model()
 x_train, x_test, y_train, y_test = load_data()
 
-loss = ["categorical_crossentropy"]
+loss = ["categorical_crossentropy", 'mean_squared_error']
 
 pso_iris = Optimizer(
     model,
-    loss=loss[0],
+    loss=loss[1],
     n_particles=100,
     c0=0.4,
     c1=0.8,
@@ -51,6 +52,8 @@ pso_iris = Optimizer(
     w_max=1.0,
     negative_swarm=0.1,
     mutation_swarm=0.2,
+    particle_min=-3,
+    particle_max=3,
 )
 
 best_score = pso_iris.fit(
@@ -66,3 +69,5 @@ best_score = pso_iris.fit(
 )
 
 gc.collect()
+print("Done!")
+sys.exit(0)

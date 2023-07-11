@@ -1,19 +1,18 @@
 # %%
 import os
+import sys
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 import gc
 
 import tensorflow as tf
-from tensorflow import keras
 from keras.datasets import mnist
 from keras.layers import Conv2D, Dense, Dropout, Flatten, MaxPooling2D
 from keras.models import Sequential
+from tensorflow import keras
 
 from pso import Optimizer
-
-# from pso import Optimizer_Test
 
 
 def get_data():
@@ -85,11 +84,11 @@ if __name__ == "__main__":
         pso_mnist = Optimizer(
             model,
             loss=loss[0],
-            n_particles=75,
+            n_particles=70,
             c0=0.25,
-            c1=0.4,
-            w_min=0.2,
-            w_max=0.55,
+            c1=0.45,
+            w_min=0.35,
+            w_max=0.6,
             negative_swarm=0.1,
             mutation_swarm=0.2,
         )
@@ -110,3 +109,5 @@ if __name__ == "__main__":
         print(e)
     finally:
         gc.collect()
+        print("Done!")
+        sys.exit(0)

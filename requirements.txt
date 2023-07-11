@@ -1,0 +1,7 @@
+ipython @ file:///home/conda/feedstock_root/build_artifacts/ipython_1680185408135/work
+keras==2.11.0
+matplotlib @ file:///croot/matplotlib-suite_1679593461707/work
+numpy @ file:///work/mkl/numpy_and_numpy_base_1682953417311/work
+pandas==1.5.3
+tensorflow==2.11.0
+tqdm @ file:///croot/tqdm_1679561862951/work

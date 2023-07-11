@@ -28,7 +28,7 @@ pso 알고리즘을 사용하여 새로운 학습 방법을 찾는중 입니다
 # 초기 세팅
 
 ```shell
- conda env create -f env.yaml
+conda env create -f ./conda_env/environment.yaml
 ```
 
 # 현재 진행 상황
@@ -84,20 +84,23 @@ pso 알고리즘을 이용하여 오차역전파 함수를 최적화 하는 방�
 ### 1. xor 문제
 
 ```python
- loss = 'mean_squared_error'
+loss = 'mean_squared_error'
 
- pso_xor = Optimizer(
+pso_xor = Optimizer(
     model,
     loss=loss,
-    n_particles=75,
+    n_particles=50,
     c0=0.35,
     c1=0.8,
     w_min=0.6,
     w_max=1.2,
-    negative_swarm=0.25
-    )
+    negative_swarm=0.1,
+    mutation_swarm=0.2,
+    particle_min=-3,
+    particle_max=3,
+)
 
- best_score = pso_xor.fit(
+best_score = pso_xor.fit(
     x_test,
     y_test,
     epochs=200,
@@ -106,27 +109,30 @@ pso 알고리즘을 이용하여 오차역전파 함수를 최적화 하는 방�
     renewal="acc",
     empirical_balance=False,
     Dispersion=False,
-    check_point=25
-    )
+    check_point=25,
+)
 ```
 
-위의 파라미터 기준 40 세대 이후부터 정확도가 100%가 나오는 것을 확인하였습니다
-![xor](./history_plt/xor_sigmoid_2_acc_40.png)
+위의 파라미터 기준 10 세대 근처부터 정확도가 100%가 나오는 것을 확인하였습니다
+![xor](./history_plt/xor_2_10.png)
 
 2. iris 문제
 
 ```python
-loss = 'categorical_crossentropy'
+loss = 'mean_squared_error'
 
 pso_iris = Optimizer(
     model,
     loss=loss,
-    n_particles=50,
+    n_particles=100,
     c0=0.4,
     c1=0.8,
     w_min=0.7,
     w_max=1.0,
-    negative_swarm=0.2
+    negative_swarm=0.1,
+    mutation_swarm=0.2,
+    particle_min=-3,
+    particle_max=3,
     )
 
 best_score = pso_iris.fit(
@@ -148,7 +154,7 @@ best_score = pso_iris.fit(
 3. mnist 문제
 
 ```python
-loss = 'mse'
+loss = 'mean_squared_error'
 
 pso_mnist = Optimizer(
     model,
