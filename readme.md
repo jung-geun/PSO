@@ -148,17 +148,17 @@ best_score = pso_iris.fit(
 3. mnist 문제
 
 ```python
-loss = 'sparse_categorical_crossentropy'
+loss = 'mse'
 
 pso_mnist = Optimizer(
     model,
     loss=loss,
     n_particles=75,
-    c0=0.35,
-    c1=0.7,
-    w_min=0.45,
-    w_max=0.9,
-    negative_swarm=0.2,
+    c0=0.25,
+    c1=0.4,
+    w_min=0.2,
+    w_max=0.6,
+    negative_swarm=0.1,
     mutation_swarm=0.2,
 )
 
@@ -175,8 +175,8 @@ best_score = pso_mnist.fit(
     )
 ```
 
-위의 파라미터 기준 현재 정확도 46%를 보이고 있습니다
-![mnist](./history_plt/mnist_46.57.png)
+위의 파라미터 기준 현재 정확도 43.38%를 보이고 있습니다
+![mnist](./history_plt/mnist_mse_43.38.png)
 
 ### Trouble Shooting
 

@@ -84,12 +84,12 @@ if __name__ == "__main__":
     try:
         pso_mnist = Optimizer(
             model,
-            loss=loss[1],
+            loss=loss[0],
             n_particles=75,
             c0=0.25,
             c1=0.4,
-            w_min=0.3,
-            w_max=0.7,
+            w_min=0.2,
+            w_max=0.55,
             negative_swarm=0.1,
             mutation_swarm=0.2,
         )

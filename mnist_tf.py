@@ -62,11 +62,11 @@ x_train, y_train, x_test, y_test = get_data()
 y_train = tf.one_hot(y_train, 10)
 y_test = tf.one_hot(y_test, 10)
 
-model.compile(
-    optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"]
-)
+# model.compile(
+    # optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"]
+# )
 
-# model.compile(optimizer="adam", loss="mse", metrics=["accuracy"])
+model.compile(optimizer="adam", loss="mse", metrics=["accuracy"])
 
 print("Training model...")
 model.fit(x_train, y_train, epochs=100, batch_size=128, verbose=1)
