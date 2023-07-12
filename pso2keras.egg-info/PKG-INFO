@@ -1,3 +1,14 @@
+Metadata-Version: 2.1
+Name: pso2keras
+Version: 0.1.0
+Summary: Particle Swarm Optimization to tensorflow package
+Home-page: https://github.com/jung-geun/PSO
+Author: pieroot
+Author-email: jgbong0306@gmail.com
+Keywords: pso,tensorflow,keras
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+
 # PSO 알고리즘 구현 및 새로운 시도
 
 pso 알고리즘을 사용하여 새로운 학습 방법을 찾는중 입니다

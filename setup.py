@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='pso-keras',
-    version='0.1.0',
+    name='pso2keras',
+    version='0.1.1',
     description='Particle Swarm Optimization to tensorflow package',
     author='pieroot',
     author_email='jgbong0306@gmail.com',
@@ -14,4 +14,5 @@ setup(
     package_data={},
     zip_safe=False,
     long_description=open('README.md', encoding='UTF8').read(),
+    long_description_content_type='text/markdown',
 )

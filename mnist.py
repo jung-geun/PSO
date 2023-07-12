@@ -63,7 +63,7 @@ model = make_model()
 x_train, y_train = get_data_test()
 
 loss = [
-    "mse",
+    "mean_squared_error",
     "categorical_crossentropy",
     "sparse_categorical_crossentropy",
     "binary_crossentropy",
@@ -79,35 +79,32 @@ loss = [
 # target = make_model()
 # target.load_weights("weights.h5")
 
-if __name__ == "__main__":
-    try:
-        pso_mnist = Optimizer(
-            model,
-            loss=loss[0],
-            n_particles=70,
-            c0=0.25,
-            c1=0.45,
-            w_min=0.35,
-            w_max=0.6,
-            negative_swarm=0.1,
-            mutation_swarm=0.2,
-        )
+pso_mnist = Optimizer(
+    model,
+    loss=loss[0],
+    n_particles=70,
+    c0=0.25,
+    c1=0.45,
+    w_min=0.35,
+    w_max=0.65,
+    negative_swarm=0.1,
+    mutation_swarm=0.2,
+    particle_min=-5,
+    particle_max=5,
+)
 
-        best_score = pso_mnist.fit(
-            x_train,
-            y_train,
-            epochs=200,
-            save=True,
-            save_path="./result/mnist",
-            renewal="acc",
-            empirical_balance=False,
-            Dispersion=False,
-            check_point=25,
-        )
+best_score = pso_mnist.fit(
+    x_train,
+    y_train,
+    epochs=300,
+    save=True,
+    save_path="./result/mnist",
+    renewal="acc",
+    empirical_balance=False,
+    Dispersion=False,
+    check_point=25,
+)
 
-    except Exception as e:
-        print(e)
-    finally:
-        gc.collect()
-        print("Done!")
-        sys.exit(0)
+gc.collect()
+print("Done!")
+sys.exit(0)
