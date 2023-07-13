@@ -5,11 +5,17 @@ __pycache__/
 
 .ipynb_checkpoints/
 
+# pypi
+dist/
+build/
+pso2keras.egg-info/
+
 # 테스트용 파일
 test.ipynb
 
 # 결과 저장용 디렉토리
 result/
+logs/
 
 # 논문 관련 파일
 *.pdf

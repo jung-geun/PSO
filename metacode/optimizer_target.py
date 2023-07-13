@@ -9,7 +9,7 @@ import tensorflow as tf
 from tensorflow import keras
 from tqdm import tqdm
 
-from ..pso.particle import Particle
+from pso2keras import Particle
 
 gpus = tf.config.experimental.list_physical_devices("GPU")
 if gpus:

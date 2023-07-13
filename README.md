@@ -98,7 +98,7 @@ pso_xor = Optimizer(
     mutation_swarm=0.2,
     particle_min=-3,
     particle_max=3,
-    )
+)
 
 best_score = pso_xor.fit(
     x_test,
@@ -110,8 +110,7 @@ best_score = pso_xor.fit(
     empirical_balance=False,
     Dispersion=False,
     check_point=25,
-    )
-
+)
 ```
 
 위의 파라미터 기준 10 세대 근처부터 정확도가 100%가 나오는 것을 확인하였습니다
@@ -181,7 +180,7 @@ best_score = pso_mnist.fit(
     empirical_balance=False,
     Dispersion=False,
     check_point=25
-    )
+)
 ```
 
 위의 파라미터 기준 현재 정확도 43.38%를 보이고 있습니다
@@ -195,6 +194,8 @@ best_score = pso_mnist.fit(
 -> 고르게 초기화 하기 위해 np.random.uniform 함수를 사용하였습니다
 
 > 2. 지역최적값에 계속 머무르는 조기 수렴 현상이 나타난다. - 30% 정도의 정확도를 가진다
+
+-> 지역최적값에 머무르는 것을 방지하기 위해 negative_swarm, mutation_swarm 파라미터를 추가하였습니다 - 현재 43% 정도의 정확도를 보이고 있습니다
 
 ### 개인적인 생각
 

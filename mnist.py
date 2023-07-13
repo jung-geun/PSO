@@ -76,17 +76,15 @@ loss = [
     "mean_absolute_percentage_error",
 ]
 
-# target = make_model()
-# target.load_weights("weights.h5")
 
 pso_mnist = Optimizer(
     model,
     loss=loss[0],
-    n_particles=70,
-    c0=0.25,
-    c1=0.45,
-    w_min=0.35,
-    w_max=0.65,
+    n_particles=150,
+    c0=0.2,
+    c1=0.35,
+    w_min=0.25,
+    w_max=0.5,
     negative_swarm=0.1,
     mutation_swarm=0.2,
     particle_min=-5,
@@ -96,15 +94,14 @@ pso_mnist = Optimizer(
 best_score = pso_mnist.fit(
     x_train,
     y_train,
-    epochs=300,
-    save=True,
+    epochs=100,
+    save_info=True,
+    log=2,
     save_path="./result/mnist",
     renewal="acc",
-    empirical_balance=False,
-    Dispersion=False,
     check_point=25,
 )
 
-gc.collect()
 print("Done!")
+gc.collect()
 sys.exit(0)
