@@ -9,7 +9,7 @@ setup(
     url="https://github.com/jung-geun/PSO",
     install_requires=[
         "tqdm==4.65.0",
-        "tensorflow==2.11.0",
+        "tensorflow==2.11.1",
         "keras==2.11.0",
         "numpy",
         "pandas",
