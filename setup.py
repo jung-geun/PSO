@@ -1,16 +1,20 @@
 from setuptools import setup, find_packages
 
+import pso
+
+VERSION = pso.__version__
+
 setup(
     name="pso2keras",
-    version="0.1.2",
+    version=VERSION,
     description="Particle Swarm Optimization to tensorflow package",
     author="pieroot",
     author_email="jgbong0306@gmail.com",
     url="https://github.com/jung-geun/PSO",
     install_requires=[
         "tqdm==4.65.0",
-        "tensorflow==2.11.0",
-        "keras==2.11.0",
+        "tensorflow==2.11.1",
+        "tensorboard==2.11.2",
         "numpy",
         "pandas",
         "ipython",

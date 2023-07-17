@@ -7,7 +7,7 @@ from datetime import datetime
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
-from tqdm import tqdm
+from tqdm.auto import tqdm
 
 from .particle import Particle
 
@@ -89,6 +89,7 @@ class Optimizer:
         self.empirical_balance = False
         negative_count = 0
 
+        print(f"start running time : {self.day}")
         for i in tqdm(range(self.n_particles), desc="Initializing Particles"):
             m = keras.models.model_from_json(model.to_json())
             init_weights = m.get_weights()
@@ -206,6 +207,7 @@ class Optimizer:
         y,
         epochs: int = 100,
         log: int = 0,
+        log_name: str = None,
         save_info: bool = False,
         save_path: str = "./result",
         renewal: str = "acc",
@@ -231,13 +233,19 @@ class Optimizer:
         self.Dispersion = Dispersion
 
         self.renewal = renewal
-        if log == 2:
-            train_log_dir = "logs/gradient_tape/" + self.day + "/train"
-            self.train_summary_writer = [None] * self.n_particles
-            for i in range(self.n_particles):
-                self.train_summary_writer[i] = tf.summary.create_file_writer(
-                    train_log_dir + f"/{i}"
-                )
+        try:
+            if log == 2:
+                assert log_name is not None, "log_name is None"
+
+                train_log_dir = f"logs/{log_name}/{self.day}/train"
+                self.train_summary_writer = [None] * self.n_particles
+                for i in range(self.n_particles):
+                    self.train_summary_writer[i] = tf.summary.create_file_writer(
+                        train_log_dir + f"/{i}"
+                    )
+        except AssertionError as e:
+            print(e)
+            sys.exit(1)
         try:
             if check_point is not None or log == 1:
                 if save_path is None:
@@ -289,7 +297,10 @@ class Optimizer:
                         f.write(", ")
                     else:
                         f.write("\n")
-
+            if log == 2:
+                with self.train_summary_writer[i].as_default():
+                    tf.summary.scalar("loss", local_score[0], step=0)
+                    tf.summary.scalar("accuracy", local_score[1], step=0)
             del local_score
             gc.collect()
 
@@ -302,18 +313,19 @@ class Optimizer:
                 range(epochs),
                 desc=f"best {self.g_best_score[0]:.4f}|{self.g_best_score[1]:.4f}",
                 ascii=True,
-                leave=False,
+                leave=True,
+                position=0,
             )
             for epoch in epochs_pbar:
-                acc = 0
-                loss = 0
                 max_score = 0
                 min_loss = np.inf
+
                 part_pbar = tqdm(
                     range(len(self.particles)),
                     desc=f"acc : {max_score:.4f} loss : {min_loss:.4f}",
                     ascii=True,
                     leave=False,
+                    position=1,
                 )
                 w = self.w_max - (self.w_max - self.w_min) * epoch / epochs
                 for i in part_pbar:
@@ -371,8 +383,8 @@ class Optimizer:
 
                     if log == 2:
                         with self.train_summary_writer[i].as_default():
-                            tf.summary.scalar("loss", score[0], step=epoch)
-                            tf.summary.scalar("accuracy", score[1], step=epoch)
+                            tf.summary.scalar("loss", score[0], step=epoch + 1)
+                            tf.summary.scalar("accuracy", score[1], step=epoch + 1)
 
                     if renewal == "acc":
                         if score[1] >= max_score:
@@ -424,14 +436,6 @@ class Optimizer:
                                 f"best {self.g_best_score[0]:.4f} | {self.g_best_score[1]:.4f}"
                             )
 
-                    if score[0] == None:
-                        score[0] = np.inf
-                    if score[1] == None:
-                        score[1] = 0
-
-                    loss = loss + score[0]
-                    acc = acc + score[1]
-
                     if log == 1:
                         with open(
                             f"./{save_path}/{self.day}_{self.n_particles}_{epochs}_{self.c0}_{self.c1}_{self.w_min}_{renewal}.csv",
@@ -443,11 +447,12 @@ class Optimizer:
                             else:
                                 f.write("\n")
 
+                part_pbar.refresh()
+
                 if check_point is not None:
                     if epoch % check_point == 0:
                         os.makedirs(f"./{save_path}/{self.day}", exist_ok=True)
                         self._check_point_save(f"./{save_path}/{self.day}/ckpt-{epoch}")
-                self.avg_score = acc / self.n_particles
 
                 gc.collect()
 

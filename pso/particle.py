@@ -153,7 +153,7 @@ class Particle:
             )
 
         if np.random.rand() < self.mutation:
-            m_v = np.random.uniform(-0.1, 0.1, len(encode_v))
+            m_v = np.random.uniform(-0.2, 0.2, len(encode_v))
             new_v = m_v
 
         self.velocities = self._decode(new_v, w_sh, w_len)

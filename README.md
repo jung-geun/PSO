@@ -38,25 +38,24 @@ conda env create -f ./conda_env/environment.yaml
 ### 파일 구조
 
 ```plain text
-|-- /metacode       # pso 기본 코드
-|  |-- pso_bp.py    # 오차역전파 함수를 최적화하는 PSO 알고리즘 구현 - 성능이 99% 이상으로 나오나 목적과 다름
-|  |-- pso_meta.py  # PSO 기본 알고리즘 구현
-|  |-- pso_tf.py    # tensorflow 모델을 이용가능한 PSO 알고리즘 구현
-|-- /pso            # tensorflow 모델을 학습하기 위해 기본 pso 코드에서 수정 - (psokeras 코드 의 구조를 사용하여 만듬)
-|  |-- __init__.py  # pso 모듈을 사용하기 위한 초기화 파일
-|  |-- optimizer.py # pso 알고리즘 이용을 위한 기본 코드
-|  |-- particle.py  # 각 파티클의 정보 및 위치를 저장하는 코드
-|-- examples.py     # psokeras 코드를 이용한 예제
-|-- xor.ipynb       # pso 를 이용한 xor 문제 풀이
-|-- iris.py         # pso 를 이용한 iris 문제 풀이
-|-- iris_tf.py      # tensorflow 를 이용한 iris 문제 풀이
-|-- mnist.py        # pso 를 이용한 mnist 문제 풀이
-|-- plt.ipynb       # pyplot 으로 학습 결과를 그래프로 표현
-|-- env.yaml        # conda 환경 설정 파일
-|-- readme.md       # 현재 파일
+|-- /conda_env              # conda 환경 설정 파일
+|  |-- environment.yaml     # conda 환경 설정 파일
+|-- /metacode               # pso 기본 코드
+|  |-- pso_bp.py            # 오차역전파 함수를 최적화하는 PSO 알고리즘 구현 - 성능이 99% 이상으로 나오나 목적과 다름
+|  |-- pso_meta.py          # PSO 기본 알고리즘 구현
+|  |-- pso_tf.py            # tensorflow 모델을 이용가능한 PSO 알고리즘 구현
+|-- /pso                    # tensorflow 모델을 학습하기 위해 기본 pso 코드에서 수정 - (psokeras 코드 의 구조를 사용하여 만듬)
+|  |-- __init__.py          # pso 모듈을 사용하기 위한 초기화 파일
+|  |-- optimizer.py         # pso 알고리즘 이용을 위한 기본 코드
+|  |-- particle.py          # 각 파티클의 정보 및 위치를 저장하는 코드
+|-- xor.py                  # pso 를 이용한 xor 문제 풀이
+|-- iris.py                 # pso 를 이용한 iris 문제 풀이
+|-- iris_tf.py              # tensorflow 를 이용한 iris 문제 풀이
+|-- mnist.py                # pso 를 이용한 mnist 문제 풀이
+|-- mnist_tf.py             # tensorflow 를 이용한 mnist 문제 풀이
+|-- plt.ipynb               # pyplot 으로 학습 결과를 그래프로 표현
+|-- README.md               # 현재 파일
 ```
-
-psokeras 및 pyswarms 라이브러리는 외부 라이브러리이기에 코드를 수정하지 않았습니다
 
 pso 라이브러리는 tensorflow 모델을 학습하기 위해 기본 ./metacode/pso_meta.py 코드에서 수정하였습니다 [2]
 

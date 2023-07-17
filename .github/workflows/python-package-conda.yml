@@ -20,6 +20,6 @@ jobs:
           echo $CONDA/bin >> $GITHUB_PATH
       - name: Install dependencies
         run: |
-          conda env create --file environment.yaml --name pso
+          conda env create --file conda_env/environment.yaml --name pso
           conda activate pso
           python mnist.py

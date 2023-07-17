@@ -80,11 +80,11 @@ loss = [
 pso_mnist = Optimizer(
     model,
     loss=loss[0],
-    n_particles=150,
-    c0=0.2,
-    c1=0.35,
-    w_min=0.25,
-    w_max=0.5,
+    n_particles=70,
+    c0=0.3,
+    c1=0.5,
+    w_min=0.4,
+    w_max=0.7,
     negative_swarm=0.1,
     mutation_swarm=0.2,
     particle_min=-5,
@@ -94,14 +94,16 @@ pso_mnist = Optimizer(
 best_score = pso_mnist.fit(
     x_train,
     y_train,
-    epochs=100,
+    epochs=200,
     save_info=True,
     log=2,
+    log_name="mnist",
     save_path="./result/mnist",
     renewal="acc",
     check_point=25,
 )
 
 print("Done!")
+
 gc.collect()
 sys.exit(0)

@@ -64,11 +64,10 @@ best_score = pso_xor.fit(
     x_test,
     y_test,
     epochs=200,
-    save=True,
+    save_info=True,
+    log=2,
     save_path="./result/xor",
     renewal="acc",
-    empirical_balance=False,
-    Dispersion=False,
     check_point=25,
 )
 

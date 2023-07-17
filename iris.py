@@ -40,7 +40,7 @@ def load_data():
 model = make_model()
 x_train, x_test, y_train, y_test = load_data()
 
-loss = ["categorical_crossentropy", 'mean_squared_error']
+loss = ["categorical_crossentropy", "mean_squared_error"]
 
 pso_iris = Optimizer(
     model,
@@ -60,11 +60,11 @@ best_score = pso_iris.fit(
     x_train,
     y_train,
     epochs=200,
-    save=True,
+    save_info=True,
+    log=2,
+    log_name="iris",
     save_path="./result/iris",
     renewal="acc",
-    empirical_balance=False,
-    Dispersion=False,
     check_point=25,
 )
 
