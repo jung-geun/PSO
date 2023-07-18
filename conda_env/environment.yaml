@@ -5,12 +5,11 @@ channels:
 dependencies:
   - cudatoolkit=11.2
   - cudnn=8.1.0
-  - matplotlib=3.7.1
   - pandas=1.5.3
   - pip=23.0.1
   - python=3.9.16
   - tqdm=4.65.0
   - pip:
-      - numpy==1.23.5
+      - numpy==1.25.0
       - tensorflow==2.11.0
       - tensorboard==2.11.0

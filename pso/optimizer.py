@@ -234,6 +234,7 @@ class Optimizer:
 
         self.renewal = renewal
         try:
+            train_log_dir = "logs/fit/" + self.day
             if log == 2:
                 assert log_name is not None, "log_name is None"
 
@@ -319,7 +320,6 @@ class Optimizer:
             for epoch in epochs_pbar:
                 max_score = 0
                 min_loss = np.inf
-
                 part_pbar = tqdm(
                     range(len(self.particles)),
                     desc=f"acc : {max_score:.4f} loss : {min_loss:.4f}",
@@ -373,7 +373,15 @@ class Optimizer:
                             del p_
 
                         score = self.particles[i].step_w(
-                            x, y, self.c0, self.c1, w, g_best, w_p, w_g, renewal=renewal
+                            x,
+                            y,
+                            self.c0,
+                            self.c1,
+                            w,
+                            g_best,
+                            w_p,
+                            w_g,
+                            renewal=renewal,
                         )
 
                     else:
