@@ -1,4 +1,5 @@
 # %%
+import json
 import os
 import sys
 
@@ -6,6 +7,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 import gc
 
+import numpy as np
 import tensorflow as tf
 from keras.datasets import mnist
 from keras.layers import Conv2D, Dense, Dropout, Flatten, MaxPooling2D
@@ -24,6 +26,9 @@ def get_data():
 
     y_train, y_test = tf.one_hot(y_train, 10), tf.one_hot(y_test, 10)
 
+    x_train, x_test = tf.convert_to_tensor(x_train), tf.convert_to_tensor(x_test)
+    y_train, y_test = tf.convert_to_tensor(y_train), tf.convert_to_tensor(y_test)
+
     print(f"x_train : {x_train[0].shape} | y_train : {y_train[0].shape}")
     print(f"x_test : {x_test[0].shape} | y_test : {y_test[0].shape}")
 
@@ -36,6 +41,9 @@ def get_data_test():
     x_test = x_test.reshape((10000, 28, 28, 1))
 
     y_test = tf.one_hot(y_test, 10)
+
+    x_test = tf.convert_to_tensor(x_test)
+    y_test = tf.convert_to_tensor(y_test)
 
     print(f"x_test : {x_test[0].shape} | y_test : {y_test[0].shape}")
 
@@ -58,6 +66,23 @@ def make_model():
     return model
 
 
+def random_state():
+    with open(
+        "result/mnist/20230720-192726/mean_squared_error_[0.4970000088214874, 0.10073449462652206].json",
+        "r",
+    ) as f:
+        json_ = json.load(f)
+        rs = (
+            json_["random_state_0"],
+            np.array(json_["random_state_1"]),
+            json_["random_state_2"],
+            json_["random_state_3"],
+            json_["random_state_4"],
+        )
+
+    return rs
+
+
 # %%
 model = make_model()
 x_train, y_train = get_data_test()
@@ -76,15 +101,16 @@ loss = [
     "mean_absolute_percentage_error",
 ]
 
+# rs = random_state()
 
 pso_mnist = Optimizer(
     model,
     loss=loss[0],
-    n_particles=70,
-    c0=0.3,
-    c1=0.5,
-    w_min=0.4,
-    w_max=0.7,
+    n_particles=100,
+    c0=0.25,
+    c1=0.4,
+    w_min=0.3,
+    w_max=0.9,
     negative_swarm=0.1,
     mutation_swarm=0.2,
     particle_min=-5,
@@ -105,5 +131,4 @@ best_score = pso_mnist.fit(
 
 print("Done!")
 
-gc.collect()
 sys.exit(0)

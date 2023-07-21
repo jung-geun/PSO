@@ -1,4 +1,4 @@
-name: Python Package Index publish
+name: PyPI package
 
 on: [push]
 

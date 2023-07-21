@@ -1,6 +1,7 @@
 import gc
 
 import numpy as np
+import tensorflow as tf
 from tensorflow import keras
 
 
@@ -37,7 +38,6 @@ class Particle:
 
         del i_w_, s_, l_
         del init_weights
-        gc.collect()
 
     def __del__(self):
         del self.model
@@ -46,7 +46,6 @@ class Particle:
         del self.negative
         del self.best_score
         del self.best_weights
-        gc.collect()
 
     def _encode(self, weights: list):
         """
@@ -109,7 +108,7 @@ class Particle:
             (float): 점수
         """
         self.model.compile(loss=self.loss, optimizer="sgd", metrics=["accuracy"])
-        score = self.model.evaluate(x, y, verbose=0)
+        score = self.model.evaluate(x, y, verbose=0, use_multiprocessing=True)
         if renewal == "acc":
             if score[1] > self.best_score:
                 self.best_score = score[1]
@@ -220,26 +219,6 @@ class Particle:
 
         del encode_w, w_sh, w_len
         del encode_v, v_sh, v_len
-
-    def f(self, x, y, weights):
-        """
-        EBPSO의 목적함수(예상)
-
-        Args:
-            x (list): 입력 데이터
-            y (list): 출력 데이터
-            weights (list): 가중치
-
-        Returns:
-            float: 목적함수 값
-        """
-        self.model.set_weights(weights)
-        score = self.model.evaluate(x, y, verbose=0)[1]
-
-        if score > 0:
-            return 1 / (1 + score)
-        else:
-            return 1 + np.abs(score)
 
     def step(self, x, y, local_rate, global_rate, w, g_best, renewal: str = "acc"):
         """

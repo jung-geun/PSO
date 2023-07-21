@@ -38,6 +38,7 @@ class Optimizer:
         mutation_swarm: float = 0,
         np_seed: int = None,
         tf_seed: int = None,
+        random_state: tuple = None,
         particle_min: float = -5,
         particle_max: float = 5,
     ):
@@ -65,6 +66,9 @@ class Optimizer:
             tf.random.set_seed(tf_seed)
 
         self.random_state = np.random.get_state()
+
+        if random_state is not None:
+            np.random.set_state(random_state)
 
         self.model = model  # 모델 구조
         self.loss = loss  # 손실함수
@@ -113,6 +117,8 @@ class Optimizer:
         print(f"mutation swarm : {mutation_swarm * 100}%")
 
         gc.collect()
+        tf.keras.backend.reset_uids()
+        tf.keras.backend.clear_session()
 
     def __del__(self):
         del self.model
@@ -129,6 +135,8 @@ class Optimizer:
         del self.g_best_
         del self.avg_score
         gc.collect()
+        tf.keras.backend.reset_uids()
+        tf.keras.backend.clear_session()
 
     def _encode(self, weights):
         """
@@ -304,7 +312,8 @@ class Optimizer:
                     tf.summary.scalar("accuracy", local_score[1], step=0)
             del local_score
             gc.collect()
-
+            tf.keras.backend.reset_uids()
+            tf.keras.backend.clear_session()
         print(
             f"initial g_best_score : {self.g_best_score[0] if self.renewal == 'acc' else self.g_best_score[1]}"
         )
@@ -454,7 +463,9 @@ class Optimizer:
                                 f.write(", ")
                             else:
                                 f.write("\n")
-
+                    # gc.collect()
+                    # tf.keras.backend.reset_uids()
+                    # tf.keras.backend.clear_session()
                 part_pbar.refresh()
 
                 if check_point is not None:
@@ -463,6 +474,8 @@ class Optimizer:
                         self._check_point_save(f"./{save_path}/{self.day}/ckpt-{epoch}")
 
                 gc.collect()
+                tf.keras.backend.reset_uids()
+                tf.keras.backend.clear_session()
 
         except KeyboardInterrupt:
             print("Ctrl + C : Stop Training")
