@@ -19,7 +19,7 @@ setup(
     ],
     packages=find_packages(exclude=[]),
     keywords=["pso", "tensorflow", "keras"],
-    python_requires="==3.9",
+    python_requires=">=3.8",
     package_data={},
     zip_safe=False,
     long_description=open("README.md", encoding="UTF8").read(),
