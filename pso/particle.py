@@ -107,7 +107,7 @@ class Particle:
         Returns:
             (float): 점수
         """
-        self.model.compile(loss=self.loss, optimizer="sgd", metrics=["accuracy"])
+        # self.model.compile(loss=self.loss, optimizer="sgd", metrics=["accuracy"])
         score = self.model.evaluate(x, y, verbose=0, use_multiprocessing=True)
         if renewal == "acc":
             if score[1] > self.best_score:

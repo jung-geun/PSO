@@ -95,16 +95,14 @@ class Optimizer:
 
         print(f"start running time : {self.day}")
         for i in tqdm(range(self.n_particles), desc="Initializing Particles"):
-            m = keras.models.model_from_json(model.to_json())
-            init_weights = m.get_weights()
-
-            w_, sh_, len_ = self._encode(init_weights)
+            model_ = keras.models.model_from_json(model.to_json())
+            w_, sh_, len_ = self._encode(model_.get_weights())
             w_ = np.random.uniform(particle_min, particle_max, len(w_))
-            m.set_weights(self._decode(w_, sh_, len_))
+            model_.set_weights(self._decode(w_, sh_, len_))
 
-            m.compile(loss=self.loss, optimizer="sgd", metrics=["accuracy"])
+            model_.compile(loss=self.loss, optimizer="sgd", metrics=["accuracy"])
             self.particles[i] = Particle(
-                m,
+                model_,
                 loss,
                 negative=True if i < negative_swarm * self.n_particles else False,
                 mutation=mutation_swarm,
@@ -112,6 +110,9 @@ class Optimizer:
             if i < negative_swarm * self.n_particles:
                 negative_count += 1
             # del m, init_weights, w_, sh_, len_
+            gc.collect()
+            tf.keras.backend.reset_uids()
+            tf.keras.backend.clear_session()
 
         print(f"negative swarm : {negative_count} / {self.n_particles}")
         print(f"mutation swarm : {mutation_swarm * 100}%")
@@ -202,7 +203,7 @@ class Optimizer:
             (float): 목적 함수 값
         """
         self.model.set_weights(weights)
-        self.model.compile(loss=self.loss, optimizer="sgd", metrics=["accuracy"])
+        # self.model.compile(loss=self.loss, optimizer="sgd", metrics=["accuracy"])
         score = self.model.evaluate(x, y, verbose=0)[1]
         if score > 0:
             return 1 / (1 + score)
@@ -252,11 +253,8 @@ class Optimizer:
                     self.train_summary_writer[i] = tf.summary.create_file_writer(
                         train_log_dir + f"/{i}"
                     )
-        except AssertionError as e:
-            print(e)
-            sys.exit(1)
-        try:
-            if check_point is not None or log == 1:
+
+            elif check_point is not None or log == 1:
                 if save_path is None:
                     raise ValueError("save_path is None")
                 else:
@@ -290,12 +288,6 @@ class Optimizer:
                     self.g_best = p.get_best_weights()
                     self.g_best_ = p.get_best_weights()
 
-            if local_score[0] == None:
-                local_score[0] = np.inf
-
-            if local_score[1] == None:
-                local_score[1] = 0
-
             if log == 1:
                 with open(
                     f"./{save_path}/{self.day}_{self.n_particles}_{epochs}_{self.c0}_{self.c1}_{self.w_min}_{renewal}.csv",
@@ -306,10 +298,12 @@ class Optimizer:
                         f.write(", ")
                     else:
                         f.write("\n")
-            if log == 2:
+
+            elif log == 2:
                 with self.train_summary_writer[i].as_default():
                     tf.summary.scalar("loss", local_score[0], step=0)
                     tf.summary.scalar("accuracy", local_score[1], step=0)
+
             del local_score
             gc.collect()
             tf.keras.backend.reset_uids()

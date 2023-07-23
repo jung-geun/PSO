@@ -1,4 +1,5 @@
 [![Python Package Index publish](https://github.com/jung-geun/PSO/actions/workflows/pypi.yml/badge.svg?event=push)](https://github.com/jung-geun/PSO/actions/workflows/pypi.yml)
+<a href="https://colab.research.google.com/github/jung-geun/PSO/blob/master/pso2keras.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 
 # PSO 알고리즘 구현 및 새로운 시도
 
@@ -41,13 +42,22 @@ pip install pso2keras==0.1.4
 
 위의 패키지를 사용하기 위해서는 tensorflow 와 tensorboard 가 설치되어 있어야 합니다
 
+python 패키지를 사용하기 위한 라이브러리는 아래 코드를 사용합니다
+
+```python
+from pso import Optimizer
+
+pso_model = Optimizer(...)
+pso_model.fit(...)
+```
+
 # 현재 진행 상황
 
 ## 1. PSO 알고리즘 구현
 
 ### 파일 구조
 
-```plain text
+```plain
 |-- /conda_env              # conda 환경 설정 파일
 |  |-- environment.yaml     # conda 환경 설정 파일
 |-- /metacode               # pso 기본 코드
@@ -212,7 +222,7 @@ best_score = pso_mnist.fit(
 > 머신러닝 분류 방식에 존재하는 random forest 방식을 이용하여, 오차역전파 함수를 최적화 하는 방법이 있을것 같습니다
 >
 > > pso 와 random forest 방식이 매우 유사하다고 생각하여 학습할 때 뿐만 아니라 예측 할 때도 이러한 방식으로 사용할 수 있을 것 같습니다
-> 
+>
 > 각
 
 # 참고 자료
