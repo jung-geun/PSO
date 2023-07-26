@@ -70,6 +70,7 @@ class Optimizer:
         if random_state is not None:
             np.random.set_state(random_state)
 
+        model.compile(loss=loss, optimizer="sgd", metrics=["accuracy"])
         self.model = model  # 모델 구조
         self.loss = loss  # 손실함수
         self.n_particles = n_particles  # 파티클 개수
@@ -203,7 +204,6 @@ class Optimizer:
             (float): 목적 함수 값
         """
         self.model.set_weights(weights)
-        # self.model.compile(loss=self.loss, optimizer="sgd", metrics=["accuracy"])
         score = self.model.evaluate(x, y, verbose=0)[1]
         if score > 0:
             return 1 / (1 + score)
@@ -221,7 +221,7 @@ class Optimizer:
         save_path: str = "./result",
         renewal: str = "acc",
         empirical_balance: bool = False,
-        Dispersion: bool = False,
+        dispersion: bool = False,
         check_point: int = None,
     ):
         """
@@ -234,12 +234,12 @@ class Optimizer:
             save_path : str - ex) "./result",
             renewal : str ex) "acc" or "loss" or "both",
             empirical_balance : bool - True : EBPSO, False : PSO,
-            Dispersion : bool - True : g_best 의 값을 분산시켜 전역해를 찾음, False : g_best 의 값만 사용
+            dispersion : bool - True : g_best 의 값을 분산시켜 전역해를 찾음, False : g_best 의 값만 사용
             check_point : int - 저장할 위치 - None : 저장 안함
         """
         self.save_path = save_path
         self.empirical_balance = empirical_balance
-        self.Dispersion = Dispersion
+        self.Dispersion = dispersion
 
         self.renewal = renewal
         try:
@@ -336,7 +336,7 @@ class Optimizer:
                         f"acc : {max_score:.4f} loss : {min_loss:.4f}"
                     )
 
-                    if Dispersion:
+                    if dispersion:
                         ts = self.c0 + np.random.rand() * (self.c1 - self.c0)
                         g_, g_sh, g_len = self._encode(self.g_best)
                         decrement = (epochs - (epoch) + 1) / epochs

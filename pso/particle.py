@@ -35,7 +35,9 @@ class Particle:
         self.mutation = mutation
         self.best_score = 0
         self.best_weights = init_weights
-
+        self.before_best = init_weights
+        self.before_w = 0
+        
         del i_w_, s_, l_
         del init_weights
 
@@ -107,7 +109,6 @@ class Particle:
         Returns:
             (float): 점수
         """
-        # self.model.compile(loss=self.loss, optimizer="sgd", metrics=["accuracy"])
         score = self.model.evaluate(x, y, verbose=0, use_multiprocessing=True)
         if renewal == "acc":
             if score[1] > self.best_score:
@@ -138,6 +139,15 @@ class Particle:
         encode_g, g_sh, g_len = self._encode(weights=g_best)
         r0 = np.random.rand()
         r1 = np.random.rand()
+        encode_before, before_sh, before_len = self._encode(weights=self.before_best)
+
+        if (encode_before != encode_g).all():
+            self.before_w = w
+            w = w + (self.before_w)
+        else:
+            self.before_w *= 0.6
+            w = w + self.before_w
+
         if self.negative:
             new_v = (
                 w * encode_v
@@ -161,6 +171,7 @@ class Particle:
         del encode_v, v_sh, v_len
         del encode_p, p_sh, p_len
         del encode_g, g_sh, g_len
+        del encode_before, before_sh, before_len
         del r0, r1
 
     def _update_velocity_w(self, local_rate, global_rate, w, w_p, w_g, g_best):

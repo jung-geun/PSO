@@ -1,5 +1,4 @@
 [![Python Package Index publish](https://github.com/jung-geun/PSO/actions/workflows/pypi.yml/badge.svg?event=push)](https://github.com/jung-geun/PSO/actions/workflows/pypi.yml)
-<a href="https://colab.research.google.com/github/jung-geun/PSO/blob/master/pso2keras.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 
 # PSO 알고리즘 구현 및 새로운 시도
 
@@ -29,7 +28,7 @@ pso 알고리즘을 사용하여 새로운 학습 방법을 찾는중 입니다
 자동으로 conda 환경을 설정하기 위해서는 다음 명령어를 사용합니다
 
 ```shell
-conda env create -f ./conda_env/environment.yaml
+conda env create -f conda_env/environment.yaml
 ```
 
 현재 python 3.9 버전, tensorflow 2.11 버전에서 테스트 되었습니다
@@ -50,6 +49,8 @@ from pso import Optimizer
 pso_model = Optimizer(...)
 pso_model.fit(...)
 ```
+
+<a href="https://colab.research.google.com/github/jung-geun/PSO/blob/master/example/pso2mnist.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 
 # 현재 진행 상황
 

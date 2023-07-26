@@ -106,15 +106,15 @@ loss = [
 pso_mnist = Optimizer(
     model,
     loss=loss[0],
-    n_particles=1000,
-    c0=0.4,
-    c1=0.6,
-    w_min=0.5,
-    w_max=0.8,
+    n_particles=500,
+    c0=0.3,
+    c1=0.5,
+    w_min=0.4,
+    w_max=0.9,
     negative_swarm=0.1,
-    mutation_swarm=0.2,
-    particle_min=-5,
-    particle_max=5,
+    mutation_swarm=0.3,
+    particle_min=-4,
+    particle_max=4,
 )
 
 best_score = pso_mnist.fit(
