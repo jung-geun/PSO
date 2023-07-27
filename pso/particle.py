@@ -1,9 +1,6 @@
-import gc
-
 import numpy as np
-import tensorflow as tf
-from tensorflow import keras
 
+from tensorflow import keras
 
 class Particle:
     """
@@ -28,17 +25,17 @@ class Particle:
         self.model = model
         self.loss = loss
         init_weights = self.model.get_weights()
-        i_w_, s_, l_ = self._encode(init_weights)
+        i_w_, i_s, i_l = self._encode(init_weights)
         i_w_ = np.random.uniform(-0.5, 0.5, len(i_w_))
-        self.velocities = self._decode(i_w_, s_, l_)
+        self.velocities = self._decode(i_w_, i_s, i_l)
         self.negative = negative
         self.mutation = mutation
         self.best_score = 0
         self.best_weights = init_weights
         self.before_best = init_weights
         self.before_w = 0
-        
-        del i_w_, s_, l_
+
+        del i_w_, i_s, i_l
         del init_weights
 
     def __del__(self):
@@ -65,9 +62,9 @@ class Particle:
         shape = []
         for layer in weights:
             shape.append(layer.shape)
-            w_ = layer.reshape(-1)
-            length.append(len(w_))
-            w_gpu = np.append(w_gpu, w_)
+            w_tmp = layer.reshape(-1)
+            length.append(len(w_tmp))
+            w_gpu = np.append(w_gpu, w_tmp)
 
         return w_gpu, shape, length
 
@@ -109,7 +106,7 @@ class Particle:
         Returns:
             (float): 점수
         """
-        score = self.model.evaluate(x, y, verbose=0, use_multiprocessing=True)
+        score = self.model.evaluate(x, y, verbose=0)
         if renewal == "acc":
             if score[1] > self.best_score:
                 self.best_score = score[1]
@@ -142,10 +139,10 @@ class Particle:
         encode_before, before_sh, before_len = self._encode(weights=self.before_best)
 
         if (encode_before != encode_g).all():
-            self.before_w = w
-            w = w + (self.before_w)
+            self.before_w = w * 0.6
+            w = w + self.before_w
         else:
-            self.before_w *= 0.6
+            self.before_w *= 0.75
             w = w + self.before_w
 
         if self.negative:

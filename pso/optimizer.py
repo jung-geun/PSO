@@ -88,39 +88,50 @@ class Optimizer:
 
         self.save_path = None  # 저장 위치
         self.renewal = "acc"
-        self.Dispersion = False
+        self.dispersion = False
         self.day = datetime.now().strftime("%Y%m%d-%H%M%S")
 
         self.empirical_balance = False
         negative_count = 0
 
-        print(f"start running time : {self.day}")
-        for i in tqdm(range(self.n_particles), desc="Initializing Particles"):
-            model_ = keras.models.model_from_json(model.to_json())
-            w_, sh_, len_ = self._encode(model_.get_weights())
-            w_ = np.random.uniform(particle_min, particle_max, len(w_))
-            model_.set_weights(self._decode(w_, sh_, len_))
+        self.train_summary_writer = [None] * self.n_particles
+        try:
+            print(f"start running time : {self.day}")
+            for i in tqdm(range(self.n_particles), desc="Initializing Particles"):
+                model_ = keras.models.model_from_json(model.to_json())
+                w_, sh_, len_ = self._encode(model_.get_weights())
+                w_ = np.random.uniform(particle_min, particle_max, len(w_))
+                model_.set_weights(self._decode(w_, sh_, len_))
 
-            model_.compile(loss=self.loss, optimizer="sgd", metrics=["accuracy"])
-            self.particles[i] = Particle(
-                model_,
-                loss,
-                negative=True if i < negative_swarm * self.n_particles else False,
-                mutation=mutation_swarm,
-            )
-            if i < negative_swarm * self.n_particles:
-                negative_count += 1
-            # del m, init_weights, w_, sh_, len_
+                model_.compile(loss=self.loss, optimizer="sgd", metrics=["accuracy"])
+                self.particles[i] = Particle(
+                    model_,
+                    loss,
+                    negative=True if i < negative_swarm * self.n_particles else False,
+                    mutation=mutation_swarm,
+                )
+                if i < negative_swarm * self.n_particles:
+                    negative_count += 1
+                # del m, init_weights, w_, sh_, len_
+                gc.collect()
+                tf.keras.backend.reset_uids()
+                tf.keras.backend.clear_session()
+
+            print(f"negative swarm : {negative_count} / {self.n_particles}")
+            print(f"mutation swarm : {mutation_swarm * 100}%")
+
             gc.collect()
             tf.keras.backend.reset_uids()
             tf.keras.backend.clear_session()
-
-        print(f"negative swarm : {negative_count} / {self.n_particles}")
-        print(f"mutation swarm : {mutation_swarm * 100}%")
-
-        gc.collect()
-        tf.keras.backend.reset_uids()
-        tf.keras.backend.clear_session()
+        except KeyboardInterrupt:
+            print("Ctrl + C : Stop Training")
+            sys.exit(0)
+        except MemoryError:
+            print("Memory Error : Stop Training")
+            sys.exit(1)
+        except Exception as e:
+            print(e)
+            sys.exit(1)
 
     def __del__(self):
         del self.model
@@ -239,7 +250,7 @@ class Optimizer:
         """
         self.save_path = save_path
         self.empirical_balance = empirical_balance
-        self.Dispersion = dispersion
+        self.dispersion = dispersion
 
         self.renewal = renewal
         try:
@@ -248,7 +259,6 @@ class Optimizer:
                 assert log_name is not None, "log_name is None"
 
                 train_log_dir = f"logs/{log_name}/{self.day}/train"
-                self.train_summary_writer = [None] * self.n_particles
                 for i in range(self.n_particles):
                     self.train_summary_writer[i] = tf.summary.create_file_writer(
                         train_log_dir + f"/{i}"
@@ -263,7 +273,8 @@ class Optimizer:
                         os.makedirs(save_path, exist_ok=True)
         except ValueError as e:
             print(e)
-            sys.exit(1)
+        except Exception as e:
+            print(e)
 
         for i in tqdm(range(self.n_particles), desc="Initializing velocity"):
             p = self.particles[i]
@@ -534,7 +545,7 @@ class Optimizer:
             "w_max": self.w_max,
             "loss_method": self.loss,
             "empirical_balance": self.empirical_balance,
-            "Dispersion": self.Dispersion,
+            "dispersion": self.dispersion,
             "negative_swarm": self.negative_swarm,
             "mutation_swarm": self.mutation_swarm,
             "random_state_0": self.random_state[0],

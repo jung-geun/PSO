@@ -68,7 +68,7 @@ def make_model():
 
 def random_state():
     with open(
-        "result/mnist/20230720-192726/mean_squared_error_[0.4970000088214874, 0.10073449462652206].json",
+        "result/mnist/20230723-061626/mean_squared_error_[0.6384999752044678, 0.0723000094294548].json",
         "r",
     ) as f:
         json_ = json.load(f)
@@ -101,7 +101,7 @@ loss = [
     "mean_absolute_percentage_error",
 ]
 
-# rs = random_state()
+rs = random_state()
 
 pso_mnist = Optimizer(
     model,
@@ -110,17 +110,18 @@ pso_mnist = Optimizer(
     c0=0.3,
     c1=0.5,
     w_min=0.4,
-    w_max=0.9,
+    w_max=0.7,
     negative_swarm=0.1,
     mutation_swarm=0.3,
     particle_min=-4,
     particle_max=4,
+    random_state=rs,
 )
 
 best_score = pso_mnist.fit(
     x_train,
     y_train,
-    epochs=200,
+    epochs=250,
     save_info=True,
     log=2,
     log_name="mnist",
