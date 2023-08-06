@@ -11,7 +11,7 @@ from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
 
-from pso import Optimizer
+from pso import optimizer
 
 
 def make_model():
@@ -42,7 +42,7 @@ x_train, x_test, y_train, y_test = load_data()
 
 loss = ["categorical_crossentropy", "mean_squared_error"]
 
-pso_iris = Optimizer(
+pso_iris = optimizer(
     model,
     loss=loss[1],
     n_particles=100,
@@ -63,7 +63,7 @@ best_score = pso_iris.fit(
     save_info=True,
     log=2,
     log_name="iris",
-    save_path="./result/iris",
+    save_path="result/iris",
     renewal="acc",
     check_point=25,
 )
