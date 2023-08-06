@@ -11,7 +11,7 @@ from tensorflow.keras import layers
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import Sequential
 
-from pso import Optimizer
+from pso import optimizer
 
 
 def get_data():
@@ -47,10 +47,10 @@ loss = [
     "mean_absolute_percentage_error",
 ]
 
-pso_xor = Optimizer(
+pso_xor = optimizer(
     model,
     loss=loss[0],
-    n_particles=50,
+    n_particles=100,
     c0=0.35,
     c1=0.8,
     w_min=0.6,
@@ -66,6 +66,7 @@ best_score = pso_xor.fit(
     epochs=200,
     save_info=True,
     log=2,
+    log_name="xor",
     save_path="./result/xor",
     renewal="acc",
     check_point=25,

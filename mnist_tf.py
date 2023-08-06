@@ -1,7 +1,7 @@
-# %%
 import os
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+
 import tensorflow as tf
 
 gpus = tf.config.experimental.list_physical_devices("GPU")
@@ -16,8 +16,6 @@ if gpus:
 from keras.datasets import mnist
 from keras.layers import Conv2D, Dense, Dropout, Flatten, MaxPooling2D
 from keras.models import Sequential
-
-from pso import Optimizer
 
 
 def get_data():
@@ -62,10 +60,6 @@ x_train, y_train, x_test, y_test = get_data()
 y_train = tf.one_hot(y_train, 10)
 y_test = tf.one_hot(y_test, 10)
 
-# model.compile(
-    # optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"]
-# )
-
 model.compile(optimizer="adam", loss="mse", metrics=["accuracy"])
 
 print("Training model...")
@@ -76,17 +70,3 @@ model.evaluate(x_test, y_test, verbose=1)
 
 weights = model.get_weights()
 
-for w in weights:
-    print(w.shape)
-    print(w)
-    print(w.min(), w.max())
-
-model.save_weights("weights.h5")
-
-# %%
-for w in weights:
-    print(w.shape)
-    print(w)
-    print(w.min(), w.max())
-
-# %%

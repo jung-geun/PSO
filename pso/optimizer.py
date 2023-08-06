@@ -15,8 +15,8 @@ gpus = tf.config.experimental.list_physical_devices("GPU")
 if gpus:
     try:
         tf.config.experimental.set_memory_growth(gpus[0], True)
-    except RuntimeError as e:
-        print(e)
+    except RuntimeError as r:
+        print(r)
 
 
 class Optimizer:
@@ -81,10 +81,13 @@ class Optimizer:
         self.w_max = w_max  # 최대 관성 수치
         self.negative_swarm = negative_swarm  # 최적해와 반대로 이동할 파티클 비율 - 0 ~ 1 사이의 값
         self.mutation_swarm = mutation_swarm  # 관성을 추가로 사용할 파티클 비율 - 0 ~ 1 사이의 값
+        self.particle_min = particle_min  # 가중치 초기화 최소값
+        self.particle_max = particle_max
         self.g_best_score = [0, np.inf]  # 최고 점수 - 시작은 0으로 초기화
         self.g_best = None  # 최고 점수를 받은 가중치
         self.g_best_ = None  # 최고 점수를 받은 가중치 - 값의 분산을 위한 변수
         self.avg_score = 0  # 평균 점수
+        self.sigma = 1.0
 
         self.save_path = None  # 저장 위치
         self.renewal = "acc"
@@ -124,14 +127,11 @@ class Optimizer:
             tf.keras.backend.reset_uids()
             tf.keras.backend.clear_session()
         except KeyboardInterrupt:
-            print("Ctrl + C : Stop Training")
-            sys.exit(0)
+            sys.exit("Ctrl + C : Stop Training")
         except MemoryError:
-            print("Memory Error : Stop Training")
-            sys.exit(1)
+            sys.exit("Memory Error : Stop Training")
         except Exception as e:
-            print(e)
-            sys.exit(1)
+            sys.exit(e)
 
     def __del__(self):
         del self.model
@@ -147,6 +147,7 @@ class Optimizer:
         del self.g_best
         del self.g_best_
         del self.avg_score
+
         gc.collect()
         tf.keras.backend.reset_uids()
         tf.keras.backend.clear_session()
@@ -167,9 +168,9 @@ class Optimizer:
         shape = []
         for layer in weights:
             shape.append(layer.shape)
-            w_ = layer.reshape(-1)
-            length.append(len(w_))
-            w_gpu = np.append(w_gpu, w_)
+            w_tmp = layer.reshape(-1)
+            length.append(len(w_tmp))
+            w_gpu = np.append(w_gpu, w_tmp)
 
         del weights
 
@@ -191,18 +192,17 @@ class Optimizer:
         start = 0
         for i in range(len(shape)):
             end = start + length[i]
-            w_ = weight[start:end]
-            w_ = np.reshape(w_, shape[i])
-            weights.append(w_)
+            w_tmp = weight[start:end]
+            w_tmp = np.reshape(w_tmp, shape[i])
+            weights.append(w_tmp)
             start = end
 
-        del weight
-        del shape
-        del length
+        del weight, shape, length
+        del start, end, w_tmp
 
         return weights
 
-    def f(self, x, y, weights):
+    def _f(self, x, y, weights):
         """
         EBPSO의 목적함수 (예상)
 
@@ -215,11 +215,16 @@ class Optimizer:
             (float): 목적 함수 값
         """
         self.model.set_weights(weights)
-        score = self.model.evaluate(x, y, verbose=0)[1]
-        if score > 0:
-            return 1 / (1 + score)
+        score = self.model.evaluate(x, y, verbose=0)
+        if self.renewal == "acc":
+            score_ = score[1]
         else:
-            return 1 + np.abs(score)
+            score_ = score[0]
+
+        if score_ > 0:
+            return 1 / (1 + score_)
+        else:
+            return 1 + np.abs(score_)
 
     def fit(
         self,
@@ -253,6 +258,7 @@ class Optimizer:
         self.dispersion = dispersion
 
         self.renewal = renewal
+        particle_sum = 0    # x_j
         try:
             train_log_dir = "logs/fit/" + self.day
             if log == 2:
@@ -269,17 +275,17 @@ class Optimizer:
                     raise ValueError("save_path is None")
                 else:
                     self.save_path = save_path
-                    if not os.path.exists(save_path):
-                        os.makedirs(save_path, exist_ok=True)
+                    if not os.path.exists(f"{save_path}/{self.day}"):
+                        os.makedirs(f"{save_path}/{self.day}", exist_ok=True)
         except ValueError as e:
-            print(e)
+            sys.exit(e)
         except Exception as e:
-            print(e)
+            sys.exit(e)
 
         for i in tqdm(range(self.n_particles), desc="Initializing velocity"):
             p = self.particles[i]
             local_score = p.get_score(x, y, renewal=renewal)
-
+            particle_sum += local_score[1]
             if renewal == "acc":
                 if local_score[1] > self.g_best_score[0]:
                     self.g_best_score[0] = local_score[1]
@@ -301,7 +307,7 @@ class Optimizer:
 
             if log == 1:
                 with open(
-                    f"./{save_path}/{self.day}_{self.n_particles}_{epochs}_{self.c0}_{self.c1}_{self.w_min}_{renewal}.csv",
+                    f"./{save_path}/{self.day}/{self.n_particles}_{epochs}_{self.c0}_{self.c1}_{self.w_min}_{renewal}.csv",
                     "a",
                 ) as f:
                     f.write(f"{local_score[0]}, {local_score[1]}")
@@ -316,14 +322,15 @@ class Optimizer:
                     tf.summary.scalar("accuracy", local_score[1], step=0)
 
             del local_score
-            gc.collect()
-            tf.keras.backend.reset_uids()
-            tf.keras.backend.clear_session()
+            # gc.collect()
+            # tf.keras.backend.reset_uids()
+            # tf.keras.backend.clear_session()
         print(
             f"initial g_best_score : {self.g_best_score[0] if self.renewal == 'acc' else self.g_best_score[1]}"
         )
 
         try:
+            epoch_sum = 0
             epochs_pbar = tqdm(
                 range(epochs),
                 desc=f"best {self.g_best_score[0]:.4f}|{self.g_best_score[1]:.4f}",
@@ -332,8 +339,11 @@ class Optimizer:
                 position=0,
             )
             for epoch in epochs_pbar:
+                particle_avg = particle_sum / self.n_particles  # x_j
+                particle_sum = 0
                 max_score = 0
                 min_loss = np.inf
+                # epoch_particle_sum = 0
                 part_pbar = tqdm(
                     range(len(self.particles)),
                     desc=f"acc : {max_score:.4f} loss : {min_loss:.4f}",
@@ -347,20 +357,22 @@ class Optimizer:
                         f"acc : {max_score:.4f} loss : {min_loss:.4f}"
                     )
 
+                    g_best = self.g_best
+
                     if dispersion:
-                        ts = self.c0 + np.random.rand() * (self.c1 - self.c0)
+                        ts = self.particle_min + np.random.rand() * (
+                            self.particle_max - self.particle_min
+                        )
                         g_, g_sh, g_len = self._encode(self.g_best)
-                        decrement = (epochs - (epoch) + 1) / epochs
+                        decrement = (epochs - epoch + 1) / epochs
                         g_ = (1 - decrement) * g_ + decrement * ts
                         self.g_best_ = self._decode(g_, g_sh, g_len)
                         g_best = self.g_best_
-                    else:
-                        g_best = self.g_best
 
                     if empirical_balance:
                         if np.random.rand() < np.exp(-(epoch) / epochs):
-                            w_p_ = self.f(x, y, self.particles[i].get_best_weights())
-                            w_g_ = self.f(x, y, self.g_best)
+                            w_p_ = self._f(x, y, self.particles[i].get_best_weights())
+                            w_g_ = self._f(x, y, self.g_best)
                             w_p = w_p_ / (w_p_ + w_g_)
                             w_g = w_p_ / (w_p_ + w_g_)
 
@@ -371,13 +383,35 @@ class Optimizer:
                             p_b = self.particles[i].get_best_score()
                             g_a = self.avg_score
                             l_b = p_b - g_a
-                            l_b = np.sqrt(np.power(l_b, 2))
-                            p_ = (
+                            sigma_post = np.sqrt(np.power(l_b, 2))
+                            sigma_pre = (
                                 1
-                                / (self.n_particles * np.linalg.norm(self.c1 - self.c0))
-                                * l_b
+                                / (
+                                    self.n_particles
+                                    * np.linalg.norm(
+                                        self.particle_max - self.particle_min
+                                    )
+                                )
+                                * sigma_post
                             )
-                            p_ = np.exp(-1 * p_)
+                            p_ = np.exp(-1 * sigma_pre * sigma_post)
+
+                            # p_ = (
+                            #     1
+                            #     / (self.n_particles * np.linalg.norm(self.particle_max - self.particle_min))
+                            #     * np.exp(
+                            #         -np.power(l_b, 2) / (2 * np.power(self.sigma, 2))
+                            #     )
+                            # )
+                            # g_ = (
+                            #     1
+                            #     / np.linalg.norm(self.c1 - self.c0)
+                            #     * np.exp(
+                            #         -np.power(l_b, 2) / (2 * np.power(self.sigma, 2))
+                            #     )
+                            # )
+                            # w_p = p_ / (p_ + g_)
+                            # w_g = g_ / (p_ + g_)
                             w_p = p_
                             w_g = 1 - p_
 
@@ -397,6 +431,7 @@ class Optimizer:
                             w_g,
                             renewal=renewal,
                         )
+                        epoch_sum += np.power(score[1] - particle_avg, 2)
 
                     else:
                         score = self.particles[i].step(
@@ -457,10 +492,11 @@ class Optimizer:
                             epochs_pbar.set_description(
                                 f"best {self.g_best_score[0]:.4f} | {self.g_best_score[1]:.4f}"
                             )
+                    particle_sum += score[1]
 
                     if log == 1:
                         with open(
-                            f"./{save_path}/{self.day}_{self.n_particles}_{epochs}_{self.c0}_{self.c1}_{self.w_min}_{renewal}.csv",
+                            f"./{save_path}/{self.day}/{self.n_particles}_{epochs}_{self.c0}_{self.c1}_{self.w_min}_{renewal}.csv",
                             "a",
                         ) as f:
                             f.write(f"{score[0]}, {score[1]}")
@@ -468,9 +504,6 @@ class Optimizer:
                                 f.write(", ")
                             else:
                                 f.write("\n")
-                    # gc.collect()
-                    # tf.keras.backend.reset_uids()
-                    # tf.keras.backend.clear_session()
                 part_pbar.refresh()
 
                 if check_point is not None:
@@ -536,7 +569,7 @@ class Optimizer:
             path (str, optional): 저장 위치. Defaults to "./result".
         """
         json_save = {
-            "name": f"{self.day}_{self.n_particles}_{self.c0}_{self.c1}_{self.w_min}.h5",
+            "name": f"{self.day}/{self.n_particles}_{self.c0}_{self.c1}_{self.w_min}.h5",
             "n_particles": self.n_particles,
             "score": self.g_best_score,
             "c0": self.c0,

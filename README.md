@@ -1,29 +1,41 @@
 [![Python Package Index publish](https://github.com/jung-geun/PSO/actions/workflows/pypi.yml/badge.svg?event=push)](https://github.com/jung-geun/PSO/actions/workflows/pypi.yml)
 
+### 목차
+
+> [PSO 알고리즘 구현 및 새로운 시도](#pso-알고리즘-구현-및-새로운-시도)</br>
+>
+> [초기 세팅 및 사용 방법](#초기-세팅-및-사용-방법)</br>
+>
+> [구조 및 작동 방식](#구조-및-작동-방식)</br>
+>
+> [PSO 알고리즘을 이용하여 풀이한 문제들의 정확도](#pso-알고리즘을-이용하여-풀이한-문제들의-정확도)</br>
+>
+> [참고 자료](#참고-자료)</br>
+
 # PSO 알고리즘 구현 및 새로운 시도
 
-pso 알고리즘을 사용하여 새로운 학습 방법을 찾는중 입니다
-병렬처리로 사용하는 논문을 찾아보았지만 이보다 더 좋은 방법이 있을 것 같아서 찾아보고 있습니다 - \[1]
+pso 알고리즘을 사용하여 새로운 학습 방법을 찾는중 입니다</br>
+병렬처리로 사용하는 논문을 찾아보았지만 이보다 더 좋은 방법이 있을 것 같아서 찾아보고 있습니다 - [[1]](#참고-자료)</br>
 
-기본 pso 알고리즘의 수식은 다음과 같습니다
+기본 pso 알고리즘의 속도를 구하는 수식은 다음과 같습니다
 
-> $$V_{id(t+1)} = W_{V_id(t)} + c_1 * r_1 (p_{id(t)} - x_{id(t)}) + c_2 * r_2(p_{gd(t)} - x_{id(t)})$$
+> $$V_{t+1} = W_t + c_1 * r_1 * (Pbest_t - x_t) + c_2 * r_2 * (Gbest_t - x_t)$$
 
-다음 속도을 구하는 수식입니다
+다음 위치를 업데이트하는 수식입니다
 
-> $$x_{id(t+1)} = x_{id(t)} + V_{id(t+1)}$$
+> $$x_{t+1} = x_{t} + V_{t+1}$$
 
-다음 위치를 구하는 수식입니다
+다음과 같은 변수를 사용합니다
 
-> $$
-> p_{id(t+1)} =
-> \begin{cases}
-> x_{id(t+1)} & \text{if } f(x_{id(t+1)}) < f(p_{id(t)})\\
-> p_{id(t)} & \text{otherwise}
-> \end{cases}
-> $$
+> $Pbest_t : 각 파티클의 지역 최적해$</br> $Gbest_t : 전역 최적해$</br> $W_t : 가중치$</br> $c_1, c_2 : 파라미터$</br> $r_1, r_2 : 랜덤 값$</br> $x_t : 현재 위치$</br> $V_{(t+1)} : 다음 속도$</br>
 
-# 초기 세팅
+pso 알고리즘을 이용하여 keras 모델을 학습하는 방법을 탐구하고 있습니다</br>
+현재는 xor, iris, mnist 문제를 풀어보았으며, xor 문제와 iris 문제는 100%의 정확도를 보이고 있습니다</br>
+mnist 문제는 63%의 정확도를 보이고 있습니다</br>
+
+[xor](#1-xor-문제) </br> [iris](#2-iris-문제) </br> [mnist](#3-mnist-문제)
+
+# 초기 세팅 및 사용 방법
 
 자동으로 conda 환경을 설정하기 위해서는 다음 명령어를 사용합니다
 
@@ -36,7 +48,7 @@ conda env create -f conda_env/environment.yaml
 직접 설치하여 사용할 경우 pso2keras 패키지를 pypi 에서 다운로드 받아서 사용하시기 바랍니다
 
 ```shell
-pip install pso2keras==0.1.4
+pip install pso2keras
 ```
 
 위의 패키지를 사용하기 위해서는 tensorflow 와 tensorboard 가 설치되어 있어야 합니다
@@ -52,11 +64,9 @@ pso_model.fit(...)
 
 <a href="https://colab.research.google.com/github/jung-geun/PSO/blob/master/example/pso2mnist.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 
-# 현재 진행 상황
+# 구조 및 작동 방식
 
-## 1. PSO 알고리즘 구현
-
-### 파일 구조
+## 파일 구조
 
 ```plain
 |-- /conda_env              # conda 환경 설정 파일
@@ -79,22 +89,20 @@ pso_model.fit(...)
 |-- requirements.txt        # pypi 에서 다운로드 받을 패키지 목록
 ```
 
-pso 라이브러리는 tensorflow 모델을 학습하기 위해 기본 ./metacode/pso_meta.py 코드에서 수정하였습니다 [2]
-
-## 2. PSO 알고리즘을 이용한 최적화 문제 풀이
+pso 라이브러리는 tensorflow 모델을 학습하기 위해 기본 ./metacode/pso_meta.py 코드에서 수정하였습니다 [[2]](#참고-자료)
 
 pso 알고리즘을 이용하여 오차역전파 함수를 최적화 하는 방법을 찾는 중입니다
 
-### 알고리즘 작동 방식
+## 알고리즘 작동 방식
 
 > 1. 파티클의 위치와 속도를 초기화 한다.
 > 2. 각 파티클의 점수를 계산한다.
 > 3. 각 파티클의 지역 최적해와 전역 최적해를 구한다.
 > 4. 각 파티클의 속도를 업데이트 한다.
 
-## 3. PSO 알고리즘을 이용하여 풀이한 문제들의 정확도
+# PSO 알고리즘을 이용하여 풀이한 문제들의 정확도
 
-### 1. xor 문제
+## 1. xor 문제
 
 ```python
 loss = 'mean_squared_error'
@@ -129,7 +137,7 @@ best_score = pso_xor.fit(
 위의 파라미터 기준 10 세대 근처부터 정확도가 100%가 나오는 것을 확인하였습니다
 ![xor](./history_plt/xor_2_10.png)
 
-2. iris 문제
+## 2. iris 문제
 
 ```python
 loss = 'mean_squared_error'
@@ -166,7 +174,7 @@ best_score = pso_iris.fit(
 
 위의 그래프를 보면 epochs 이 늘어나도 정확도와 loss 가 수렴하지 않는것을 보면 파라미터의 이동 속도가 너무 빠르다고 생각합니다
 
-3. mnist 문제
+## 3. mnist 문제
 
 ```python
 loss = 'mean_squared_error'
@@ -174,11 +182,11 @@ loss = 'mean_squared_error'
 pso_mnist = Optimizer(
     model,
     loss=loss,
-    n_particles=100,
-    c0=0.3,
-    c1=0.5,
-    w_min=0.4,
-    w_max=0.7,
+    n_particles=500,
+    c0= 0.4,
+    c1= 0.6,
+    w_min= 0.5,
+    w_max= 0.8,
     negative_swarm=0.1,
     mutation_swarm=0.2,
     particle_min=-5,
@@ -198,33 +206,35 @@ best_score = pso_mnist.fit(
 )
 ```
 
-위의 파라미터 기준 현재 정확도 51.84%를 보이고 있습니다
-![mnist_acc](./history_plt/mnist_51.74_acc.png)
-![mnist_loss](./history_plt/mnist_51.74_loss.png)
+위의 파라미터 기준 현재 정확도 63.84%를 보이고 있습니다
+![mnist_acc](./history_plt/mnist_63.84_acc.png)
+![mnist_loss](./history_plt/mnist_63.84_loss.png)
 
-### Trouble Shooting
+## Trouble Shooting
 
-> 1. 딥러닝 알고리즘 특성상 weights는 처음 컴파일시 무작위하게 생성된다. weights의 각 지점의 중요도는 매번 무작위로 정해지기에 전역 최적값으로 찾아갈 때 값이 높은 loss를 향해서 상승하는 현상이 나타난다.<br>
+> 1. 딥러닝 알고리즘 특성상 weights는 처음 컴파일시 무작위하게 생성된다. weights의 각 지점의 중요도는 매번 무작위로 정해지기에 전역 최적값으로 찾아갈 때 값이 높은 loss를 향해서 상승하는 현상이 나타난다.</br>
 >    따라서 weights의 이동 방법을 더 탐구하거나, weights를 초기화 할때 random 중요도를 좀더 노이즈가 적게 생성하는 방향을 모색해야할 것 같다.
 
 -> 고르게 초기화 하기 위해 np.random.uniform 함수를 사용하였습니다
 
 > 2. 지역최적값에 계속 머무르는 조기 수렴 현상이 나타난다. - 30% 정도의 정확도를 가진다
 
--> 지역최적값에 머무르는 것을 방지하기 위해 negative_swarm, mutation_swarm 파라미터를 추가하였습니다 - 현재 51% 정도의 정확도를 보이고 있습니다
+-> 지역최적값에 머무르는 것을 방지하기 위해 negative_swarm, mutation_swarm 파라미터를 추가하였습니다 - 현재 63% 정도의 정확도를 보이고 있습니다
 
 > 3. 파티클의 수를 늘리면 전역 최적해에 좀더 가까워지는 현상을 발견하였다. 하지만 파티클의 수를 늘리면 메모리 사용량이 기하급수적으로 늘어난다.
 
--> keras 모델을 사용할때 predict, evaluate 함수를 사용하면 메모리 누수가 발생하는 문제를 찾았습니다. 해결방법을 추가로 찾아보는중 입니다.
--> 추가로 파티클의 수가 적을때에도 전역 최적해를 쉽게 찾는 방법을 찾는중 입니다
+-> keras 모델을 사용할때 predict, evaluate 함수를 사용하면 메모리 누수가 발생하는 문제를 찾았습니다. 해결방법을 추가로 찾아보는중 입니다. -> 메모리 누수를 획기적으로 줄여 현재는 파티클의 수를 500개에서 1000개까지 증가시켜도 문제가 없습니다.</br>
+-> 추가로 파티클의 수가 적을때에도 전역 최적해를 쉽게 찾는 방법을 찾는중 입니다</br>
+
+> 4. 모델의 크기가 커지면 수렴이 늦어지고 정확도가 떨어지는 현상이 발견되었다. 모델의 크기에 맞는 파라미터를 찾아야할 것 같다.
+
+> 5. EBPSO 의 방식을 추가로 적용을 하였으나 수식을 잘못 적용을 한것인지 기본 pso 보다 더 떨어지는 정확도를 보이고 있다. (현재 수정중)
 
 ### 개인적인 생각
 
 > 머신러닝 분류 방식에 존재하는 random forest 방식을 이용하여, 오차역전파 함수를 최적화 하는 방법이 있을것 같습니다
 >
 > > pso 와 random forest 방식이 매우 유사하다고 생각하여 학습할 때 뿐만 아니라 예측 할 때도 이러한 방식으로 사용할 수 있을 것 같습니다
->
-> 각
 
 # 참고 자료
 

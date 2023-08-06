@@ -1,9 +1,9 @@
-from .optimizer import Optimizer
-from .particle import Particle
+from .optimizer import Optimizer as optimizer
+from .particle import Particle as particle
 
 __version__ = "0.1.6"
 
 __all__ = [
-    "Optimizer",
-    "Particle",
+    "optimizer",
+    "particle",
 ]

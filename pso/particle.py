@@ -2,6 +2,7 @@ import numpy as np
 
 from tensorflow import keras
 
+
 class Particle:
     """
     Particle Swarm Optimization의 Particle을 구현한 클래스
@@ -112,8 +113,6 @@ class Particle:
                 self.best_score = score[1]
                 self.best_weights = self.model.get_weights()
         elif renewal == "loss":
-            if score[0] == "nan":
-                score[0] = np.inf
             if score[0] < self.best_score:
                 self.best_score = score[0]
                 self.best_weights = self.model.get_weights()
@@ -134,11 +133,11 @@ class Particle:
         encode_v, v_sh, v_len = self._encode(weights=self.velocities)
         encode_p, p_sh, p_len = self._encode(weights=self.best_weights)
         encode_g, g_sh, g_len = self._encode(weights=g_best)
-        r0 = np.random.rand()
-        r1 = np.random.rand()
         encode_before, before_sh, before_len = self._encode(weights=self.before_best)
+        r_0 = np.random.rand()
+        r_1 = np.random.rand()
 
-        if (encode_before != encode_g).all():
+        if not np.array_equal(encode_before, encode_g, equal_nan=True):
             self.before_w = w * 0.6
             w = w + self.before_w
         else:
@@ -148,14 +147,14 @@ class Particle:
         if self.negative:
             new_v = (
                 w * encode_v
-                + -1 * local_rate * r0 * (encode_p - encode_w)
-                + -1 * global_rate * r1 * (encode_g - encode_w)
+                + local_rate * r_0 * (encode_p - encode_w)
+                + -1 * global_rate * r_1 * (encode_g - encode_w)
             )
         else:
             new_v = (
                 w * encode_v
-                + local_rate * r0 * (encode_p - encode_w)
-                + global_rate * r1 * (encode_g - encode_w)
+                + local_rate * r_0 * (encode_p - encode_w)
+                + global_rate * r_1 * (encode_g - encode_w)
             )
 
         if np.random.rand() < self.mutation:
@@ -169,7 +168,7 @@ class Particle:
         del encode_p, p_sh, p_len
         del encode_g, g_sh, g_len
         del encode_before, before_sh, before_len
-        del r0, r1
+        del r_0, r_1
 
     def _update_velocity_w(self, local_rate, global_rate, w, w_p, w_g, g_best):
         """
@@ -188,20 +187,27 @@ class Particle:
         encode_v, v_sh, v_len = self._encode(weights=self.velocities)
         encode_p, p_sh, p_len = self._encode(weights=self.best_weights)
         encode_g, g_sh, g_len = self._encode(weights=g_best)
-        r0 = np.random.rand()
-        r1 = np.random.rand()
+        encode_before, before_sh, before_len = self._encode(weights=self.before_best)
+        r_0 = np.random.rand()
+        r_1 = np.random.rand()
 
+        if not np.array_equal(encode_before, encode_g, equal_nan=True):
+            self.before_w = w * 0.6
+            w = w + self.before_w
+        else:
+            self.before_w *= 0.75
+            w = w + self.before_w
         if self.negative:
             new_v = (
                 w * encode_v
-                + -1 * local_rate * r0 * (w_p * encode_p - encode_w)
-                + -1 * global_rate * r1 * (w_g * encode_g - encode_w)
+                + local_rate * r_0 * (w_p * encode_p - encode_w)
+                + -1 * global_rate * r_1 * (w_g * encode_g - encode_w)
             )
         else:
             new_v = (
                 w * encode_v
-                + local_rate * r0 * (w_p * encode_p - encode_w)
-                + global_rate * r1 * (w_g * encode_g - encode_w)
+                + local_rate * r_0 * (w_p * encode_p - encode_w)
+                + global_rate * r_1 * (w_g * encode_g - encode_w)
             )
 
         if np.random.rand() < self.mutation:
@@ -214,7 +220,8 @@ class Particle:
         del encode_v, v_sh, v_len
         del encode_p, p_sh, p_len
         del encode_g, g_sh, g_len
-        del r0, r1
+        del encode_before, before_sh, before_len
+        del r_0, r_1
 
     def _update_weights(self):
         """
