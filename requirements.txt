@@ -2,5 +2,5 @@ ipython
 keras==2.11.0
 numpy==1.25.0
 pandas==1.5.3
-tensorflow==2.11.1
+tensorflow<=2.11.1
 tqdm==4.65.0

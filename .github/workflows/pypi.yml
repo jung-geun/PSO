@@ -1,19 +1,30 @@
 name: PyPI package
 
-on: [push]
+on:
+  push:
+    paths:
+      - "setup.py"
+    branches:
+      - main
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   build-linux:
     runs-on: ubuntu-22.04
     strategy:
       max-parallel: 5
+      matrix:
+        python-version: [3.8, 3.9, 3.10, 3.11]
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v3
         with:
-          python-version: 3.9
+          python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
