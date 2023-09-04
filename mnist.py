@@ -104,11 +104,11 @@ loss = [
 pso_mnist = optimizer(
     model,
     loss="mean_squared_error",
-    n_particles=990,
+    n_particles=2000,
     c0=0.2,
     c1=0.4,
     w_min=0.3,
-    w_max=0.6,
+    w_max=0.7,
     negative_swarm=0.1,
     mutation_swarm=0.3,
     particle_min=-4,
@@ -118,15 +118,16 @@ pso_mnist = optimizer(
 best_score = pso_mnist.fit(
     x_train,
     y_train,
-    epochs=200,
+    epochs=300,
     save_info=True,
-    log=2,
+    log=1,
     log_name="mnist",
-    save_path="./result/mnist",
+    save_path="./logs/mnist",
     renewal="acc",
     check_point=25,
     empirical_balance=False,
     dispersion=False,
+
 )
 
 print("Done!")

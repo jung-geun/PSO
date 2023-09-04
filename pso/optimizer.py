@@ -130,8 +130,6 @@ class Optimizer:
             sys.exit("Ctrl + C : Stop Training")
         except MemoryError:
             sys.exit("Memory Error : Stop Training")
-        except Exception as e:
-            sys.exit(e)
 
     def __del__(self):
         del self.model
@@ -245,7 +243,7 @@ class Optimizer:
             x : numpy array,
             y : numpy array,
             epochs : int,
-            log : int - 0 : log 기록 안함, 1 : log, 2 : tensorboard,
+            log : int - 0 : log 기록 안함, 1 : csv, 2 : tensorboard,
             save_info : bool - 종료시 학습 정보 저장 여부 default : False,
             save_path : str - ex) "./result",
             renewal : str ex) "acc" or "loss" or "both",
@@ -258,7 +256,7 @@ class Optimizer:
         self.dispersion = dispersion
 
         self.renewal = renewal
-        particle_sum = 0    # x_j
+        particle_sum = 0  # x_j
         try:
             train_log_dir = "logs/fit/" + self.day
             if log == 2:
@@ -277,10 +275,8 @@ class Optimizer:
                     self.save_path = save_path
                     if not os.path.exists(f"{save_path}/{self.day}"):
                         os.makedirs(f"{save_path}/{self.day}", exist_ok=True)
-        except ValueError as e:
-            sys.exit(e)
-        except Exception as e:
-            sys.exit(e)
+        except ValueError as ve:
+            sys.exit(ve)
 
         for i in tqdm(range(self.n_particles), desc="Initializing velocity"):
             p = self.particles[i]
