@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 
 .ipynb_checkpoints/
-
+.vscode/settings.json
 # pypi
 dist/
 build/
