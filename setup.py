@@ -17,7 +17,7 @@ setup(
         "pandas",
         "ipython",
         "tensorflow<=2.11.1",
-        "tensorboard"
+        "keras",
     ],
     packages=find_packages(exclude=[]),
     keywords=["pso", "tensorflow", "keras"],
