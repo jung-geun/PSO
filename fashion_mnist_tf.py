@@ -32,13 +32,6 @@ def get_data():
     return x_train, y_train, x_test, y_test
 
 
-def get_data_test():
-    (x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
-    x_test = x_test.reshape((10000, 28, 28, 1))
-
-    return x_test, y_test
-
-
 class _batch_generator:
     def __init__(self, x, y, batch_size: int = 32):
         self.batch_size = batch_size
@@ -54,21 +47,13 @@ class _batch_generator:
         return self.dataset[self.index][0], self.dataset[self.index][1]
 
 
-def make_model():
-    model = Sequential()
-    model.add(
-        Conv2D(32, kernel_size=(5, 5), activation="relu",
-               input_shape=(28, 28, 1))
-    )
-    model.add(MaxPooling2D(pool_size=(3, 3)))
-    model.add(Conv2D(64, kernel_size=(3, 3), activation="relu"))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.25))
-    model.add(Flatten())
-    model.add(Dense(128, activation="relu"))
-    model.add(Dense(10, activation="softmax"))
+# BEGIN: 5f8d9bcejpp
+from keras.applications.resnet50 import ResNet50
 
+def make_model():
+    model = ResNet50(weights=None, input_shape=(28, 28, 1), classes=10)
     return model
+# END: 5f8d9bcejpp
 
 
 model = make_model()
