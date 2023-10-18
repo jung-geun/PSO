@@ -106,7 +106,11 @@ class Optimizer:
                 w_ = np.random.uniform(particle_min, particle_max, len(w_))
                 model_.set_weights(self._decode(w_, sh_, len_))
 
-                model_.compile(loss=self.loss, optimizer="sgd", metrics=["accuracy"])
+                model_.compile(
+                    loss=self.loss,
+                    optimizer="sgd",
+                    metrics=["accuracy"]
+                )
                 self.particles[i] = Particle(
                     model_,
                     loss,
@@ -224,6 +228,20 @@ class Optimizer:
         else:
             return 1 + np.abs(score_)
 
+    class _batch_generator:
+        def __init__(self, x, y, batch_size: int = 32):
+            self.batch_size = batch_size
+            self.index = 0
+            dataset = tf.data.Dataset.from_tensor_slices((x, y))
+            self.dataset = list(dataset.batch(batch_size))
+            self.max_index = len(dataset) // batch_size
+
+        def next(self):
+            self.index += 1
+            if self.index >= self.max_index:
+                self.index = 0
+            return self.dataset[self.index][0], self.dataset[self.index][1]
+
     def fit(
         self,
         x,
@@ -237,6 +255,7 @@ class Optimizer:
         empirical_balance: bool = False,
         dispersion: bool = False,
         check_point: int = None,
+        batch_size: int = 128,
     ):
         """
         # Args:
@@ -250,6 +269,7 @@ class Optimizer:
             empirical_balance : bool - True : EBPSO, False : PSO,
             dispersion : bool - True : g_best 의 값을 분산시켜 전역해를 찾음, False : g_best 의 값만 사용
             check_point : int - 저장할 위치 - None : 저장 안함
+            batch_size : int - batch size default : 128
         """
         self.save_path = save_path
         self.empirical_balance = empirical_balance
@@ -278,10 +298,33 @@ class Optimizer:
         except ValueError as ve:
             sys.exit(ve)
 
+        model_ = keras.models.model_from_json(self.model.to_json())
+        model_.compile(loss=self.loss, optimizer="adam", metrics=["accuracy"])
+        model_.fit(x, y, epochs=1, batch_size=64, verbose=0)
+        score = model_.evaluate(x, y, verbose=1)
+
+        if renewal == "acc":
+            self.g_best_score[0] = score[1]
+            self.g_best_score[1] = score[0]
+        else:
+            self.g_best_score[0] = score[0]
+            self.g_best_score[1] = score[1]
+
+        self.g_best = model_.get_weights()
+        self.g_best_ = model_.get_weights()
+
+        del model_
+
+        dataset = self._batch_generator(x, y, batch_size=batch_size)
+
         for i in tqdm(range(self.n_particles), desc="Initializing velocity"):
             p = self.particles[i]
-            local_score = p.get_score(x, y, renewal=renewal)
+
+            x_batch, y_batch = dataset.next()
+            local_score = p.get_score(x_batch, y_batch, renewal=renewal)
+
             particle_sum += local_score[1]
+
             if renewal == "acc":
                 if local_score[1] > self.g_best_score[0]:
                     self.g_best_score[0] = local_score[1]
@@ -329,7 +372,7 @@ class Optimizer:
             epoch_sum = 0
             epochs_pbar = tqdm(
                 range(epochs),
-                desc=f"best {self.g_best_score[0]:.4f}|{self.g_best_score[1]:.4f}",
+                desc=f"best {self.g_best_score[0]:.4f} | {self.g_best_score[1]:.4f}",
                 ascii=True,
                 leave=True,
                 position=0,
@@ -355,6 +398,8 @@ class Optimizer:
 
                     g_best = self.g_best
 
+                    x_batch, y_batch = dataset.next()
+
                     if dispersion:
                         ts = self.particle_min + np.random.rand() * (
                             self.particle_max - self.particle_min
@@ -367,7 +412,9 @@ class Optimizer:
 
                     if empirical_balance:
                         if np.random.rand() < np.exp(-(epoch) / epochs):
-                            w_p_ = self._f(x, y, self.particles[i].get_best_weights())
+                            w_p_ = self._f(
+                                x, y, self.particles[i].get_best_weights()
+                            )
                             w_g_ = self._f(x, y, self.g_best)
                             w_p = w_p_ / (w_p_ + w_g_)
                             w_g = w_p_ / (w_p_ + w_g_)
@@ -417,8 +464,8 @@ class Optimizer:
                             del p_
 
                         score = self.particles[i].step_w(
-                            x,
-                            y,
+                            x_batch,
+                            y_batch,
                             self.c0,
                             self.c1,
                             w,
@@ -431,13 +478,15 @@ class Optimizer:
 
                     else:
                         score = self.particles[i].step(
-                            x, y, self.c0, self.c1, w, g_best, renewal=renewal
+                            x_batch, y_batch, self.c0, self.c1, w, g_best, renewal=renewal
                         )
 
                     if log == 2:
                         with self.train_summary_writer[i].as_default():
                             tf.summary.scalar("loss", score[0], step=epoch + 1)
-                            tf.summary.scalar("accuracy", score[1], step=epoch + 1)
+                            tf.summary.scalar(
+                                "accuracy", score[1], step=epoch + 1
+                            )
 
                     if renewal == "acc":
                         if score[1] >= max_score:
@@ -447,11 +496,13 @@ class Optimizer:
                         if score[1] >= self.g_best_score[0]:
                             if score[1] > self.g_best_score[0]:
                                 self.g_best_score[0] = score[1]
-                                self.g_best = self.particles[i].get_best_weights()
+                                self.g_best = self.particles[i].get_best_weights(
+                                )
                             else:
                                 if score[0] < self.g_best_score[1]:
                                     self.g_best_score[1] = score[0]
-                                    self.g_best = self.particles[i].get_best_weights()
+                                    self.g_best = self.particles[i].get_best_weights(
+                                    )
                             epochs_pbar.set_description(
                                 f"best {self.g_best_score[0]:.4f} | {self.g_best_score[1]:.4f}"
                             )
@@ -463,11 +514,13 @@ class Optimizer:
                         if score[0] <= self.g_best_score[1]:
                             if score[0] < self.g_best_score[1]:
                                 self.g_best_score[1] = score[0]
-                                self.g_best = self.particles[i].get_best_weights()
+                                self.g_best = self.particles[i].get_best_weights(
+                                )
                             else:
                                 if score[1] > self.g_best_score[0]:
                                     self.g_best_score[0] = score[1]
-                                    self.g_best = self.particles[i].get_best_weights()
+                                    self.g_best = self.particles[i].get_best_weights(
+                                    )
                             epochs_pbar.set_description(
                                 f"best {self.g_best_score[0]:.4f} | {self.g_best_score[1]:.4f}"
                             )
@@ -505,7 +558,8 @@ class Optimizer:
                 if check_point is not None:
                     if epoch % check_point == 0:
                         os.makedirs(f"./{save_path}/{self.day}", exist_ok=True)
-                        self._check_point_save(f"./{save_path}/{self.day}/ckpt-{epoch}")
+                        self._check_point_save(
+                            f"./{save_path}/{self.day}/ckpt-{epoch}")
 
                 gc.collect()
                 tf.keras.backend.reset_uids()
@@ -513,10 +567,13 @@ class Optimizer:
 
         except KeyboardInterrupt:
             print("Ctrl + C : Stop Training")
+
         except MemoryError:
             print("Memory Error : Stop Training")
+
         except Exception as e:
             print(e)
+
         finally:
             self.model_save(save_path)
             print("model save")

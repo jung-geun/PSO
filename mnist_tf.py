@@ -1,8 +1,13 @@
+from keras.models import Sequential
+from keras.layers import Conv2D, Dense, Dropout, Flatten, MaxPooling2D
+from keras.datasets import mnist
+from keras.utils import to_categorical
+# from tensorflow.data.Dataset import from_tensor_slices
+import tensorflow as tf
 import os
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
-import tensorflow as tf
 
 gpus = tf.config.experimental.list_physical_devices("GPU")
 if gpus:
@@ -12,10 +17,6 @@ if gpus:
         print(e)
     finally:
         del gpus
-
-from keras.datasets import mnist
-from keras.layers import Conv2D, Dense, Dropout, Flatten, MaxPooling2D
-from keras.models import Sequential
 
 
 def get_data():
@@ -38,10 +39,26 @@ def get_data_test():
     return x_test, y_test
 
 
+class _batch_generator:
+    def __init__(self, x, y, batch_size: int = 32):
+        self.batch_size = batch_size
+        self.index = 0
+        dataset = tf.data.Dataset.from_tensor_slices((x, y))
+        self.dataset = list(dataset.batch(batch_size))
+        self.max_index = len(dataset) // batch_size
+
+    def next(self):
+        self.index += 1
+        if self.index >= self.max_index:
+            self.index = 0
+        return self.dataset[self.index][0], self.dataset[self.index][1]
+
+
 def make_model():
     model = Sequential()
     model.add(
-        Conv2D(32, kernel_size=(5, 5), activation="relu", input_shape=(28, 28, 1))
+        Conv2D(32, kernel_size=(5, 5), activation="relu",
+               input_shape=(28, 28, 1))
     )
     model.add(MaxPooling2D(pool_size=(3, 3)))
     model.add(Conv2D(64, kernel_size=(3, 3), activation="relu"))
@@ -56,17 +73,24 @@ def make_model():
 
 model = make_model()
 x_train, y_train, x_test, y_test = get_data()
-
 y_train = tf.one_hot(y_train, 10)
 y_test = tf.one_hot(y_test, 10)
 
+dataset = _batch_generator(x_train, y_train, 64)
+
 model.compile(optimizer="adam", loss="mse", metrics=["accuracy"])
 
-print("Training model...")
-model.fit(x_train, y_train, epochs=100, batch_size=128, verbose=1)
+count = 0
+
+while count < 20:
+    x_batch, y_batch = dataset.next()
+    count += 1
+    print("Training model...")
+    model.fit(x_batch, y_batch, epochs=1, batch_size=1, verbose=1)
+
+print(count)
 
 print("Evaluating model...")
-model.evaluate(x_test, y_test, verbose=1)
+model.evaluate(x_test, y_test, verbose=2)
 
 weights = model.get_weights()
-

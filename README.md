@@ -1,4 +1,5 @@
 [![Python Package Index publish](https://github.com/jung-geun/PSO/actions/workflows/pypi.yml/badge.svg?event=push)](https://github.com/jung-geun/PSO/actions/workflows/pypi.yml)
+[![PyPI - Version](https://img.shields.io/pypi/v/pso2keras)](https://pypi.org/project/pso2keras/)
 
 ### 목차
 
@@ -13,6 +14,8 @@
 > [참고 자료](#참고-자료)</br>
 
 # PSO 알고리즘 구현 및 새로운 시도
+
+Particle Swarm Optimization on tensorflow package
 
 pso 알고리즘을 사용하여 새로운 학습 방법을 찾는중 입니다</br>
 병렬처리로 사용하는 논문을 찾아보았지만 이보다 더 좋은 방법이 있을 것 같아서 찾아보고 있습니다 - [[1]](#참고-자료)</br>

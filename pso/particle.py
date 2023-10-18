@@ -133,7 +133,9 @@ class Particle:
         encode_v, v_sh, v_len = self._encode(weights=self.velocities)
         encode_p, p_sh, p_len = self._encode(weights=self.best_weights)
         encode_g, g_sh, g_len = self._encode(weights=g_best)
-        encode_before, before_sh, before_len = self._encode(weights=self.before_best)
+        encode_before, before_sh, before_len = self._encode(
+            weights=self.before_best
+        )
         r_0 = np.random.rand()
         r_1 = np.random.rand()
 
@@ -187,7 +189,9 @@ class Particle:
         encode_v, v_sh, v_len = self._encode(weights=self.velocities)
         encode_p, p_sh, p_len = self._encode(weights=self.best_weights)
         encode_g, g_sh, g_len = self._encode(weights=g_best)
-        encode_before, before_sh, before_len = self._encode(weights=self.before_best)
+        encode_before, before_sh, before_len = self._encode(
+            weights=self.before_best
+        )
         r_0 = np.random.rand()
         r_1 = np.random.rand()
 

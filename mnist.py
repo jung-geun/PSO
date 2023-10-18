@@ -1,18 +1,16 @@
 # %%
+from pso import optimizer
+from tensorflow import keras
+from keras.models import Sequential
+from keras.layers import Conv2D, Dense, Dropout, Flatten, MaxPooling2D
+from keras.datasets import mnist
+import tensorflow as tf
+import numpy as np
 import json
 import os
 import sys
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-
-import numpy as np
-import tensorflow as tf
-from keras.datasets import mnist
-from keras.layers import Conv2D, Dense, Dropout, Flatten, MaxPooling2D
-from keras.models import Sequential
-from tensorflow import keras
-
-from pso import optimizer
 
 
 def get_data():
@@ -24,8 +22,10 @@ def get_data():
 
     y_train, y_test = tf.one_hot(y_train, 10), tf.one_hot(y_test, 10)
 
-    x_train, x_test = tf.convert_to_tensor(x_train), tf.convert_to_tensor(x_test)
-    y_train, y_test = tf.convert_to_tensor(y_train), tf.convert_to_tensor(y_test)
+    x_train, x_test = tf.convert_to_tensor(
+        x_train), tf.convert_to_tensor(x_test)
+    y_train, y_test = tf.convert_to_tensor(
+        y_train), tf.convert_to_tensor(y_test)
 
     print(f"x_train : {x_train[0].shape} | y_train : {y_train[0].shape}")
     print(f"x_test : {x_test[0].shape} | y_test : {y_test[0].shape}")
@@ -40,8 +40,10 @@ def get_data_test():
 
     y_train, y_test = tf.one_hot(y_train, 10), tf.one_hot(y_test, 10)
 
-    x_train, x_test = tf.convert_to_tensor(x_train), tf.convert_to_tensor(x_test)
-    y_train, y_test = tf.convert_to_tensor(y_train), tf.convert_to_tensor(y_test)
+    x_train, x_test = tf.convert_to_tensor(
+        x_train), tf.convert_to_tensor(x_test)
+    y_train, y_test = tf.convert_to_tensor(
+        y_train), tf.convert_to_tensor(y_test)
 
     print(f"x_test : {x_test[0].shape} | y_test : {y_test[0].shape}")
 
@@ -51,7 +53,8 @@ def get_data_test():
 def make_model():
     model = Sequential()
     model.add(
-        Conv2D(32, kernel_size=(5, 5), activation="sigmoid", input_shape=(28, 28, 1))
+        Conv2D(32, kernel_size=(5, 5), activation="sigmoid",
+               input_shape=(28, 28, 1))
     )
     model.add(MaxPooling2D(pool_size=(3, 3)))
     model.add(Conv2D(64, kernel_size=(3, 3), activation="sigmoid"))
@@ -83,7 +86,7 @@ def random_state():
 
 # %%
 model = make_model()
-x_train, y_train = get_data_test()
+x_train, y_train, x_test, y_test = get_data()
 
 loss = [
     "mean_squared_error",
@@ -104,12 +107,12 @@ loss = [
 pso_mnist = optimizer(
     model,
     loss="mean_squared_error",
-    n_particles=2000,
+    n_particles=600,
     c0=0.2,
     c1=0.4,
     w_min=0.3,
-    w_max=0.7,
-    negative_swarm=0.1,
+    w_max=0.5,
+    negative_swarm=0.05,
     mutation_swarm=0.3,
     particle_min=-4,
     particle_max=4,
@@ -118,16 +121,16 @@ pso_mnist = optimizer(
 best_score = pso_mnist.fit(
     x_train,
     y_train,
-    epochs=300,
+    epochs=200,
     save_info=True,
-    log=1,
+    log=2,
     log_name="mnist",
     save_path="./logs/mnist",
     renewal="acc",
     check_point=25,
     empirical_balance=False,
     dispersion=False,
-
+    batch_size=32,
 )
 
 print("Done!")
