@@ -33,23 +33,6 @@ def get_data():
     return x_train, y_train, x_test, y_test
 
 
-def get_data_test():
-    (x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
-    x_test = x_test / 255.0
-    x_test = x_test.reshape((10000, 28, 28, 1))
-
-    y_train, y_test = tf.one_hot(y_train, 10), tf.one_hot(y_test, 10)
-
-    x_train, x_test = tf.convert_to_tensor(
-        x_train), tf.convert_to_tensor(x_test)
-    y_train, y_test = tf.convert_to_tensor(
-        y_train), tf.convert_to_tensor(y_test)
-
-    print(f"x_test : {x_test[0].shape} | y_test : {y_test[0].shape}")
-
-    return x_test, y_test
-
-
 def make_model():
     model = Sequential()
     model.add(

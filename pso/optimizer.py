@@ -232,15 +232,41 @@ class Optimizer:
         def __init__(self, x, y, batch_size: int = 32):
             self.batch_size = batch_size
             self.index = 0
-            dataset = tf.data.Dataset.from_tensor_slices((x, y))
-            self.dataset = list(dataset.batch(batch_size))
-            self.max_index = len(dataset) // batch_size
+            self.x = x
+            self.y = y
+            self.setBatchSize(batch_size)
 
         def next(self):
             self.index += 1
             if self.index >= self.max_index:
                 self.index = 0
             return self.dataset[self.index][0], self.dataset[self.index][1]
+
+        def getMaxIndex(self):
+            return self.max_index
+
+        def getIndex(self):
+            return self.index
+
+        def setIndex(self, index):
+            self.index = index
+
+        def getBatchSize(self):
+            return self.batch_size
+
+        def setBatchSize(self, batch_size):
+            self.batch_size = batch_size
+            if self.batch_size > len(self.x):
+                self.batch_size = len(self.x)
+            print(f"batch size : {self.batch_size}")
+            self.dataset = list(
+                tf.data.Dataset.from_tensor_slices(
+                    (self.x, self.y)).batch(batch_size)
+            )
+            self.max_index = len(self.dataset)
+
+        def getDataset(self):
+            return self.dataset
 
     def fit(
         self,
@@ -575,7 +601,7 @@ class Optimizer:
             print(e)
 
         finally:
-            self.model_save(save_path)
+            self.model_save(x, y, save_path)
             print("model save")
             if save_info:
                 self.save_info(save_path)
@@ -658,7 +684,7 @@ class Optimizer:
         model = self.get_best_model()
         model.save_weights(save_path)
 
-    def model_save(self, save_path: str = "./result"):
+    def model_save(self, x, y, save_path: str = "./result"):
         """
         최고 점수를 받은 모델 저장
 
@@ -669,6 +695,8 @@ class Optimizer:
             (keras.models): 모델
         """
         model = self.get_best_model()
+        score = model.evaluate(x, y, verbose=1)
+        print(f"model acc : {score[1]}, loss : {score[0]}")
         model.save(
             f"./{save_path}/{self.day}/{self.n_particles}_{self.c0}_{self.c1}_{self.w_min}.h5"
         )
