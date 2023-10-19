@@ -39,11 +39,12 @@ def make_model():
         Conv2D(32, kernel_size=(5, 5), activation="sigmoid",
                input_shape=(28, 28, 1))
     )
-    model.add(MaxPooling2D(pool_size=(3, 3)))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Conv2D(64, kernel_size=(3, 3), activation="sigmoid"))
     model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.25))
     model.add(Flatten())
+    model.add(Dropout(0.25))
+    model.add(Dense(256, activation="sigmoid"))
     model.add(Dense(128, activation="sigmoid"))
     model.add(Dense(10, activation="softmax"))
 
@@ -97,8 +98,10 @@ pso_mnist = optimizer(
     w_max=0.5,
     negative_swarm=0.05,
     mutation_swarm=0.3,
-    particle_min=-4,
-    particle_max=4,
+    particle_min=-0.3,
+    particle_max=0.3,
+    early_stopping=True,
+    early_stopping_patience=10,
 )
 
 best_score = pso_mnist.fit(
@@ -113,7 +116,7 @@ best_score = pso_mnist.fit(
     check_point=25,
     empirical_balance=False,
     dispersion=False,
-    batch_size=32,
+    batch_size=1024,
 )
 
 print("Done!")

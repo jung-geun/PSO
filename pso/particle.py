@@ -15,29 +15,51 @@ class Particle:
     """
 
     def __init__(
-        self, model: keras.models, loss, negative: bool = False, mutation: float = 0
+        self,
+        model: keras.models,
+        loss,
+        negative: bool = False,
+        mutation: float = 0,
+        converge_reset: bool = False,
+        converge_reset_patience: int = 10,
+        converge_reset_monitor: str = "loss",
+        converge_reset_min_delta: float = 0.0001,
     ):
         """
         Args:
             model (keras.models): 학습 및 검증을 위한 모델
             loss (str|): 손실 함수
             negative (bool, optional): 음의 가중치 사용 여부 - 전역 탐색 용도(조기 수렴 방지). Defaults to False.
+            mutation (float, optional): 돌연변이 확률. Defaults to 0.
+            converge_reset (bool, optional): 조기 종료 사용 여부. Defaults to False.
+            converge_reset_patience (int, optional): 조기 종료를 위한 기다리는 횟수. Defaults to 10.
         """
         self.model = model
         self.loss = loss
-        init_weights = self.model.get_weights()
-        i_w_, i_s, i_l = self._encode(init_weights)
-        i_w_ = np.random.uniform(-0.5, 0.5, len(i_w_))
-        self.velocities = self._decode(i_w_, i_s, i_l)
+
+        try:
+            if converge_reset and converge_reset_monitor not in ["acc", "accuracy", "loss"]:
+                raise ValueError(
+                    "converge_reset_monitor must be 'acc' or 'accuracy' or 'loss'"
+                )
+            if converge_reset and converge_reset_min_delta < 0:
+                raise ValueError("converge_reset_min_delta must be positive")
+            if converge_reset and converge_reset_patience < 0:
+                raise ValueError("converge_reset_patience must be positive")
+        except ValueError as e:
+            print(e)
+            exit(1)
+
+        self.reset_particle()
         self.negative = negative
         self.mutation = mutation
         self.best_score = 0
-        self.best_weights = init_weights
-        self.before_best = init_weights
         self.before_w = 0
-
-        del i_w_, i_s, i_l
-        del init_weights
+        self.score_history = []
+        self.converge_reset = converge_reset
+        self.converge_reset_patience = converge_reset_patience
+        self.converge_reset_monitor = converge_reset_monitor
+        self.converge_reset_min_delta = converge_reset_min_delta
 
     def __del__(self):
         del self.model
@@ -89,6 +111,7 @@ class Particle:
             w_ = np.reshape(w_, shape[i])
             weights.append(w_)
             start = end
+
         del start, end, w_
         del shape, length
         del weight
@@ -119,6 +142,42 @@ class Particle:
 
         return score
 
+    def __check_converge_reset__(self, score, monitor="loss", patience: int = 10, min_delta: float = 0.0001):
+        """
+        early stop을 구현한 함수
+
+        Args:
+            score (float): 현재 점수 [0] - loss, [1] - acc
+            monitor (str, optional): 감시할 점수. Defaults to "loss".
+            patience (int, optional): early stop을 위한 기다리는 횟수. Defaults to 10.
+            min_delta (float, optional): early stop을 위한 최소 변화량. Defaults to 0.0001.
+        """
+        if monitor in ["acc", "accuracy"]:
+            self.score_history.append(score[1])
+        elif monitor in ["loss"]:
+            self.score_history.append(score[0])
+
+        if len(self.score_history) > patience:
+            last_scores = self.score_history[-patience:]
+            if max(last_scores) - min(last_scores) < min_delta:
+                return True
+        return False
+
+    def reset_particle(self):
+        self.model = keras.models.model_from_json(self.model.to_json())
+        self.model.compile(optimizer="adam", loss=self.loss,
+                           metrics=["accuracy"])
+        init_weights = self.model.get_weights()
+        i_w_, i_s, i_l = self._encode(init_weights)
+        i_w_ = np.random.uniform(-0.05, 0.05, len(i_w_))
+        self.velocities = self._decode(i_w_, i_s, i_l)
+
+        self.best_weights = init_weights
+        self.before_best = init_weights
+
+        del init_weights, i_w_, i_s, i_l
+        self.score_history = []
+
     def _update_velocity(self, local_rate, global_rate, w, g_best):
         """
         현재 속도 업데이트
@@ -140,7 +199,7 @@ class Particle:
         r_1 = np.random.rand()
 
         if not np.array_equal(encode_before, encode_g, equal_nan=True):
-            self.before_w = w * 0.6
+            self.before_w = w * 0.5
             w = w + self.before_w
         else:
             self.before_w *= 0.75
@@ -152,6 +211,9 @@ class Particle:
                 + local_rate * r_0 * (encode_p - encode_w)
                 + -1 * global_rate * r_1 * (encode_g - encode_w)
             )
+            if len(self.score_history) > 10 and max(self.score_history[-10:]) - min(self.score_history[-10:]) < 0.01:
+                self.reset_particle()
+
         else:
             new_v = (
                 w * encode_v
@@ -160,7 +222,7 @@ class Particle:
             )
 
         if np.random.rand() < self.mutation:
-            m_v = np.random.uniform(-0.2, 0.2, len(encode_v))
+            m_v = np.random.uniform(-0.1, 0.1, len(encode_v))
             new_v = m_v
 
         self.velocities = self._decode(new_v, w_sh, w_len)
@@ -196,7 +258,7 @@ class Particle:
         r_1 = np.random.rand()
 
         if not np.array_equal(encode_before, encode_g, equal_nan=True):
-            self.before_w = w * 0.6
+            self.before_w = w * 0.5
             w = w + self.before_w
         else:
             self.before_w *= 0.75
@@ -258,7 +320,13 @@ class Particle:
         self._update_velocity(local_rate, global_rate, w, g_best)
         self._update_weights()
 
-        return self.get_score(x, y, renewal)
+        score = self.get_score(x, y, renewal)
+
+        if self.converge_reset and self.__check_converge_reset__(
+                score, self.converge_reset_monitor, self.converge_reset_patience, self.converge_reset_min_delta):
+            self.reset_particle()
+
+        return score
 
     def step_w(
         self, x, y, local_rate, global_rate, w, g_best, w_p, w_g, renewal: str = "acc"

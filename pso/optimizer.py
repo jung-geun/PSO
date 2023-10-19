@@ -39,8 +39,12 @@ class Optimizer:
         np_seed: int = None,
         tf_seed: int = None,
         random_state: tuple = None,
-        particle_min: float = -5,
-        particle_max: float = 5,
+        particle_min: float = -0.3,
+        particle_max: float = 0.3,
+        convergence_reset: bool = False,
+        convergence_reset_patience: int = 10,
+        convergence_reset_min_delta: float = 0.0001,
+        convergence_reset_monitor: str = "loss",
     ):
         """
         particle swarm optimization
@@ -59,6 +63,10 @@ class Optimizer:
             tf_seed (int, optional): tensorflow seed. Defaults to None.
             particle_min (float, optional): 가중치 초기화 최소값. Defaults to -5.
             particle_max (float, optional): 가중치 초기화 최대값. Defaults to 5.
+            convergence_reset (bool, optional): early stopping 사용 여부. Defaults to False.
+            convergence_reset_patience (int, optional): early stopping 사용시 얼마나 기다릴지. Defaults to 10.
+            convergence_reset_min_delta (float, optional): early stopping 사용시 얼마나 기다릴지. Defaults to 0.0001.
+            convergence_reset_monitor (str, optional): early stopping 사용시 어떤 값을 기준으로 할지. Defaults to "loss".
         """
         if np_seed is not None:
             np.random.seed(np_seed)
@@ -95,36 +103,36 @@ class Optimizer:
         self.day = datetime.now().strftime("%Y%m%d-%H%M%S")
 
         self.empirical_balance = False
+
         negative_count = 0
 
         self.train_summary_writer = [None] * self.n_particles
+
         try:
             print(f"start running time : {self.day}")
             for i in tqdm(range(self.n_particles), desc="Initializing Particles"):
-                model_ = keras.models.model_from_json(model.to_json())
-                w_, sh_, len_ = self._encode(model_.get_weights())
-                w_ = np.random.uniform(particle_min, particle_max, len(w_))
-                model_.set_weights(self._decode(w_, sh_, len_))
 
-                model_.compile(
-                    loss=self.loss,
-                    optimizer="sgd",
-                    metrics=["accuracy"]
-                )
                 self.particles[i] = Particle(
-                    model_,
-                    loss,
-                    negative=True if i < negative_swarm * self.n_particles else False,
-                    mutation=mutation_swarm,
+                    model,
+                    self.loss,
+                    negative=True if i < self.negative_swarm * self.n_particles else False,
+                    mutation=self.mutation_swarm,
+                    converge_reset=convergence_reset,
+                    converge_reset_patience=convergence_reset_patience,
+                    converge_reset_monitor=convergence_reset_monitor,
+                    converge_reset_min_delta=convergence_reset_min_delta,
                 )
-                if i < negative_swarm * self.n_particles:
+
+                if i < self.negative_swarm * self.n_particles:
                     negative_count += 1
                 # del m, init_weights, w_, sh_, len_
                 gc.collect()
                 tf.keras.backend.reset_uids()
                 tf.keras.backend.clear_session()
 
-            print(f"negative swarm : {negative_count} / {self.n_particles}")
+                # del model_
+
+            print(f"negative swarm : {negative_count} / {n_particles}")
             print(f"mutation swarm : {mutation_swarm * 100}%")
 
             gc.collect()
@@ -240,6 +248,7 @@ class Optimizer:
             self.index += 1
             if self.index >= self.max_index:
                 self.index = 0
+                self.__getBatchSlice__(self.batch_size)
             return self.dataset[self.index][0], self.dataset[self.index][1]
 
         def getMaxIndex(self):
@@ -259,11 +268,14 @@ class Optimizer:
             if self.batch_size > len(self.x):
                 self.batch_size = len(self.x)
             print(f"batch size : {self.batch_size}")
-            self.dataset = list(
-                tf.data.Dataset.from_tensor_slices(
-                    (self.x, self.y)).batch(batch_size)
-            )
+            self.dataset = self.__getBatchSlice__(self.batch_size)
             self.max_index = len(self.dataset)
+
+        def __getBatchSlice__(self, batch_size):
+            return list(
+                tf.data.Dataset.from_tensor_slices(
+                    (self.x, self.y)).shuffle(len(self.x)).batch(batch_size)
+            )
 
         def getDataset(self):
             return self.dataset
@@ -281,7 +293,8 @@ class Optimizer:
         empirical_balance: bool = False,
         dispersion: bool = False,
         check_point: int = None,
-        batch_size: int = 128,
+        batch_size: int = None,
+        validate_data: any = None,
     ):
         """
         # Args:
@@ -295,11 +308,34 @@ class Optimizer:
             empirical_balance : bool - True : EBPSO, False : PSO,
             dispersion : bool - True : g_best 의 값을 분산시켜 전역해를 찾음, False : g_best 의 값만 사용
             check_point : int - 저장할 위치 - None : 저장 안함
-            batch_size : int - batch size default : 128
+            batch_size : int - batch size default : None => len(x) // 10
+                batch_size > len(x) : auto max batch size
         """
+        try:
+            if x.shape[0] != y.shape[0]:
+                raise ValueError("x, y shape error")
+
+            if log not in [0, 1, 2]:
+                raise ValueError("log not in [0, 1, 2]")
+
+            if save_info and save_path is None:
+                raise ValueError("save_path is None")
+
+            if renewal not in ["acc", "loss", "both"]:
+                raise ValueError("renewal not in ['acc', 'loss', 'both']")
+
+            if check_point is not None and save_path is None:
+                raise ValueError("save_path is None")
+
+        except ValueError as ve:
+            sys.exit(ve)
+
         self.save_path = save_path
         self.empirical_balance = empirical_balance
         self.dispersion = dispersion
+
+        if batch_size is None:
+            batch_size = len(x) // 10
 
         self.renewal = renewal
         particle_sum = 0  # x_j
@@ -326,7 +362,7 @@ class Optimizer:
 
         model_ = keras.models.model_from_json(self.model.to_json())
         model_.compile(loss=self.loss, optimizer="adam", metrics=["accuracy"])
-        model_.fit(x, y, epochs=1, batch_size=64, verbose=0)
+        model_.fit(x, y, epochs=1, verbose=0)
         score = model_.evaluate(x, y, verbose=1)
 
         if renewal == "acc":

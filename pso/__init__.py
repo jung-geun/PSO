@@ -1,7 +1,7 @@
 from .optimizer import Optimizer as optimizer
 from .particle import Particle as particle
 
-__version__ = "0.1.9"
+__version__ = "1.0.0"
 
 __all__ = [
     "optimizer",
