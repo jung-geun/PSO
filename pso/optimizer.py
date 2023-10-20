@@ -328,6 +328,7 @@ class Optimizer:
         check_point: int = None,
         batch_size: int = None,
         validate_data: any = None,
+        back_propagation: bool = False,
     ):
         """
         # Args:
@@ -393,20 +394,21 @@ class Optimizer:
         except ValueError as ve:
             sys.exit(ve)
 
-        model_ = keras.models.model_from_json(self.model.to_json())
-        model_.compile(
-            loss=self.loss,
-            optimizer="adam",
-            metrics=["accuracy", "mse"]
-        )
-        model_.fit(x, y, epochs=1, verbose=0)
-        score = model_.evaluate(x, y, verbose=1)
+        if back_propagation:
+            model_ = keras.models.model_from_json(self.model.to_json())
+            model_.compile(
+                loss=self.loss,
+                optimizer="adam",
+                metrics=["accuracy", "mse"]
+            )
+            model_.fit(x, y, epochs=1, verbose=0)
+            score = model_.evaluate(x, y, verbose=1)
 
-        self.g_best_score = score
+            self.g_best_score = score
 
-        self.g_best = model_.get_weights()
+            self.g_best = model_.get_weights()
 
-        del model_
+            del model_
 
         dataset = self._batch_generator_(x, y, batch_size=batch_size)
 

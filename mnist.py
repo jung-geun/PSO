@@ -117,6 +117,7 @@ best_score = pso_mnist.fit(
     empirical_balance=False,
     dispersion=False,
     batch_size=5000,
+    back_propagation=True,
 )
 
 print("Done!")
