@@ -36,16 +36,16 @@ def get_data():
 def make_model():
     model = Sequential()
     model.add(
-        Conv2D(32, kernel_size=(5, 5), activation="sigmoid",
+        Conv2D(32, kernel_size=(5, 5), activation="relu",
                input_shape=(28, 28, 1))
     )
     model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Conv2D(64, kernel_size=(3, 3), activation="sigmoid"))
+    model.add(Conv2D(64, kernel_size=(3, 3), activation="relu"))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Flatten())
     model.add(Dropout(0.25))
-    model.add(Dense(256, activation="sigmoid"))
-    model.add(Dense(128, activation="sigmoid"))
+    model.add(Dense(256, activation="relu"))
+    model.add(Dense(128, activation="relu"))
     model.add(Dense(10, activation="softmax"))
 
     return model
@@ -90,26 +90,24 @@ loss = [
 
 pso_mnist = optimizer(
     model,
-    loss="mean_squared_error",
-    n_particles=900,
-    c0=0.2,
-    c1=0.4,
-    w_min=0.3,
-    w_max=0.5,
+    loss="categorical_crossentropy",
+    n_particles=500,
+    c0=0.5,
+    c1=1.0,
+    w_min=0.7,
+    w_max=0.9,
     negative_swarm=0.05,
     mutation_swarm=0.3,
-    particle_min=-0.3,
-    particle_max=0.3,
-    early_stopping=True,
-    early_stopping_patience=10,
-    early_stopping_monitor="loss",
-    early_stopping_min_delta=0.0005,
+    convergence_reset=True,
+    convergence_reset_patience=10,
+    convergence_reset_monitor="mse",
+    convergence_reset_min_delta=0.0005,
 )
 
 best_score = pso_mnist.fit(
     x_train,
     y_train,
-    epochs=200,
+    epochs=300,
     save_info=True,
     log=2,
     log_name="mnist",
@@ -118,7 +116,7 @@ best_score = pso_mnist.fit(
     check_point=25,
     empirical_balance=False,
     dispersion=False,
-    batch_size=1024,
+    batch_size=5000,
 )
 
 print("Done!")
