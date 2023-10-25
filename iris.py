@@ -50,22 +50,24 @@ pso_iris = optimizer(
     c1=0.6,
     w_min=0.5,
     w_max=0.9,
-    negative_swarm=0.1,
+    negative_swarm=0,
     mutation_swarm=0.2,
-    particle_min=-3,
-    particle_max=3,
+    convergence_reset=True,
+    convergence_reset_patience=10,
+    convergence_reset_monitor="mse",
+    convergence_reset_min_delta=0.05,
 )
 
 best_score = pso_iris.fit(
     x_train,
     y_train,
-    epochs=200,
+    epochs=500,
     save_info=True,
     log=2,
     log_name="iris",
-    save_path="result/iris",
     renewal="acc",
     check_point=25,
+    validate_data=(x_test, y_test),
 )
 
 gc.collect()

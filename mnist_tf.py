@@ -39,19 +39,50 @@ def get_data_test():
     return x_test, y_test
 
 
-class _batch_generator:
-    def __init__(self, x, y, batch_size: int = 32):
-        self.batch_size = batch_size
+class _batch_generator_:
+    def __init__(self, x, y, batch_size: int = None):
         self.index = 0
-        dataset = tf.data.Dataset.from_tensor_slices((x, y))
-        self.dataset = list(dataset.batch(batch_size))
-        self.max_index = len(dataset) // batch_size
+        self.x = x
+        self.y = y
+        self.setBatchSize(batch_size)
 
     def next(self):
         self.index += 1
         if self.index >= self.max_index:
             self.index = 0
+            self.__getBatchSlice(self.batch_size)
         return self.dataset[self.index][0], self.dataset[self.index][1]
+
+    def getMaxIndex(self):
+        return self.max_index
+
+    def getIndex(self):
+        return self.index
+
+    def setIndex(self, index):
+        self.index = index
+
+    def getBatchSize(self):
+        return self.batch_size
+
+    def setBatchSize(self, batch_size: int = None):
+        if batch_size is None:
+            batch_size = len(self.x) // 10
+        elif batch_size > len(self.x):
+            batch_size = len(self.x)
+        self.batch_size = batch_size
+        print(f"batch size : {self.batch_size}")
+        self.dataset = self.__getBatchSlice(self.batch_size)
+        self.max_index = len(self.dataset)
+
+    def __getBatchSlice(self, batch_size):
+        return list(
+            tf.data.Dataset.from_tensor_slices(
+                (self.x, self.y)).shuffle(len(self.x)).batch(batch_size)
+        )
+
+    def getDataset(self):
+        return self.dataset
 
 
 def make_model():
@@ -60,11 +91,13 @@ def make_model():
         Conv2D(32, kernel_size=(5, 5), activation="relu",
                input_shape=(28, 28, 1))
     )
-    model.add(MaxPooling2D(pool_size=(3, 3)))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.5))
     model.add(Conv2D(64, kernel_size=(3, 3), activation="relu"))
     model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.25))
     model.add(Flatten())
+    model.add(Dropout(0.5))
+    model.add(Dense(256, activation="relu"))
     model.add(Dense(128, activation="relu"))
     model.add(Dense(10, activation="softmax"))
 
@@ -76,21 +109,25 @@ x_train, y_train, x_test, y_test = get_data()
 y_train = tf.one_hot(y_train, 10)
 y_test = tf.one_hot(y_test, 10)
 
-dataset = _batch_generator(x_train, y_train, 64)
+batch = 64
+dataset = _batch_generator_(x_train, y_train, batch)
 
-model.compile(optimizer="adam", loss="mse", metrics=["accuracy"])
+model.compile(optimizer="adam", loss="categorical_crossentropy",
+              metrics=["accuracy", "mse", "mae"])
 
 count = 0
-
-while count < 20:
+print(f"batch size : {batch}")
+print("iter " + str(dataset.getMaxIndex()))
+print("Training model...")
+while count < dataset.getMaxIndex():
     x_batch, y_batch = dataset.next()
     count += 1
-    print("Training model...")
-    model.fit(x_batch, y_batch, epochs=1, batch_size=1, verbose=1)
+    print(f"iter {count}/{dataset.getMaxIndex()}")
+    model.fit(x_batch, y_batch, epochs=1, batch_size=batch, verbose=1)
 
 print(count)
 
 print("Evaluating model...")
-model.evaluate(x_test, y_test, verbose=2)
+model.evaluate(x_test, y_test, verbose=1)
 
 weights = model.get_weights()

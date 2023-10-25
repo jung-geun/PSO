@@ -40,32 +40,16 @@ def make_model():
                input_shape=(28, 28, 1))
     )
     model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.5))
     model.add(Conv2D(64, kernel_size=(3, 3), activation="relu"))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Flatten())
-    model.add(Dropout(0.25))
+    model.add(Dropout(0.5))
     model.add(Dense(256, activation="relu"))
     model.add(Dense(128, activation="relu"))
     model.add(Dense(10, activation="softmax"))
 
     return model
-
-
-def random_state():
-    with open(
-        "result/mnist/20230723-061626/mean_squared_error_[0.6384999752044678, 0.0723000094294548].json",
-        "r",
-    ) as f:
-        json_ = json.load(f)
-        rs = (
-            json_["random_state_0"],
-            np.array(json_["random_state_1"]),
-            json_["random_state_2"],
-            json_["random_state_3"],
-            json_["random_state_4"],
-        )
-
-    return rs
 
 
 # %%
@@ -91,17 +75,17 @@ loss = [
 pso_mnist = optimizer(
     model,
     loss="categorical_crossentropy",
-    n_particles=500,
+    n_particles=100,
     c0=0.5,
-    c1=1.0,
-    w_min=0.7,
+    c1=0.8,
+    w_min=0.6,
     w_max=0.9,
-    negative_swarm=0.05,
-    mutation_swarm=0.3,
+    negative_swarm=0.0,
+    mutation_swarm=0.2,
     convergence_reset=True,
     convergence_reset_patience=10,
-    convergence_reset_monitor="mse",
-    convergence_reset_min_delta=0.0005,
+    convergence_reset_monitor="loss",
+    convergence_reset_min_delta=0.05,
 )
 
 best_score = pso_mnist.fit(
@@ -111,13 +95,13 @@ best_score = pso_mnist.fit(
     save_info=True,
     log=2,
     log_name="mnist",
-    save_path="./logs/mnist",
-    renewal="acc",
+    renewal="loss",
     check_point=25,
-    empirical_balance=False,
+    empirical_balance=True,
     dispersion=False,
-    batch_size=5000,
-    back_propagation=True,
+    batch_size=2048,
+    back_propagation=False,
+    validate_data=(x_test, y_test),
 )
 
 print("Done!")

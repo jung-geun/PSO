@@ -67,7 +67,6 @@ best_score = pso_xor.fit(
     save_info=True,
     log=2,
     log_name="xor",
-    save_path="./result/xor",
     renewal="acc",
     check_point=25,
 )
