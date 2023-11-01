@@ -1,17 +1,14 @@
+from pso import optimizer
+from tensorflow.keras.models import Sequential
+from tensorflow.keras import layers
+from tensorflow import keras
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import load_iris
+import gc
 import os
 import sys
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-
-import gc
-
-from sklearn.datasets import load_iris
-from sklearn.model_selection import train_test_split
-from tensorflow import keras
-from tensorflow.keras import layers
-from tensorflow.keras.models import Sequential
-
-from pso import optimizer
 
 
 def make_model():
@@ -40,22 +37,21 @@ def load_data():
 model = make_model()
 x_train, x_test, y_train, y_test = load_data()
 
-loss = ["categorical_crossentropy", "mean_squared_error"]
 
 pso_iris = optimizer(
     model,
-    loss=loss[1],
+    loss="categorical_crossentropy",
     n_particles=100,
-    c0=0.35,
-    c1=0.6,
-    w_min=0.5,
+    c0=0.5,
+    c1=0.3,
+    w_min=0.2,
     w_max=0.9,
     negative_swarm=0,
-    mutation_swarm=0.2,
+    mutation_swarm=0.1,
     convergence_reset=True,
     convergence_reset_patience=10,
     convergence_reset_monitor="mse",
-    convergence_reset_min_delta=0.05,
+    convergence_reset_min_delta=0.001,
 )
 
 best_score = pso_iris.fit(
@@ -65,7 +61,7 @@ best_score = pso_iris.fit(
     save_info=True,
     log=2,
     log_name="iris",
-    renewal="acc",
+    renewal="mse",
     check_point=25,
     validate_data=(x_test, y_test),
 )

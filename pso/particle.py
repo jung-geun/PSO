@@ -54,11 +54,11 @@ class Particle:
 
         self.__reset_particle()
         self.best_weights = self.model.get_weights()
-        self.before_best = self.model.get_weights()
+        # self.before_best = self.model.get_weights()
         self.negative = negative
         self.mutation = mutation
         self.best_score = [np.inf, 0, np.inf]
-        self.before_w = 0
+        # self.before_w = 0
         self.score_history = []
         self.converge_reset = converge_reset
         self.converge_reset_patience = converge_reset_patience
@@ -196,7 +196,7 @@ class Particle:
         del i_w_, i_s, i_l
         self.score_history = []
 
-    def _update_velocity(self, local_rate, global_rate, w):
+    def _velocity_calculation(self, local_rate, global_rate, w):
         """
         현재 속도 업데이트
 
@@ -209,20 +209,20 @@ class Particle:
         encode_v, v_sh, v_len = self._encode(weights=self.velocities)
         encode_p, p_sh, p_len = self._encode(weights=self.best_weights)
         encode_g, g_sh, g_len = self._encode(weights=Particle.g_best_weights)
-        encode_before, before_sh, before_len = self._encode(
-            weights=self.before_best
-        )
+        # encode_before, before_sh, before_len = self._encode(
+            # weights=self.before_best
+        # )
         r_0 = np.random.rand()
         r_1 = np.random.rand()
 
         # 이전 전역 최적해와 현재 전역 최적해가 다르면 관성을 순간적으로 증가 - 값이 바뀔 경우 기존 관성을 특정 기간동안 유지
-        if not np.array_equal(encode_before, encode_g, equal_nan=True):
+        # if not np.array_equal(encode_before, encode_g, equal_nan=True):
             # 이전 가중치 중요도의 1.5 배로 관성을 증가
-            self.before_w = w * 0.5
-            w = w + self.before_w
-        else:
-            self.before_w *= 0.75
-            w = w + self.before_w
+            # self.before_w = w * 0.5
+            # w = w + self.before_w
+        # else:
+            # self.before_w *= 0.75
+            # w = w + self.before_w
 
         if self.negative:
             # 지역 최적해와 전역 최적해를 음수로 사용하여 전역 탐색을 유도
@@ -251,10 +251,9 @@ class Particle:
         del encode_v, v_sh, v_len
         del encode_p, p_sh, p_len
         del encode_g, g_sh, g_len
-        del encode_before, before_sh, before_len
         del r_0, r_1
 
-    def _update_velocity_w(self, local_rate, global_rate, w, w_p, w_g):
+    def _velocity_calculation_w(self, local_rate, global_rate, w, w_p, w_g):
         """
         현재 속도 업데이트
         기본 업데이트의 변형으로 지역 최적해와 전역 최적해를 분산시켜 조기 수렴을 방지
@@ -270,18 +269,18 @@ class Particle:
         encode_v, v_sh, v_len = self._encode(weights=self.velocities)
         encode_p, p_sh, p_len = self._encode(weights=self.best_weights)
         encode_g, g_sh, g_len = self._encode(weights=Particle.g_best_weights)
-        encode_before, before_sh, before_len = self._encode(
-            weights=self.before_best
-        )
+        # encode_before, before_sh, before_len = self._encode(
+            # weights=self.before_best
+        # )
         r_0 = np.random.rand()
         r_1 = np.random.rand()
 
-        if not np.array_equal(encode_before, encode_g, equal_nan=True):
-            self.before_w = w * 0.5
-            w = w + self.before_w
-        else:
-            self.before_w *= 0.75
-            w = w + self.before_w
+        # if not np.array_equal(encode_before, encode_g, equal_nan=True):
+            # self.before_w = w * 0.5
+            # w = w + self.before_w
+        # else:
+            # self.before_w *= 0.75
+            # w = w + self.before_w
 
         if self.negative:
             new_v = (
@@ -306,10 +305,9 @@ class Particle:
         del encode_v, v_sh, v_len
         del encode_p, p_sh, p_len
         del encode_g, g_sh, g_len
-        del encode_before, before_sh, before_len
         del r_0, r_1
 
-    def _update_weights(self):
+    def _position_update(self):
         """
         가중치 업데이트
         """
@@ -337,8 +335,8 @@ class Particle:
         Returns:
             list: 현재 파티클의 점수
         """
-        self._update_velocity(local_rate, global_rate, w)
-        self._update_weights()
+        self._velocity_calculation(local_rate, global_rate, w)
+        self._position_update()
 
         score = self.get_score(x, y, renewal)
 
@@ -385,8 +383,8 @@ class Particle:
         Returns:
             float: 현재 파티클의 점수
         """
-        self._update_velocity_w(local_rate, global_rate, w, w_p, w_g)
-        self._update_weights()
+        self._velocity_calculation_w(local_rate, global_rate, w, w_p, w_g)
+        self._position_update()
 
         score = self.get_score(x, y, renewal)
 

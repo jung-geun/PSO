@@ -1,13 +1,17 @@
 import gc
 import json
 import os
+import socket
+import subprocess
 import sys
 from datetime import datetime
 
 import numpy as np
 import tensorflow as tf
+from tensorboard.plugins.hparams import api as hp
 from tensorflow import keras
 from tqdm.auto import tqdm
+import atexit
 
 from .particle import Particle
 
@@ -19,6 +23,14 @@ if gpus:
         print(r)
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+
+
+def find_free_port():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.bind(("localhost", 0))
+    port = sock.getsockname()[1]
+    sock.close()
+    return port
 
 
 class Optimizer:
@@ -33,9 +45,9 @@ class Optimizer:
         loss: any = None,
         n_particles: int = None,
         c0: float = 0.5,
-        c1: float = 1.5,
-        w_min: float = 0.5,
-        w_max: float = 1.5,
+        c1: float = 0.3,
+        w_min: float = 0.2,
+        w_max: float = 0.9,
         negative_swarm: float = 0,
         mutation_swarm: float = 0,
         np_seed: int = None,
@@ -94,11 +106,7 @@ class Optimizer:
             if random_state is not None:
                 np.random.set_state(random_state)
 
-            model.compile(
-                loss=loss,
-                optimizer="adam",
-                metrics=["accuracy", "mse"]
-            )
+            model.compile(loss=loss, optimizer="adam", metrics=["accuracy", "mse"])
             self.model = model  # 모델 구조
             self.loss = loss  # 손실함수
             self.n_particles = n_particles  # 파티클 개수
@@ -124,11 +132,12 @@ class Optimizer:
 
             print(f"start running time : {self.day}")
             for i in tqdm(range(self.n_particles), desc="Initializing Particles"):
-
                 self.particles[i] = Particle(
                     model,
                     self.loss,
-                    negative=True if i < self.negative_swarm * self.n_particles else False,
+                    negative=True
+                    if i < self.negative_swarm * self.n_particles
+                    else False,
                     mutation=self.mutation_swarm,
                     converge_reset=convergence_reset,
                     converge_reset_patience=convergence_reset_patience,
@@ -308,8 +317,9 @@ class Optimizer:
 
         def __getBatchSlice(self, batch_size):
             return list(
-                tf.data.Dataset.from_tensor_slices(
-                    (self.x, self.y)).shuffle(len(self.x)).batch(batch_size)
+                tf.data.Dataset.from_tensor_slices((self.x, self.y))
+                .shuffle(len(self.x))
+                .batch(batch_size)
             )
 
         def getDataset(self):
@@ -353,7 +363,13 @@ class Optimizer:
                 raise ValueError("x, y shape error")
 
             if log not in [0, 1, 2]:
-                raise ValueError("log not in [0, 1, 2]")
+                raise ValueError(
+                    """log not in [0, 1, 2]
+                    0 : log 기록 안함
+                    1 : csv
+                    2 : tensorboard
+                    """
+                )
 
             if renewal not in ["acc", "loss", "mse"]:
                 raise ValueError("renewal not in ['acc', 'loss', 'mse']")
@@ -394,7 +410,19 @@ class Optimizer:
                     self.train_summary_writer[i] = tf.summary.create_file_writer(
                         train_log_dir + f"/{i}"
                     )
-
+                port = find_free_port()
+                tensorboard_precess = subprocess.Popen(
+                    [
+                        "tensorboard",
+                        "--logdir",
+                        self.log_path,
+                        "--port",
+                        str(port),
+                    ]
+                )
+                tensorboard_url = f"http://localhost:{port}"
+                print(f"tensorboard url : {tensorboard_url}")
+                atexit.register(tensorboard_precess.kill)
             elif check_point is not None or log == 1:
                 if not os.path.exists(self.log_path):
                     os.makedirs(self.log_path, exist_ok=True)
@@ -408,7 +436,7 @@ class Optimizer:
             model_.compile(
                 loss=self.loss,
                 optimizer="adam",
-                metrics=["accuracy", "mse"]
+                metrics=["accuracy", "mse"],
             )
             model_.fit(x, y, epochs=1, verbose=0)
             score = model_.evaluate(x, y, verbose=1)
@@ -463,8 +491,7 @@ class Optimizer:
                     if dispersion:
                         ts = weight_min + np.random.rand() * (weight_max - weight_min)
 
-                        g_, g_sh, g_len = self._encode(
-                            Particle.g_best_weights)
+                        g_, g_sh, g_len = self._encode(Particle.g_best_weights)
                         decrement = (epochs - epoch + 1) / epochs
                         g_ = (1 - decrement) * g_ + decrement * ts
                         g_best = self._decode_(g_, g_sh, g_len)
@@ -472,8 +499,7 @@ class Optimizer:
                     if empirical_balance:
                         if np.random.rand() < np.exp(-(epoch) / epochs):
                             w_p_ = self._f(
-                                x_batch, y_batch, self.particles[i].get_best_weights(
-                                )
+                                x_batch, y_batch, self.particles[i].get_best_weights()
                             )
                             w_g_ = self._f(x_batch, y_batch, g_best)
                             w_p = w_p_ / (w_p_ + w_g_)
@@ -491,9 +517,7 @@ class Optimizer:
                                 1
                                 / (
                                     self.n_particles
-                                    * np.linalg.norm(
-                                        weight_min - weight_max
-                                    )
+                                    * np.linalg.norm(weight_min - weight_max)
                                 )
                                 * sigma_post
                             )
@@ -543,9 +567,7 @@ class Optimizer:
                     if log == 2:
                         with self.train_summary_writer[i].as_default():
                             tf.summary.scalar("loss", score[0], step=epoch + 1)
-                            tf.summary.scalar(
-                                "accuracy", score[1], step=epoch + 1
-                            )
+                            tf.summary.scalar("accuracy", score[1], step=epoch + 1)
                             tf.summary.scalar("mse", score[2], step=epoch + 1)
 
                     if renewal == "loss":
@@ -555,6 +577,11 @@ class Optimizer:
                             min_loss, max_acc, min_mse = score
 
                             best_particle_index = i
+                        elif score[0] == min_loss:
+                            if score[1] > max_acc:
+                                min_loss, max_acc, min_mse = score
+
+                                best_particle_index = i
                     elif renewal == "acc":
                         # 최고 점수 보다 높거나 같을 경우
                         if score[1] > max_acc:
@@ -562,14 +589,22 @@ class Optimizer:
                             min_loss, max_acc, min_mse = score
 
                             best_particle_index = i
+                        elif score[1] == max_acc:
+                            if score[2] < min_mse:
+                                min_loss, max_acc, min_mse = score
 
+                                best_particle_index = i
 
                     elif renewal == "mse":
                         if score[2] < min_mse:
                             min_loss, max_acc, min_mse = score
 
                             best_particle_index = i
+                        elif score[2] == min_mse:
+                            if score[1] > max_acc:
+                                min_loss, max_acc, min_mse = score
 
+                                best_particle_index = i
                     particle_sum += score[1]
 
                     if log == 1:
@@ -587,34 +622,28 @@ class Optimizer:
                 if renewal == "loss":
                     if min_loss <= Particle.g_best_score[0]:
                         if min_loss < Particle.g_best_score[0]:
-                            self.particles[best_particle_index].update_global_best(
-                            )
+                            self.particles[best_particle_index].update_global_best()
                         else:
                             if max_acc > Particle.g_best_score[1]:
-                                self.particles[best_particle_index].update_global_best(
-                                )
+                                self.particles[best_particle_index].update_global_best()
                 elif renewal == "acc":
                     if max_acc >= Particle.g_best_score[1]:
                         # 최고 점수 보다 높을 경우
                         if max_acc > Particle.g_best_score[1]:
                             # 최고 점수 갱신
-                            self.particles[best_particle_index].update_global_best(
-                            )
+                            self.particles[best_particle_index].update_global_best()
                         # 최고 점수 와 같을 경우
                         else:
                             # 최저 loss 보다 낮을 경우
                             if min_loss < Particle.g_best_score[0]:
-                                self.particles[best_particle_index].update_global_best(
-                                )
+                                self.particles[best_particle_index].update_global_best()
                 elif renewal == "mse":
                     if min_mse <= Particle.g_best_score[2]:
                         if min_mse < Particle.g_best_score[2]:
-                            self.particles[best_particle_index].update_global_best(
-                            )
+                            self.particles[best_particle_index].update_global_best()
                         else:
                             if max_acc > Particle.g_best_score[1]:
-                                self.particles[best_particle_index].update_global_best(
-                                )
+                                self.particles[best_particle_index].update_global_best()
                 # 최고 점수 갱신
                 epochs_pbar.set_description(
                     f"best - loss: {Particle.g_best_score[0]:.4f} - acc: {Particle.g_best_score[1]:.4f} - mse: {Particle.g_best_score[2]:.4f}"
@@ -623,9 +652,12 @@ class Optimizer:
                 if check_point is not None:
                     if epoch % check_point == 0:
                         os.makedirs(
-                            f"./logs/{log_name}/{self.day}", exist_ok=True)
+                            f"./logs/{log_name}/{self.day}",
+                            exist_ok=True,
+                        )
                         self._check_point_save(
-                            f"./logs/{log_name}/{self.day}/ckpt-{epoch}")
+                            f"./logs/{log_name}/{self.day}/ckpt-{epoch}"
+                        )
 
                 tf.keras.backend.reset_uids()
                 tf.keras.backend.clear_session()
@@ -661,7 +693,7 @@ class Optimizer:
         model.compile(
             loss=self.loss,
             optimizer="adam",
-            metrics=["accuracy", "mse"]
+            metrics=["accuracy", "mse"],
         )
 
         return model
@@ -741,8 +773,7 @@ class Optimizer:
         x, y = valid_data
         model = self.get_best_model()
         score = model.evaluate(x, y, verbose=1)
-        print(
-            f"model score - loss: {score[0]} - acc: {score[1]} - mse: {score[2]}")
+        print(f"model score - loss: {score[0]} - acc: {score[1]} - mse: {score[2]}")
         model.save(
             f"./{self.log_path}/model_{score[0 if self.renewal == 'loss' else 1 if self.renewal == 'acc'  else 2 ]}.h5"
         )
