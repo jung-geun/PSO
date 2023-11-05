@@ -19,7 +19,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 def make_model():
     model = Sequential()
     model.add(Dense(12, input_dim=64, activation="relu"))
-    model.add(Dense(8, activation="relu"))
+    model.add(Dense(10, activation="relu"))
     model.add(Dense(10, activation="softmax"))
 
     return model
@@ -55,7 +55,7 @@ digits_pso = optimizer(
     mutation_swarm=0.1,
     convergence_reset=True,
     convergence_reset_patience=10,
-    convergence_reset_monitor="acc",
+    convergence_reset_monitor="loss",
     convergence_reset_min_delta=0.001,
 )
 
@@ -66,7 +66,7 @@ digits_pso.fit(
     validate_data=(x_test, y_test),
     log=2,
     save_info=True,
-    renewal="acc",
+    renewal="loss",
     log_name="digits",
 )
 

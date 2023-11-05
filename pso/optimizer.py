@@ -152,7 +152,6 @@ class Optimizer:
                 tf.keras.backend.reset_uids()
                 tf.keras.backend.clear_session()
 
-            self.particles[0].update_global_best()
             print(f"negative swarm : {negative_count} / {n_particles}")
             print(f"mutation swarm : {mutation_swarm * 100}%")
 
@@ -449,6 +448,15 @@ class Optimizer:
 
         dataset = self.batch_generator(x, y, batch_size=batch_size)
 
+        for i in tqdm(
+            range(len(self.particles)),
+            desc="best score init",
+            ascii=True,
+            leave=True,
+        ):
+            score = self.particles[i].get_score(x, y, self.renewal)
+            self.particles[i].check_global_best(self.renewal)
+
         try:
             epoch_sum = 0
             epochs_pbar = tqdm(
@@ -477,7 +485,8 @@ class Optimizer:
                     position=1,
                 )
 
-                w = self.w_max - (self.w_max - self.w_min) * epoch / epochs
+                # w = self.w_max - (self.w_max - self.w_min) * epoch / epochs
+                w = self.w_max - (self.w_max - self.w_min) * (epoch % 100) / 100
                 for i in part_pbar:
                     part_pbar.set_description(
                         f"loss: {min_loss:.4f} acc: {max_acc:.4f} mse: {min_mse:.4f}"

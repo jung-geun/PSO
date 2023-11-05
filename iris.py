@@ -44,13 +44,13 @@ pso_iris = optimizer(
     n_particles=100,
     c0=0.5,
     c1=0.3,
-    w_min=0.2,
+    w_min=0.1,
     w_max=0.9,
     negative_swarm=0,
     mutation_swarm=0.1,
     convergence_reset=True,
     convergence_reset_patience=10,
-    convergence_reset_monitor="mse",
+    convergence_reset_monitor="loss",
     convergence_reset_min_delta=0.001,
 )
 
@@ -61,7 +61,7 @@ best_score = pso_iris.fit(
     save_info=True,
     log=2,
     log_name="iris",
-    renewal="mse",
+    renewal="loss",
     check_point=25,
     validate_data=(x_test, y_test),
 )

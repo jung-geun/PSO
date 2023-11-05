@@ -65,6 +65,7 @@ loss = [
     "huber_loss",
     "mean_absolute_error",
     "mean_absolute_percentage_error",
+
 ]
 
 # rs = random_state()
@@ -75,13 +76,13 @@ pso_mnist = optimizer(
     n_particles=500,
     c0=0.5,
     c1=0.3,
-    w_min=0.2,
+    w_min=0.1,
     w_max=0.9,
     negative_swarm=0.0,
     mutation_swarm=0.1,
     convergence_reset=True,
     convergence_reset_patience=10,
-    convergence_reset_monitor="mse",
+    convergence_reset_monitor="loss",
     convergence_reset_min_delta=0.005,
 )
 
@@ -92,7 +93,7 @@ best_score = pso_mnist.fit(
     save_info=True,
     log=2,
     log_name="mnist",
-    renewal="mse",
+    renewal="loss",
     check_point=25,
     empirical_balance=False,
     dispersion=False,

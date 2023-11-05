@@ -12,6 +12,7 @@ class Particle:
     4. 가중치 업데이트
     5. 2번으로 돌아가서 반복
     """
+
     g_best_score = [np.inf, 0, np.inf]
     g_best_weights = None
     count = 0
@@ -40,7 +41,12 @@ class Particle:
         self.loss = loss
 
         try:
-            if converge_reset and converge_reset_monitor not in ["acc", "accuracy", "loss", "mse"]:
+            if converge_reset and converge_reset_monitor not in [
+                "acc",
+                "accuracy",
+                "loss",
+                "mse",
+            ]:
                 raise ValueError(
                     "converge_reset_monitor must be 'acc' or 'accuracy' or 'loss'"
                 )
@@ -154,7 +160,13 @@ class Particle:
 
         return score
 
-    def __check_converge_reset(self, score, monitor: str = None, patience: int = 10, min_delta: float = 0.0001):
+    def __check_converge_reset(
+        self,
+        score,
+        monitor: str = None,
+        patience: int = 10,
+        min_delta: float = 0.0001,
+    ):
         """
         early stop을 구현한 함수
 
@@ -173,8 +185,7 @@ class Particle:
         elif monitor in ["mse"]:
             self.score_history.append(score[2])
         else:
-            raise ValueError(
-                "monitor must be 'acc' or 'accuracy' or 'loss' or 'mse'")
+            raise ValueError("monitor must be 'acc' or 'accuracy' or 'loss' or 'mse'")
 
         if len(self.score_history) > patience:
             last_scores = self.score_history[-patience:]
@@ -187,10 +198,10 @@ class Particle:
         self.model.compile(
             optimizer="adam",
             loss=self.loss,
-            metrics=["accuracy", "mse"]
+            metrics=["accuracy", "mse"],
         )
         i_w_, i_s, i_l = self._encode(self.model.get_weights())
-        i_w_ = np.random.uniform(-0.05, 0.1, len(i_w_))
+        i_w_ = np.random.uniform(-0.1, 0.1, len(i_w_))
         self.velocities = self._decode(i_w_, i_s, i_l)
 
         del i_w_, i_s, i_l
@@ -210,28 +221,31 @@ class Particle:
         encode_p, p_sh, p_len = self._encode(weights=self.best_weights)
         encode_g, g_sh, g_len = self._encode(weights=Particle.g_best_weights)
         # encode_before, before_sh, before_len = self._encode(
-            # weights=self.before_best
+        # weights=self.before_best
         # )
         r_0 = np.random.rand()
         r_1 = np.random.rand()
 
         # 이전 전역 최적해와 현재 전역 최적해가 다르면 관성을 순간적으로 증가 - 값이 바뀔 경우 기존 관성을 특정 기간동안 유지
         # if not np.array_equal(encode_before, encode_g, equal_nan=True):
-            # 이전 가중치 중요도의 1.5 배로 관성을 증가
-            # self.before_w = w * 0.5
-            # w = w + self.before_w
+        # 이전 가중치 중요도의 1.5 배로 관성을 증가
+        # self.before_w = w * 0.5
+        # w = w + self.before_w
         # else:
-            # self.before_w *= 0.75
-            # w = w + self.before_w
+        # self.before_w *= 0.75
+        # w = w + self.before_w
 
         if self.negative:
             # 지역 최적해와 전역 최적해를 음수로 사용하여 전역 탐색을 유도
             new_v = (
                 w * encode_v
-                - local_rate * r_0 * (encode_p - encode_w)
+                + local_rate * r_0 * (encode_p - encode_w)
                 - global_rate * r_1 * (encode_g - encode_w)
             )
-            if len(self.score_history) > 10 and max(self.score_history[-10:]) - min(self.score_history[-10:]) < 0.01:
+            if (
+                len(self.score_history) > 10
+                and max(self.score_history[-10:]) - min(self.score_history[-10:]) < 0.01
+            ):
                 self.__reset_particle()
 
         else:
@@ -270,22 +284,22 @@ class Particle:
         encode_p, p_sh, p_len = self._encode(weights=self.best_weights)
         encode_g, g_sh, g_len = self._encode(weights=Particle.g_best_weights)
         # encode_before, before_sh, before_len = self._encode(
-            # weights=self.before_best
+        # weights=self.before_best
         # )
         r_0 = np.random.rand()
         r_1 = np.random.rand()
 
         # if not np.array_equal(encode_before, encode_g, equal_nan=True):
-            # self.before_w = w * 0.5
-            # w = w + self.before_w
+        # self.before_w = w * 0.5
+        # w = w + self.before_w
         # else:
-            # self.before_w *= 0.75
-            # w = w + self.before_w
+        # self.before_w *= 0.75
+        # w = w + self.before_w
 
         if self.negative:
             new_v = (
                 w * encode_v
-                - local_rate * r_0 * (w_p * encode_p - encode_w)
+                + local_rate * r_0 * (w_p * encode_p - encode_w)
                 - global_rate * r_1 * (w_g * encode_g - encode_w)
             )
         else:
@@ -296,7 +310,7 @@ class Particle:
             )
 
         if np.random.rand() < self.mutation:
-            m_v = np.random.uniform(-0.05, 0.05, len(encode_v))
+            m_v = np.random.uniform(-0.1, 0.1, len(encode_v))
             new_v = m_v
 
         self.velocities = self._decode(new_v, w_sh, w_len)
@@ -341,11 +355,28 @@ class Particle:
         score = self.get_score(x, y, renewal)
 
         if self.converge_reset and self.__check_converge_reset(
-                score, self.converge_reset_monitor, self.converge_reset_patience, self.converge_reset_min_delta):
+            score,
+            self.converge_reset_monitor,
+            self.converge_reset_patience,
+            self.converge_reset_min_delta,
+        ):
             self.__reset_particle()
             score = self.get_score(x, y, renewal)
 
-        while np.isnan(score[0]) or np.isnan(score[1]) or np.isnan(score[2]) or score[0] == 0 or score[1] == 0 or score[2] == 0 or np.isinf(score[0]) or np.isinf(score[1]) or np.isinf(score[2]) or score[0] > 1000 or score[1] > 1 or score[2] > 1000:
+        while (
+            np.isnan(score[0])
+            or np.isnan(score[1])
+            or np.isnan(score[2])
+            or score[0] == 0
+            or score[1] == 0
+            or score[2] == 0
+            or np.isinf(score[0])
+            or np.isinf(score[1])
+            or np.isinf(score[2])
+            or score[0] > 1000
+            or score[1] > 1
+            or score[2] > 1000
+        ):
             self.__reset_particle()
             score = self.get_score(x, y, renewal)
 
@@ -362,9 +393,7 @@ class Particle:
 
         return score
 
-    def step_w(
-        self, x, y, local_rate, global_rate, w, w_p, w_g, renewal: str = "acc"
-    ):
+    def step_w(self, x, y, local_rate, global_rate, w, w_p, w_g, renewal: str = "acc"):
         """
         파티클의 한 스텝을 진행합니다.
         기본 스텝의 변형으로, 지역최적해와 전역최적해의 분산 정도를 조정할 수 있습니다
@@ -389,11 +418,28 @@ class Particle:
         score = self.get_score(x, y, renewal)
 
         if self.converge_reset and self.__check_converge_reset(
-                score, self.converge_reset_monitor, self.converge_reset_patience, self.converge_reset_min_delta):
+            score,
+            self.converge_reset_monitor,
+            self.converge_reset_patience,
+            self.converge_reset_min_delta,
+        ):
             self.__reset_particle()
             score = self.get_score(x, y, renewal)
 
-        while np.isnan(score[0]) or np.isnan(score[1]) or np.isnan(score[2]) or score[0] == 0 or score[1] == 0 or score[2] == 0 or np.isinf(score[0]) or np.isinf(score[1]) or np.isinf(score[2]) or score[0] > 1000 or score[1] > 1 or score[2] > 1000:
+        while (
+            np.isnan(score[0])
+            or np.isnan(score[1])
+            or np.isnan(score[2])
+            or score[0] == 0
+            or score[1] == 0
+            or score[2] == 0
+            or np.isinf(score[0])
+            or np.isinf(score[1])
+            or np.isinf(score[2])
+            or score[0] > 1000
+            or score[1] > 1
+            or score[2] > 1000
+        ):
             self.__reset_particle()
             score = self.get_score(x, y, renewal)
 
@@ -429,17 +475,25 @@ class Particle:
         return self.best_weights
 
     def set_global_score(self):
-        """전역 최고점수를 현재 파티클의 최고점수로 설정합니다
-        """
+        """전역 최고점수를 현재 파티클의 최고점수로 설정합니다"""
         Particle.g_best_score = self.best_score
 
     def set_global_weights(self):
-        """전역 최고점수를 받은 가중치를 현재 파티클의 최고점수를 받은 가중치로 설정합니다
-        """
+        """전역 최고점수를 받은 가중치를 현재 파티클의 최고점수를 받은 가중치로 설정합니다"""
         Particle.g_best_weights = self.best_weights
 
     def update_global_best(self):
-        """현재 파티클의 점수와 가중치를 전역 최고점수와 가중치로 설정합니다
-        """
+        """현재 파티클의 점수와 가중치를 전역 최고점수와 가중치로 설정합니다"""
         self.set_global_score()
         self.set_global_weights()
+
+    def check_global_best(self, renewal: str = "loss"):
+        if renewal == "loss":
+            if self.best_score[0] < Particle.g_best_score[0]:
+                self.update_global_best()
+        elif renewal == "acc":
+            if self.best_score[1] > Particle.g_best_score[1]:
+                self.update_global_best()
+        elif renewal == "mse":
+            if self.best_score[2] < Particle.g_best_score[2]:
+                self.update_global_best()
