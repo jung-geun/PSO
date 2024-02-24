@@ -2,6 +2,8 @@ from keras.models import Sequential
 from keras.layers import Conv2D, Dense, Dropout, Flatten, MaxPooling2D
 from keras.datasets import mnist
 from keras.utils import to_categorical
+from sklearn.model_selection import train_test_split
+
 # from tensorflow.data.Dataset import from_tensor_slices
 import tensorflow as tf
 import os
@@ -30,14 +32,6 @@ def get_data():
     print(f"x_test : {x_test[0].shape} | y_test : {y_test[0].shape}")
 
     return x_train, y_train, x_test, y_test
-
-
-def get_data_test():
-    (x_train, y_train), (x_test, y_test) = mnist.load_data()
-    x_test = x_test.reshape((10000, 28, 28, 1))
-
-    return x_test, y_test
-
 
 class _batch_generator_:
     def __init__(self, x, y, batch_size: int = None):
@@ -77,8 +71,9 @@ class _batch_generator_:
 
     def __getBatchSlice(self, batch_size):
         return list(
-            tf.data.Dataset.from_tensor_slices(
-                (self.x, self.y)).shuffle(len(self.x)).batch(batch_size)
+            tf.data.Dataset.from_tensor_slices((self.x, self.y))
+            .shuffle(len(self.x))
+            .batch(batch_size)
         )
 
     def getDataset(self):
@@ -88,17 +83,18 @@ class _batch_generator_:
 def make_model():
     model = Sequential()
     model.add(
-        Conv2D(32, kernel_size=(5, 5), activation="relu",
-               input_shape=(28, 28, 1))
+        Conv2D(64, kernel_size=(5, 5), activation="relu", input_shape=(28, 28, 1))
     )
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.5))
-    model.add(Conv2D(64, kernel_size=(3, 3), activation="relu"))
+    model.add(Conv2D(128, kernel_size=(3, 3), activation="relu"))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Flatten())
     model.add(Dropout(0.5))
-    model.add(Dense(256, activation="relu"))
-    model.add(Dense(128, activation="relu"))
+    model.add(Dense(2048, activation="relu"))
+    model.add(Dropout(0.8))
+    model.add(Dense(1024, activation="relu"))
+    model.add(Dropout(0.8))
     model.add(Dense(10, activation="softmax"))
 
     return model
@@ -112,18 +108,21 @@ y_test = tf.one_hot(y_test, 10)
 batch = 64
 dataset = _batch_generator_(x_train, y_train, batch)
 
-model.compile(optimizer="adam", loss="categorical_crossentropy",
-              metrics=["accuracy", "mse", "mae"])
+model.compile(
+    optimizer="adam",
+    loss="categorical_crossentropy",
+    metrics=["accuracy", "mse"],
+)
 
 count = 0
 print(f"batch size : {batch}")
 print("iter " + str(dataset.getMaxIndex()))
 print("Training model...")
-while count < dataset.getMaxIndex():
-    x_batch, y_batch = dataset.next()
-    count += 1
-    print(f"iter {count}/{dataset.getMaxIndex()}")
-    model.fit(x_batch, y_batch, epochs=1, batch_size=batch, verbose=1)
+# while count < dataset.getMaxIndex():
+# x_batch, y_batch = dataset.next()
+# count += 1
+# print(f"iter {count}/{dataset.getMaxIndex()}")
+model.fit(x_train, y_train, epochs=1000, batch_size=batch, verbose=1)
 
 print(count)
 

@@ -1,15 +1,11 @@
 import os
 import sys
 
-import pandas as pd
-import tensorflow as tf
+from keras.layers import Dense
+from keras.models import Sequential
+from keras.utils import to_categorical
 from sklearn.datasets import load_digits
 from sklearn.model_selection import train_test_split
-from tensorflow import keras
-from tensorflow.keras import layers
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.utils import to_categorical
 
 from pso import optimizer
 

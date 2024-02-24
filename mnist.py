@@ -1,14 +1,14 @@
 # %%
-from pso import optimizer
-from tensorflow import keras
-from keras.models import Sequential
-from keras.layers import Conv2D, Dense, Dropout, Flatten, MaxPooling2D
-from keras.datasets import mnist
-import tensorflow as tf
-import numpy as np
-import json
 import os
 import sys
+
+from pso import optimizer
+
+import tensorflow as tf
+from keras.datasets import mnist
+from keras.layers import Conv2D, Dense, Dropout, Flatten, MaxPooling2D
+from keras.models import Sequential
+
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
@@ -53,33 +53,17 @@ def make_model():
 model = make_model()
 x_train, y_train, x_test, y_test = get_data()
 
-loss = [
-    "mean_squared_error",
-    "categorical_crossentropy",
-    "sparse_categorical_crossentropy",
-    "binary_crossentropy",
-    "kullback_leibler_divergence",
-    "poisson",
-    "cosine_similarity",
-    "log_cosh",
-    "huber_loss",
-    "mean_absolute_error",
-    "mean_absolute_percentage_error",
-
-]
-
-# rs = random_state()
 
 pso_mnist = optimizer(
     model,
     loss="categorical_crossentropy",
-    n_particles=500,
-    c0=0.5,
-    c1=0.3,
+    n_particles=200,
+    c0=0.7,
+    c1=0.4,
     w_min=0.1,
     w_max=0.9,
     negative_swarm=0.0,
-    mutation_swarm=0.1,
+    mutation_swarm=0.05,
     convergence_reset=True,
     convergence_reset_patience=10,
     convergence_reset_monitor="loss",
@@ -89,16 +73,13 @@ pso_mnist = optimizer(
 best_score = pso_mnist.fit(
     x_train,
     y_train,
-    epochs=500,
+    epochs=1000,
     save_info=True,
     log=2,
     log_name="mnist",
     renewal="loss",
     check_point=25,
-    empirical_balance=False,
-    dispersion=False,
-    batch_size=10000,
-    back_propagation=False,
+    batch_size=5000,
     validate_data=(x_test, y_test),
 )
 

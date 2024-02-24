@@ -1,3 +1,4 @@
+import atexit
 import gc
 import json
 import os
@@ -8,10 +9,10 @@ from datetime import datetime
 
 import numpy as np
 import tensorflow as tf
+from sklearn.model_selection import train_test_split
 from tensorboard.plugins.hparams import api as hp
 from tensorflow import keras
 from tqdm.auto import tqdm
-import atexit
 
 from .particle import Particle
 
@@ -46,7 +47,7 @@ class Optimizer:
         n_particles: int = None,
         c0: float = 0.5,
         c1: float = 0.3,
-        w_min: float = 0.2,
+        w_min: float = 0.1,
         w_max: float = 0.9,
         negative_swarm: float = 0,
         mutation_swarm: float = 0,
@@ -56,7 +57,7 @@ class Optimizer:
         convergence_reset: bool = False,
         convergence_reset_patience: int = 10,
         convergence_reset_min_delta: float = 0.0001,
-        convergence_reset_monitor: str = "mse",
+        convergence_reset_monitor: str = "loss",
     ):
         """
         particle swarm optimization
@@ -284,10 +285,10 @@ class Optimizer:
 
         def next(self):
             self.index += 1
-            if self.index >= self.max_index:
+            if self.index > self.max_index:
                 self.index = 0
                 self.__getBatchSlice(self.batch_size)
-            return self.dataset[self.index][0], self.dataset[self.index][1]
+            return self.dataset[self.index - 1][0], self.dataset[self.index - 1][1]
 
         def getMaxIndex(self):
             return self.max_index
@@ -306,13 +307,12 @@ class Optimizer:
                 batch_size = len(self.x) // 10
             elif batch_size > len(self.x):
                 batch_size = len(self.x)
+
             self.batch_size = batch_size
 
             print(f"batch size : {self.batch_size}")
             self.dataset = self.__getBatchSlice(self.batch_size)
             self.max_index = len(self.dataset)
-            if batch_size % len(self.x) != 0:
-                self.max_index -= 1
 
         def __getBatchSlice(self, batch_size):
             return list(
@@ -331,14 +331,16 @@ class Optimizer:
         epochs: int = 1,
         log: int = 0,
         log_name: str = None,
-        save_info: bool = False,
-        renewal: str = "mse",
-        empirical_balance: bool = False,
-        dispersion: bool = False,
+        save_info: bool = None,
+        renewal: str = None,
+        empirical_balance: bool = None,
+        dispersion: bool = None,
         check_point: int = None,
         batch_size: int = None,
         validate_data: tuple = None,
+        validation_split: float = None,
         back_propagation: bool = False,
+        weight_reduction: int = None,
     ):
         """
         # Args:
@@ -355,11 +357,15 @@ class Optimizer:
             batch_size : int - batch size default : None => len(x) // 10
                 batch_size > len(x) : auto max batch size
             validate_data : tuple - (x, y) default : None => (x, y)
-            back_propagation : bool - True : back propagation, False : not back propagation
+            back_propagation : bool - True : back propagation, False : not back propagation default : False
+            weight_reduction : int - 가중치 감소 초기화 주기 default : None => epochs
         """
         try:
             if x.shape[0] != y.shape[0]:
                 raise ValueError("x, y shape error")
+
+            if save_info is None:
+                save_info = False
 
             if log not in [0, 1, 2]:
                 raise ValueError(
@@ -370,8 +376,17 @@ class Optimizer:
                     """
                 )
 
+            if renewal is None:
+                renewal = "loss"
+
             if renewal not in ["acc", "loss", "mse"]:
                 raise ValueError("renewal not in ['acc', 'loss', 'mse']")
+
+            if empirical_balance is None:
+                empirical_balance = False
+
+            if dispersion is None:
+                dispersion = False
 
             if validate_data is not None:
                 if validate_data[0].shape[0] != validate_data[1].shape[0]:
@@ -380,11 +395,22 @@ class Optimizer:
             if validate_data is None:
                 validate_data = (x, y)
 
+            if validation_split is not None:
+                if validation_split < 0 or validation_split > 1:
+                    raise ValueError("validation_split not in [0, 1]")
+
+                x, validate_data[0], y, validate_data[1] = train_test_split(
+                    x, y, test_size=validation_split, shuffle=True
+                )
+
             if batch_size is not None and batch_size < 1:
                 raise ValueError("batch_size < 1")
 
             if batch_size is None or batch_size > len(x):
                 batch_size = len(x)
+
+            if weight_reduction == None:
+                weight_reduction = epochs
 
         except ValueError as ve:
             sys.exit(ve)
@@ -430,34 +456,39 @@ class Optimizer:
         except Exception as e:
             sys.exit(e)
 
-        if back_propagation:
-            model_ = keras.models.model_from_json(self.model.to_json())
-            model_.compile(
-                loss=self.loss,
-                optimizer="adam",
-                metrics=["accuracy", "mse"],
-            )
-            model_.fit(x, y, epochs=1, verbose=0)
-            score = model_.evaluate(x, y, verbose=1)
-
-            Particle.g_best_score = score
-
-            Particle.g_best_weights = model_.get_weights()
-
-            del model_
-
-        dataset = self.batch_generator(x, y, batch_size=batch_size)
-
-        for i in tqdm(
-            range(len(self.particles)),
-            desc="best score init",
-            ascii=True,
-            leave=True,
-        ):
-            score = self.particles[i].get_score(x, y, self.renewal)
-            self.particles[i].check_global_best(self.renewal)
-
         try:
+            dataset = self.batch_generator(x, y, batch_size=batch_size)
+
+            if back_propagation:
+                model_ = keras.models.model_from_json(self.model.to_json())
+                model_.compile(
+                    loss=self.loss,
+                    optimizer="adam",
+                    metrics=["accuracy", "mse"],
+                )
+                model_.fit(x, y, epochs=1, verbose=0)
+                score = model_.evaluate(x, y, verbose=1)
+
+                Particle.g_best_score = score
+
+                Particle.g_best_weights = model_.get_weights()
+
+                del model_
+
+            else:
+                for i in tqdm(
+                    range(len(self.particles)),
+                    desc="best score init",
+                    ascii=True,
+                    leave=False,
+                ):
+                    score = self.particles[i].get_score(
+                        validate_data[0], validate_data[1], self.renewal
+                    )
+                    self.particles[i].check_global_best(self.renewal)
+
+            print("best score init complete" + str(Particle.g_best_score))
+
             epoch_sum = 0
             epochs_pbar = tqdm(
                 range(epochs),
@@ -486,7 +517,12 @@ class Optimizer:
                 )
 
                 # w = self.w_max - (self.w_max - self.w_min) * epoch / epochs
-                w = self.w_max - (self.w_max - self.w_min) * (epoch % 100) / 100
+                w = (
+                    self.w_max
+                    - (self.w_max - self.w_min)
+                    * (epoch % weight_reduction)
+                    / weight_reduction
+                )
                 for i in part_pbar:
                     part_pbar.set_description(
                         f"loss: {min_loss:.4f} acc: {max_acc:.4f} mse: {min_mse:.4f}"

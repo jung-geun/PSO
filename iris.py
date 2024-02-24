@@ -1,12 +1,14 @@
-from pso import optimizer
-from tensorflow.keras.models import Sequential
-from tensorflow.keras import layers
-from tensorflow import keras
-from sklearn.model_selection import train_test_split
-from sklearn.datasets import load_iris
 import gc
 import os
 import sys
+
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from tensorflow import keras
+from tensorflow.keras import layers
+from tensorflow.keras.models import Sequential
+
+from pso import optimizer
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
