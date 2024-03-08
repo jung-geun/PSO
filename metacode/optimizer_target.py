@@ -14,10 +14,7 @@ from pso2keras import Particle
 gpus = tf.config.experimental.list_physical_devices("GPU")
 if gpus:
     try:
-        # tf.config.experimental.set_visible_devices(gpus[0], "GPU")
-        # print(tf.config.experimental.get_visible_devices("GPU"))
         tf.config.experimental.set_memory_growth(gpus[0], True)
-        # print("set memory growth")
     except RuntimeError as e:
         print(e)
 

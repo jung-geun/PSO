@@ -9,7 +9,13 @@ class PSO(object):
     Class implementing PSO algorithm
     """
 
-    def __init__(self, model: keras.models, loss_method=keras.losses.MeanSquaredError(), optimizer='adam', n_particles=5):
+    def __init__(
+        self,
+        model: keras.models,
+        loss_method=keras.losses.MeanSquaredError(),
+        optimizer="adam",
+        n_particles=5,
+    ):
         """
         Initialize the key variables.
 
@@ -19,39 +25,39 @@ class PSO(object):
             optimizer : 최적화 함수
             n_particles(int) : 파티클의 개수
         """
-        self.model = model                      # 모델
-        self.n_particles = n_particles          # 파티클의 개수
-        self.loss_method = loss_method          # 손실 함수
-        self.optimizer = optimizer              # 최적화 함수
+        self.model = model  # 모델
+        self.n_particles = n_particles  # 파티클의 개수
+        self.loss_method = loss_method  # 손실 함수
+        self.optimizer = optimizer  # 최적화 함수
         self.model_structure = self.model.to_json()  # 모델의 구조
-        self.init_weights = self.model.get_weights()          # 검색할 차원
-        self.particle_depth = len(self.model.get_weights())    # 검색할 차원의 깊이
-        self.particles_weights = [None] * n_particles                 # 파티클의 위치
+        self.init_weights = self.model.get_weights()  # 검색할 차원
+        self.particle_depth = len(self.model.get_weights())  # 검색할 차원의 깊이
+        self.particles_weights = [None] * n_particles  # 파티클의 위치
         for _ in tqdm(range(self.n_particles), desc="init particles position"):
             # particle_node = []
             m = keras.models.model_from_json(self.model_structure)
-            m.compile(loss=self.loss_method,
-                      optimizer=self.optimizer, metrics=["accuracy"])
+            m.compile(
+                loss=self.loss_method, optimizer=self.optimizer, metrics=["accuracy"]
+            )
             self.particles_weights[_] = m.get_weights()
             # print(f"shape > {self.particles_weights[_][0]}")
-       
 
             # self.particles_weights.append(particle_node)
 
         # print(f"particles_weights > {self.particles_weights}")
         # self.particles_weights = np.random.uniform(size=(n_particles, self.particle_depth)) \
-            # * self.init_pos
+        # * self.init_pos
         # 입력받은 파티클의 개수 * 검색할 차원의 크기 만큼의 균등한 위치를 생성
         # self.velocities = [None] * self.n_particles
         self.velocities = [
-            [0 for i in range(self.particle_depth)] for n in range(n_particles)]
+            [0 for i in range(self.particle_depth)] for n in range(n_particles)
+        ]
         for i in tqdm(range(n_particles), desc="init velocities"):
             # print(i)
             for index, layer in enumerate(self.init_weights):
                 # print(f"index > {index}")
                 # print(f"layer > {layer.shape}")
-                self.velocities[i][index] = np.random.rand(
-                    *layer.shape) / 5 - 0.10
+                self.velocities[i][index] = np.random.rand(*layer.shape) / 5 - 0.10
                 # if layer.ndim == 1:
                 #     self.velocities[i][index] = np.random.uniform(
                 #         size=(layer.shape[0],))
@@ -72,11 +78,10 @@ class PSO(object):
         #     size=(n_particles, self.particle_depth))
         # 입력받은 파티클의 개수 * 검색할 차원의 크기 만큼의 속도를 무작위로 초기화
         # 최대 사이즈로 전역 최적갑 저장 - global best
-        self.g_best = self.model.get_weights()      # 전역 최적값(최적의 가중치)
-        self.p_best = self.particles_weights            # 각 파티클의 최적값(최적의 가중치)
-        self.p_best_score = [0 for i in range(
-            n_particles)]  # 각 파티클의 최적값의 점수
-        self.g_best_score = 0                  # 전역 최적값의 점수(초기화 - 무한대)
+        self.g_best = self.model.get_weights()  # 전역 최적값(최적의 가중치)
+        self.p_best = self.particles_weights  # 각 파티클의 최적값(최적의 가중치)
+        self.p_best_score = [0 for i in range(n_particles)]  # 각 파티클의 최적값의 점수
+        self.g_best_score = 0  # 전역 최적값의 점수(초기화 - 무한대)
         self.g_history = []
         self.g_best_score_history = []
         self.history = []
@@ -101,22 +106,22 @@ class PSO(object):
             # print(f"shape > w : {np.shape(w[i])}, v : {np.shape(v[i])}")
             new_weights[i] = tf.add(weights[i], v[i])
         # new_w = tf.add(w, v)   # 각 파티클을 랜덤한 속도만큼 진행
-        return new_weights    # 진행한 파티클들의 위치를 반환
+        return new_weights  # 진행한 파티클들의 위치를 반환
 
     def _update_velocity(self, weights, v, p_best, c0=0.5, c1=1.5, w=0.75):
         """
-            Update particle velocity
+        Update particle velocity
 
-            Args:
-                weights (array-like) : 파티클의 현재 가중치
-                v (array-like) : 속도
-                p_best(array-like) : 각 파티클의 최적의 위치 (최적의 가중치)
-                c0 (float) : 인지 스케일링 상수 (가중치의 중요도 - 지역) - 지역 관성
-                c1 (float) : 사회 스케일링 상수 (가중치의 중요도 - 전역) - 전역 관성
-                w (float) : 관성 상수 (현재 속도의 중요도)
+        Args:
+            weights (array-like) : 파티클의 현재 가중치
+            v (array-like) : 속도
+            p_best(array-like) : 각 파티클의 최적의 위치 (최적의 가중치)
+            c0 (float) : 인지 스케일링 상수 (가중치의 중요도 - 지역) - 지역 관성
+            c1 (float) : 사회 스케일링 상수 (가중치의 중요도 - 전역) - 전역 관성
+            w (float) : 관성 상수 (현재 속도의 중요도)
 
-            Returns:
-                (array-like) : 각 파티클의 새로운 속도
+        Returns:
+            (array-like) : 각 파티클의 새로운 속도
         """
         # x = np.array(x)
         # v = np.array(v)
@@ -140,9 +145,9 @@ class PSO(object):
         new_velocity = [None] * len(weights)
         for i, layer in enumerate(weights):
 
-            new_v = w*v[i]
-            new_v = new_v + c0*r0*(p_best[i] - layer)
-            new_v = new_v + c1*r1*(self.g_best[i] - layer)
+            new_v = w * v[i]
+            new_v = new_v + c0 * r0 * (p_best[i] - layer)
+            new_v = new_v + c1 * r1 * (self.g_best[i] - layer)
             new_velocity[i] = new_v
 
             # m2 = tf.multiply(tf.multiply(c0, r0),
@@ -176,7 +181,19 @@ class PSO(object):
 
         return score
 
-    def optimize(self, x_train, y_train, x_test, y_test, maxiter=10, epochs=1, batch_size=32, c0=0.5, c1=1.5, w=0.75):
+    def optimize(
+        self,
+        x_train,
+        y_train,
+        x_test,
+        y_test,
+        maxiter=10,
+        epochs=1,
+        batch_size=32,
+        c0=0.5,
+        c1=1.5,
+        w=0.75,
+    ):
         """
         Run the PSO optimization process utill the stoping critera is met.
         Cas for minization. The aim is to minimize the cost function
@@ -190,13 +207,18 @@ class PSO(object):
         for _ in range(maxiter):
             loss = 0
             acc = 1e-10
-            for i in tqdm(range(self.n_particles), desc=f"Iter {_}/{maxiter} | acc avg {round(acc/(_+1) ,4)}", ascii=True):
+            for i in tqdm(
+                range(self.n_particles),
+                desc=f"Iter {_}/{maxiter} | acc avg {round(acc/(_+1) ,4)}",
+                ascii=True,
+            ):
                 weights = self.particles_weights[i]  # 각 파티클 추출
-                v = self.velocities[i]    # 각 파티클의 다음 속도 추출
-                p_best = self.p_best[i]   # 결과치 저장할 변수 지정
+                v = self.velocities[i]  # 각 파티클의 다음 속도 추출
+                p_best = self.p_best[i]  # 결과치 저장할 변수 지정
                 # 2. 속도 계산
                 self.velocities[i] = self._update_velocity(
-                    weights, v, p_best, c0, c1, w)
+                    weights, v, p_best, c0, c1, w
+                )
                 # 다음에 움직일 속도 = 최초 위치, 현재 속도, 현재 위치, 최종 위치
                 # 3. 위치 업데이트
                 self.particles_weights[i] = self._update_weights(weights, v)
@@ -204,12 +226,19 @@ class PSO(object):
                 # Update the besst position for particle i
                 # 내 현재 위치가 내 위치의 최소치보다 작으면 갱신
                 self.model.set_weights(self.particles_weights[i].copy())
-                self.model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size,
-                   verbose=0, validation_data=(x_test, y_test))
+                self.model.fit(
+                    x_train,
+                    y_train,
+                    epochs=epochs,
+                    batch_size=batch_size,
+                    verbose=0,
+                    validation_data=(x_test, y_test),
+                )
                 self.particles_weights[i] = self.model.get_weights()
                 # 4. 평가
-                self.model.compile(loss=self.loss_method,
-                                   optimizer='adam', metrics=['accuracy'])
+                self.model.compile(
+                    loss=self.loss_method, optimizer="adam", metrics=["accuracy"]
+                )
                 score = self._get_score(x_test, y_test)
                 # print(score)
 
@@ -224,8 +253,7 @@ class PSO(object):
                         self.g_best_score = score[1]
                         self.g_best = self.particles_weights[i].copy()
                         self.g_history.append(self.g_best)
-                        self.g_best_score_history.append(
-                            self.g_best_score)
+                        self.g_best_score_history.append(self.g_best_score)
 
                 self.score = score[1]
                 loss = loss + score[0]
@@ -240,7 +268,8 @@ class PSO(object):
                 # self.g_history.append(self.g_best)
                 # print(f"{i} particle score : {score[0]}")
             print(
-                f"loss avg : {loss/self.n_particles} | acc avg : {acc/self.n_particles} | best loss : {self.g_best_score}")
+                f"loss avg : {loss/self.n_particles} | acc avg : {acc/self.n_particles} | best loss : {self.g_best_score}"
+            )
 
             # self.history.append(self.particles_weights.copy())
 

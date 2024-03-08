@@ -1,5 +1,8 @@
 [![Python Package Index publish](https://github.com/jung-geun/PSO/actions/workflows/pypi.yml/badge.svg?event=push)](https://github.com/jung-geun/PSO/actions/workflows/pypi.yml)
 [![PyPI - Version](https://img.shields.io/pypi/v/pso2keras)](https://pypi.org/project/pso2keras/)
+[![Quality Gate Status](https://sonar.pieroot.xyz/api/project_badges/measure?project=pieroot_pso_6a2f36a9-2688-4900-a4a5-5be85f36f75a&metric=alert_status&token=sqb_5fa45d924cd1c13f71a23a9283fba9460dc63eb6)](https://sonar.pieroot.xyz/dashboard?id=pieroot_pso_6a2f36a9-2688-4900-a4a5-5be85f36f75a)
+[![Duplicated Lines (%)](https://sonar.pieroot.xyz/api/project_badges/measure?project=pieroot_pso_6a2f36a9-2688-4900-a4a5-5be85f36f75a&metric=duplicated_lines_density&token=sqb_5fa45d924cd1c13f71a23a9283fba9460dc63eb6)](https://sonar.pieroot.xyz/dashboard?id=pieroot_pso_6a2f36a9-2688-4900-a4a5-5be85f36f75a)
+[![Security Rating](https://sonar.pieroot.xyz/api/project_badges/measure?project=pieroot_pso_6a2f36a9-2688-4900-a4a5-5be85f36f75a&metric=security_rating&token=sqb_5fa45d924cd1c13f71a23a9283fba9460dc63eb6)](https://sonar.pieroot.xyz/dashboard?id=pieroot_pso_6a2f36a9-2688-4900-a4a5-5be85f36f75a)
 
 ### 목차
 

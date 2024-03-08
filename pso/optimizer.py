@@ -83,29 +83,29 @@ class Optimizer:
         try:
             if model is None:
                 raise ValueError("model is None")
-            if model is not None and not isinstance(model, keras.models.Model):
+            elif model is not None and not isinstance(model, keras.models.Model):
                 raise ValueError("model is not keras.models.Model")
 
-            if loss is None:
+            elif loss is None:
                 raise ValueError("loss is None")
 
-            if n_particles is None:
+            elif n_particles is None:
                 raise ValueError("n_particles is None")
-            if n_particles < 1:
+            elif n_particles < 1:
                 raise ValueError("n_particles < 1")
 
-            if c0 < 0 or c1 < 0:
+            elif c0 < 0 or c1 < 0:
                 raise ValueError("c0 or c1 < 0")
 
-            if np_seed is not None:
+            elif np_seed is not None:
                 np.random.seed(np_seed)
-            if tf_seed is not None:
+            elif tf_seed is not None:
                 tf.random.set_seed(tf_seed)
 
-            self.random_state = np.random.get_state()
-
-            if random_state is not None:
+            elif random_state is not None:
                 np.random.set_state(random_state)
+
+            self.random_state = np.random.get_state()
 
             model.compile(loss=loss, optimizer="adam", metrics=["accuracy", "mse"])
             self.model = model  # 모델 구조
@@ -116,8 +116,12 @@ class Optimizer:
             self.c1 = c1  # global rate - 전역 최적값 관성 수치
             self.w_min = w_min  # 최소 관성 수치
             self.w_max = w_max  # 최대 관성 수치
-            self.negative_swarm = negative_swarm  # 최적해와 반대로 이동할 파티클 비율 - 0 ~ 1 사이의 값
-            self.mutation_swarm = mutation_swarm  # 관성을 추가로 사용할 파티클 비율 - 0 ~ 1 사이의 값
+            self.negative_swarm = (
+                negative_swarm  # 최적해와 반대로 이동할 파티클 비율 - 0 ~ 1 사이의 값
+            )
+            self.mutation_swarm = (
+                mutation_swarm  # 관성을 추가로 사용할 파티클 비율 - 0 ~ 1 사이의 값
+            )
             self.avg_score = 0  # 평균 점수
             # self.sigma = 1.0
 
@@ -136,9 +140,9 @@ class Optimizer:
                 self.particles[i] = Particle(
                     model,
                     self.loss,
-                    negative=True
-                    if i < self.negative_swarm * self.n_particles
-                    else False,
+                    negative=(
+                        True if i < self.negative_swarm * self.n_particles else False
+                    ),
                     mutation=self.mutation_swarm,
                     converge_reset=convergence_reset,
                     converge_reset_patience=convergence_reset_patience,

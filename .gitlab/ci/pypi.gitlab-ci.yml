@@ -1,0 +1,18 @@
+variables:
+  PYTHON_VERSION: "3.9"
+  TWINE_USERNAME: "__token__"
+
+build-package:
+  stage: build
+  image: python:${PYTHON_VERSION}
+  script:
+    - pip install --upgrade pip
+    - if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - pip install setuptools wheel twine
+    - python setup.py bdist_wheel sdist
+    - twine upload dist/*.whl dist/*.tar.gz
+
+  only:
+    changes:
+      - "setup.py"
+      - "pso/__init__.py"
