@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 from tensorboard.plugins.hparams import api as hp
 from tensorflow import keras
 from tqdm.auto import tqdm
-from typing import Any
+from typing import Any, List
 from .particle import Particle
 
 
@@ -159,13 +159,17 @@ class Optimizer:
             tf.keras.backend.reset_uids()
             tf.keras.backend.clear_session()
         except KeyboardInterrupt:
-            sys.exit("Ctrl + C : Stop Training")
+            print("Ctrl + C : Stop Training")
+            sys.exit(1)
         except MemoryError:
-            sys.exit("Memory Error : Stop Training")
-        except ValueError as ve:
-            sys.exit(ve)
+            print("Memory Error : Stop Training")
+            sys.exit(12)
+        except ValueError:
+            print("Value Error : Stop Training")
+            sys.exit(11)
         except Exception as e:
-            sys.exit(e)
+            print(e)
+            sys.exit(10)
 
     def __del__(self):
         del self.model
@@ -246,7 +250,7 @@ class Optimizer:
             (float): 목적 함수 값
         """
         self.model.set_weights(weights)
-        score = self.model.evaluate(x, y, verbose=0)
+        score = self.model.evaluate(x, y, verbose=0)  # type: ignore
         if self.renewal == "loss":
             score_ = score[0]
         elif self.renewal == "acc":
@@ -276,70 +280,58 @@ class Optimizer:
         return weight_min, weight_max
 
     class batch_generator:
-        def __init__(self, x, y, batch_size: int = None):
+        def __init__(self, x, y, batch_size: int = 0):
             self.index = 0
             self.x = x
             self.y = y
-            self.setBatchSize(batch_size)
+            self.set_batch_size(batch_size)
 
         def next(self):
             self.index += 1
             if self.index > self.max_index:
                 self.index = 0
-                self.__getBatchSlice(self.batch_size)
+                self.__get_batch_slice(self.batch_size)
             return self.dataset[self.index - 1][0], self.dataset[self.index - 1][1]
 
-        def getMaxIndex(self):
+        def get_max_index(self):
             return self.max_index
 
-        def getIndex(self):
+        def get_index(self):
             return self.index
 
-        def setIndex(self, index):
+        def set_index(self, index):
             self.index = index
 
-        def getBatchSize(self):
+        def get_batch_size(self):
             return self.batch_size
 
-        def setBatchSize(self, batch_size: int = None):
-            if batch_size is None:
-                batch_size = len(self.x) // 10
-            elif batch_size > len(self.x):
+        def set_batch_size(self, batch_size: int = 0):
+            if batch_size == -1 or batch_size > len(self.x):
                 batch_size = len(self.x)
+            elif batch_size == 0:
+                batch_size = len(self.x) // 10
 
             self.batch_size = batch_size
 
             print(f"batch size : {self.batch_size}")
-            self.dataset = self.__getBatchSlice(self.batch_size)
+            self.dataset = self.__get_batch_slice(self.batch_size)
             self.max_index = len(self.dataset)
 
-        def __getBatchSlice(self, batch_size):
+        def __get_batch_slice(self, batch_size):
             return list(
                 tf.data.Dataset.from_tensor_slices((self.x, self.y))
                 .shuffle(len(self.x))
                 .batch(batch_size)
             )
 
-        def getDataset(self):
+        def get_dataset(self):
             return self.dataset
 
     def fit(
         self,
         x,
         y,
-        epochs: int = 1,
-        log: int = 0,
-        log_name: str = None,
-        save_info: bool = None,
-        renewal: str = None,
-        empirical_balance: bool = None,
-        dispersion: bool = None,
-        check_point: int = None,
-        batch_size: int = None,
-        validate_data: tuple = None,
-        validation_split: float = None,
-        back_propagation: bool = False,
-        weight_reduction: int = None,
+        **kwargs,
     ):
         """
         # Args:
@@ -360,6 +352,20 @@ class Optimizer:
             weight_reduction : int - 가중치 감소 초기화 주기 default : None => epochs
         """
         try:
+            epochs = kwargs.get("epochs", 10)
+            log = kwargs.get("log", 0)
+            log_name = kwargs.get("log_name", None)
+            save_info = kwargs.get("save_info", False)
+            renewal = kwargs.get("renewal", "acc")
+            empirical_balance = kwargs.get("empirical_balance", False)
+            dispersion = kwargs.get("dispersion", False)
+            check_point = kwargs.get("check_point", None)
+            batch_size = kwargs.get("batch_size", None)
+            validate_data = kwargs.get("validate_data", None)
+            validation_split = kwargs.get("validation_split", None)
+            back_propagation = kwargs.get("back_propagation", False)
+            weight_reduction = kwargs.get("weight_reduction", None)
+
             if x.shape[0] != y.shape[0]:
                 raise ValueError("x, y shape error")
 
@@ -393,13 +399,13 @@ class Optimizer:
             ):
                 raise ValueError("validate_data shape error")
             else:
-                validate_data = (x, y)
+                validate_data = [x, y]
 
             if validation_split is not None:
                 if validation_split < 0 or validation_split > 1:
                     raise ValueError("validation_split not in [0, 1]")
 
-                x, validate_data[0], y, validate_data[1] = train_test_split(
+                [x, validate_data[0], y, validate_data[1]] = train_test_split(
                     x, y, test_size=validation_split, shuffle=True
                 )
 
@@ -413,15 +419,16 @@ class Optimizer:
                 weight_reduction = epochs
 
         except ValueError as ve:
-            sys.exit(ve)
+            print(ve)
+            sys.exit(11)
         except Exception as e:
-            sys.exit(e)
+            print(e)
+            sys.exit(10)
 
         self.empirical_balance = empirical_balance
         self.dispersion = dispersion
 
         self.renewal = renewal
-        particle_sum = 0  # x_j
 
         try:
             if log_name is None:
@@ -452,9 +459,11 @@ class Optimizer:
                 if not os.path.exists(self.log_path):
                     os.makedirs(self.log_path, exist_ok=True)
         except ValueError as ve:
-            sys.exit(ve)
+            print(ve)
+            sys.exit(11)
         except Exception as e:
-            sys.exit(e)
+            print(e)
+            sys.exit(10)
 
         try:
             dataset = self.batch_generator(x, y, batch_size=batch_size)
@@ -466,8 +475,8 @@ class Optimizer:
                     optimizer="adam",
                     metrics=["accuracy", "mse"],
                 )
-                model_.fit(x, y, epochs=1, verbose=0)
-                score = model_.evaluate(x, y, verbose=1)
+                model_.fit(x, y, epochs=1, verbose=0)  # type: ignore
+                score = model_.evaluate(x, y, verbose="auto")
 
                 Particle.g_best_score = score
 
@@ -489,7 +498,6 @@ class Optimizer:
 
             print("best score init complete" + str(Particle.g_best_score))
 
-            epoch_sum = 0
             epochs_pbar = tqdm(
                 range(epochs),
                 desc=f"best - loss: {Particle.g_best_score[0]:.4f} - acc: {Particle.g_best_score[1]:.4f} - mse: {Particle.g_best_score[2]:.4f}",
@@ -499,8 +507,8 @@ class Optimizer:
             )
             for epoch in epochs_pbar:
                 # 이번 epoch의 평균 점수
-                particle_avg = particle_sum / self.n_particles  # x_j
-                particle_sum = 0
+                # particle_avg = particle_sum / self.n_particles  # x_j
+                # particle_sum = 0
                 # 각 최고 점수, 최저 loss, 최저 mse
                 max_acc = 0
                 min_loss = np.inf
@@ -522,6 +530,7 @@ class Optimizer:
                     * (epoch % weight_reduction)
                     / weight_reduction
                 )
+                rng = np.random.default_rng()
                 for i in part_pbar:
                     part_pbar.set_description(
                         f"loss: {min_loss:.4f} acc: {max_acc:.4f} mse: {min_mse:.4f}"
@@ -531,9 +540,8 @@ class Optimizer:
                     x_batch, y_batch = dataset.next()
 
                     weight_min, weight_max = self.__weight_range()
-
                     if dispersion:
-                        ts = weight_min + np.random.rand() * (weight_max - weight_min)
+                        ts = weight_min + rng.random() * (weight_max - weight_min)
 
                         g_, g_sh, g_len = self._encode(Particle.g_best_weights)
                         decrement = (epochs - epoch + 1) / epochs
@@ -541,7 +549,7 @@ class Optimizer:
                         g_best = self._decode_(g_, g_sh, g_len)
 
                     if empirical_balance:
-                        if np.random.rand() < np.exp(-(epoch) / epochs):
+                        if rng.random() < np.exp(-(epoch) / epochs):
                             w_p_ = self._f(
                                 x_batch, y_batch, self.particles[i].get_best_weights()
                             )
@@ -585,7 +593,6 @@ class Optimizer:
                             w_g,
                             renewal=renewal,
                         )
-                        epoch_sum += np.power(score[1] - particle_avg, 2)
 
                     else:
                         score = self.particles[i].step(
@@ -594,8 +601,8 @@ class Optimizer:
 
                     if log == 2:
                         with self.train_summary_writer[i].as_default():
-                            tf.summary.scalar("loss", score[0], step=epoch + 1)
                             tf.summary.scalar("accuracy", score[1], step=epoch + 1)
+                            tf.summary.scalar("loss", score[0], step=epoch + 1)
                             tf.summary.scalar("mse", score[2], step=epoch + 1)
 
                     if renewal == "loss":
@@ -633,7 +640,6 @@ class Optimizer:
                                 min_loss, max_acc, min_mse = score
 
                                 best_particle_index = i
-                    particle_sum += score[1]
 
                     if log == 1:
                         with open(
@@ -647,49 +653,45 @@ class Optimizer:
                                 f.write("\n")
                 part_pbar.refresh()
                 # 한번 epoch 가 끝나고 갱신을 진행해야 순간적으로 높은 파티클이 발생해도 오류가 생기지 않음
-                if renewal == "loss":
-                    if min_loss <= Particle.g_best_score[0]:
+                if renewal == "loss" and min_loss <= Particle.g_best_score[0]:
+                    if min_loss < Particle.g_best_score[0]:
+                        self.particles[best_particle_index].update_global_best()
+                    else:
+                        if max_acc > Particle.g_best_score[1]:
+                            self.particles[best_particle_index].update_global_best()
+                elif renewal == "acc" and max_acc >= Particle.g_best_score[1]:
+                    # 최고 점수 보다 높을 경우
+                    if max_acc > Particle.g_best_score[1]:
+                        # 최고 점수 갱신
+                        self.particles[best_particle_index].update_global_best()
+                    # 최고 점수 와 같을 경우
+                    else:
+                        # 최저 loss 보다 낮을 경우
                         if min_loss < Particle.g_best_score[0]:
                             self.particles[best_particle_index].update_global_best()
-                        else:
-                            if max_acc > Particle.g_best_score[1]:
-                                self.particles[best_particle_index].update_global_best()
-                elif renewal == "acc":
-                    if max_acc >= Particle.g_best_score[1]:
-                        # 최고 점수 보다 높을 경우
+                elif renewal == "mse" and min_mse <= Particle.g_best_score[2]:
+                    if min_mse < Particle.g_best_score[2]:
+                        self.particles[best_particle_index].update_global_best()
+                    else:
                         if max_acc > Particle.g_best_score[1]:
-                            # 최고 점수 갱신
                             self.particles[best_particle_index].update_global_best()
-                        # 최고 점수 와 같을 경우
-                        else:
-                            # 최저 loss 보다 낮을 경우
-                            if min_loss < Particle.g_best_score[0]:
-                                self.particles[best_particle_index].update_global_best()
-                elif renewal == "mse":
-                    if min_mse <= Particle.g_best_score[2]:
-                        if min_mse < Particle.g_best_score[2]:
-                            self.particles[best_particle_index].update_global_best()
-                        else:
-                            if max_acc > Particle.g_best_score[1]:
-                                self.particles[best_particle_index].update_global_best()
                 # 최고 점수 갱신
                 epochs_pbar.set_description(
                     f"best - loss: {Particle.g_best_score[0]:.4f} - acc: {Particle.g_best_score[1]:.4f} - mse: {Particle.g_best_score[2]:.4f}"
                 )
 
-                if check_point is not None:
-                    if epoch % check_point == 0:
-                        os.makedirs(
-                            f"./logs/{log_name}/{self.day}",
-                            exist_ok=True,
-                        )
-                        self._check_point_save(
-                            f"./logs/{log_name}/{self.day}/ckpt-{epoch}"
-                        )
+                if check_point is not None and epoch % check_point == 0:
+                    os.makedirs(
+                        f"./logs/{log_name}/{self.day}",
+                        exist_ok=True,
+                    )
+                    self._check_point_save(f"./logs/{log_name}/{self.day}/ckpt-{epoch}")
 
                 tf.keras.backend.reset_uids()
                 tf.keras.backend.clear_session()
                 gc.collect()
+
+            return Particle.g_best_score
 
         except KeyboardInterrupt:
             print("Ctrl + C : Stop Training")
@@ -706,8 +708,6 @@ class Optimizer:
             if save_info:
                 self.save_info()
                 print("save info")
-
-            return Particle.g_best_score
 
     def get_best_model(self):
         """
@@ -778,7 +778,7 @@ class Optimizer:
         ) as f:
             json.dump(json_save, f, indent=4)
 
-    def _check_point_save(self, save_path: str = f"./result/check_point"):
+    def _check_point_save(self, save_path: str = "./result/check_point"):
         """
         중간 저장
 
@@ -788,7 +788,7 @@ class Optimizer:
         model = self.get_best_model()
         model.save_weights(save_path)
 
-    def model_save(self, valid_data: tuple = None):
+    def model_save(self, valid_data: List):
         """
         최고 점수를 받은 모델 저장
 
@@ -800,9 +800,15 @@ class Optimizer:
         """
         x, y = valid_data
         model = self.get_best_model()
-        score = model.evaluate(x, y, verbose=1)
+        score = model.evaluate(x, y, verbose=1)  # type: ignore
         print(f"model score - loss: {score[0]} - acc: {score[1]} - mse: {score[2]}")
-        model.save(
-            f"./{self.log_path}/model_{score[0 if self.renewal == 'loss' else 1 if self.renewal == 'acc'  else 2 ]}.h5"
-        )
+
+        if self.renewal == "loss":
+            index = 0
+        elif self.renewal == "acc":
+            index = 1
+        else:
+            index = 2
+
+        model.save(f"./{self.log_path}/model_{score[index]}.h5")
         return model

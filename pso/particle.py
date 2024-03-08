@@ -18,6 +18,8 @@ class Particle:
     g_best_weights = None
     count = 0
 
+    MODEL_IS_NONE = "model is None"
+
     def __init__(
         self,
         model: keras.Model,
@@ -60,12 +62,10 @@ class Particle:
             exit(1)
 
         self.__reset_particle()
-        self.best_weights = self.model.get_weights()
-        # self.before_best = self.model.get_weights()
+        self.best_weights = self.get_weights()
         self.negative = negative
         self.mutation = mutation
         self.best_score = [np.inf, 0, np.inf]
-        # self.before_w = 0
         self.score_history = []
         self.converge_reset = converge_reset
         self.converge_reset_patience = converge_reset_patience
@@ -131,6 +131,28 @@ class Particle:
 
         return weights
 
+    def get_model(self):
+        if self.model is None:
+            raise ValueError(self.MODEL_IS_NONE)
+
+        return self.model
+
+    def set_model(self, model: keras.Model):
+        self.model = model
+        self.__reset_particle()
+
+    def get_weights(self):
+        if self.model is None:
+            raise ValueError(self.MODEL_IS_NONE)
+
+        return self.model.get_weights()
+
+    def evaluate(self, x, y):
+        if self.model is None:
+            raise ValueError(self.MODEL_IS_NONE)
+
+        return self.model.evaluate(x, y, verbose=0)  # type: ignore
+
     def get_score(self, x, y, renewal: str = "acc"):
         """
         모델의 성능을 평가하여 점수를 반환
@@ -144,19 +166,19 @@ class Particle:
             (float): 점수
         """
 
-        score = self.model.evaluate(x, y, verbose=0)
+        score = self.evaluate(x, y)
         if renewal == "loss":
             if score[0] < self.best_score[0]:
                 self.best_score = score
-                self.best_weights = self.model.get_weights()
+                self.best_weights = self.get_weights()
         elif renewal == "acc":
             if score[1] > self.best_score[1]:
                 self.best_score = score
-                self.best_weights = self.model.get_weights()
+                self.best_weights = self.get_weights()
         elif renewal == "mse":
             if score[2] < self.best_score[2]:
                 self.best_score = score
-                self.best_weights = self.model.get_weights()
+                self.best_weights = self.get_weights()
         else:
             raise ValueError("renewal must be 'acc' or 'loss' or 'mse'")
 
@@ -196,14 +218,16 @@ class Particle:
         return False
 
     def __reset_particle(self):
+
         self.model = keras.models.model_from_json(self.model.to_json())
         self.model.compile(
             optimizer="adam",
             loss=self.loss,
             metrics=["accuracy", "mse"],
         )
-        i_w_, i_s, i_l = self._encode(self.model.get_weights())
-        i_w_ = np.random.uniform(-0.1, 0.1, len(i_w_))
+        i_w_, i_s, i_l = self._encode(self.get_weights())
+        rng = np.random.default_rng()
+        i_w_ = rng.uniform(-0.1, 0.1, len(i_w_))
         self.velocities = self._decode(i_w_, i_s, i_l)
 
         del i_w_, i_s, i_l
@@ -218,24 +242,14 @@ class Particle:
             global_rate (float): 전역 최적해의 영향력
             w (float): 현재 속도의 영향력 - 관성 | 0.9 ~ 0.4 이 적당
         """
-        encode_w, w_sh, w_len = self._encode(weights=self.model.get_weights())
+        encode_w, w_sh, w_len = self._encode(weights=self.get_weights())
         encode_v, v_sh, v_len = self._encode(weights=self.velocities)
         encode_p, p_sh, p_len = self._encode(weights=self.best_weights)
         encode_g, g_sh, g_len = self._encode(weights=Particle.g_best_weights)
-        # encode_before, before_sh, before_len = self._encode(
-        # weights=self.before_best
-        # )
-        r_0 = np.random.rand()
-        r_1 = np.random.rand()
 
-        # 이전 전역 최적해와 현재 전역 최적해가 다르면 관성을 순간적으로 증가 - 값이 바뀔 경우 기존 관성을 특정 기간동안 유지
-        # if not np.array_equal(encode_before, encode_g, equal_nan=True):
-        # 이전 가중치 중요도의 1.5 배로 관성을 증가
-        # self.before_w = w * 0.5
-        # w = w + self.before_w
-        # else:
-        # self.before_w *= 0.75
-        # w = w + self.before_w
+        rng = np.random.default_rng()
+        r_0 = rng.random()
+        r_1 = rng.random()
 
         if self.negative:
             # 지역 최적해와 전역 최적해를 음수로 사용하여 전역 탐색을 유도
@@ -257,8 +271,8 @@ class Particle:
                 + global_rate * r_1 * (encode_g - encode_w)
             )
 
-        if np.random.rand() < self.mutation:
-            m_v = np.random.uniform(-0.1, 0.1, len(encode_v))
+        if rng.random() < self.mutation:
+            m_v = rng.uniform(-0.1, 0.1, len(encode_v))
             new_v = m_v
 
         self.velocities = self._decode(new_v, w_sh, w_len)
@@ -281,22 +295,14 @@ class Particle:
             w_p (float): 지역 최적해의 분산 정도
             w_g (float): 전역 최적해의 분산 정도
         """
-        encode_w, w_sh, w_len = self._encode(weights=self.model.get_weights())
+        encode_w, w_sh, w_len = self._encode(weights=self.get_weights())
         encode_v, v_sh, v_len = self._encode(weights=self.velocities)
         encode_p, p_sh, p_len = self._encode(weights=self.best_weights)
         encode_g, g_sh, g_len = self._encode(weights=Particle.g_best_weights)
-        # encode_before, before_sh, before_len = self._encode(
-        # weights=self.before_best
-        # )
-        r_0 = np.random.rand()
-        r_1 = np.random.rand()
 
-        # if not np.array_equal(encode_before, encode_g, equal_nan=True):
-        # self.before_w = w * 0.5
-        # w = w + self.before_w
-        # else:
-        # self.before_w *= 0.75
-        # w = w + self.before_w
+        rng = np.random.default_rng()
+        r_0 = rng.random()
+        r_1 = rng.random()
 
         if self.negative:
             new_v = (
@@ -311,8 +317,8 @@ class Particle:
                 + global_rate * r_1 * (w_g * encode_g - encode_w)
             )
 
-        if np.random.rand() < self.mutation:
-            m_v = np.random.uniform(-0.1, 0.1, len(encode_v))
+        if rng.random() < self.mutation:
+            m_v = rng.uniform(-0.1, 0.1, len(encode_v))
             new_v = m_v
 
         self.velocities = self._decode(new_v, w_sh, w_len)
@@ -327,7 +333,7 @@ class Particle:
         """
         가중치 업데이트
         """
-        encode_w, w_sh, w_len = self._encode(weights=self.model.get_weights())
+        encode_w, w_sh, w_len = self._encode(weights=self.get_weights())
         encode_v, v_sh, v_len = self._encode(weights=self.velocities)
         new_w = encode_w + encode_v
         self.model.set_weights(self._decode(new_w, w_sh, w_len))
@@ -382,17 +388,6 @@ class Particle:
             self.__reset_particle()
             score = self.get_score(x, y, renewal)
 
-        # # score 가 inf 이면 가중치를 초기화
-        # # score 가 nan 이면 가중치를 초기화
-        # # score 가 0 이면 가중치를 초기화
-        # if np.isinf(score[0]) or np.isinf(score[1]) or np.isinf(score[2]) or np.isnan(score[0]) or np.isnan(score[1]) or np.isnan(score[2]) or score[0] == 0 or score[1] == 0 or score[2] == 0:
-        #     self.__reset_particle()
-        #     score = self.get_score(x, y, renewal)
-        # # score 가 상식적인 범위를 벗어나면 가중치를 초기화
-        # if score[0] > 1000 or score[1] > 1 or score[2] > 1000:
-        #     self.__reset_particle()
-        #     score = self.get_score(x, y, renewal)
-
         return score
 
     def step_w(self, x, y, local_rate, global_rate, w, w_p, w_g, renewal: str = "acc"):
@@ -445,17 +440,6 @@ class Particle:
             self.__reset_particle()
             score = self.get_score(x, y, renewal)
 
-        # # score 가 inf 이면 가중치를 초기화
-        # # score 가 nan 이면 가중치를 초기화
-        # # score 가 0 이면 가중치를 초기화
-        # if np.isinf(score[0]) or np.isinf(score[1]) or np.isinf(score[2]) or np.isnan(score[0]) or np.isnan(score[1]) or np.isnan(score[2]) or score[0] == 0 or score[1] == 0 or score[2] == 0:
-        #     self.__reset_particle()
-        #     score = self.get_score(x, y, renewal)
-        # # score 가 상식적인 범위를 벗어나면 가중치를 초기화
-        # if score[0] > 1000 or score[1] > 1 or score[2] > 1000:
-        #     self.__reset_particle()
-        #     score = self.get_score(x, y, renewal)
-
         return score
 
     def get_best_score(self):
@@ -490,12 +474,9 @@ class Particle:
         self.set_global_weights()
 
     def check_global_best(self, renewal: str = "loss"):
-        if renewal == "loss":
-            if self.best_score[0] < Particle.g_best_score[0]:
-                self.update_global_best()
-        elif renewal == "acc":
-            if self.best_score[1] > Particle.g_best_score[1]:
-                self.update_global_best()
-        elif renewal == "mse":
-            if self.best_score[2] < Particle.g_best_score[2]:
-                self.update_global_best()
+        if (
+            (renewal == "loss" and self.best_score[0] < Particle.g_best_score[0])
+            or (renewal == "acc" and self.best_score[1] > Particle.g_best_score[1])
+            or (renewal == "mse" and self.best_score[2] < Particle.g_best_score[2])
+        ):
+            self.update_global_best()
