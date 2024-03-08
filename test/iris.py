@@ -41,7 +41,7 @@ x_train, x_test, y_train, y_test = load_data()
 
 
 pso_iris = optimizer(
-    model,
+    model=model,
     loss="categorical_crossentropy",
     n_particles=100,
     c0=0.5,
