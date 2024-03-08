@@ -1,2 +1,5 @@
+stages:
+  - sonarqube-check
+
 include:
   - local: .gitlab/ci/*.gitlab-ci.yml
