@@ -4,7 +4,7 @@
 	"name": "Miniconda (Python 3)",
 	// Configure tool-specific properties.
 	"hostRequirements": {
-		"cpus": 16,
+		"cpus": 8,
 		"memory": "64gb",
 		"storage": "128gb"
 	},
