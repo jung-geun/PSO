@@ -1,7 +1,0 @@
-include:
-  - component: gitlab.com/dependabot-gitlab/dependabot-standalone/template@3.14.2
-    inputs:
-      gitlab_access_token: gitlab-access-token
-      github_access_token: github-access-token
-    rules:
-      - if: $PACKAGE_MANAGER_SET
