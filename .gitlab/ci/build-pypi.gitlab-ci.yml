@@ -2,8 +2,8 @@ variables:
   PYTHON_VERSION: "3.9"
   TWINE_USERNAME: "__token__"
 
-build-package:
-  stage: build
+build-pypi:
+  stage: build-pypi
   image: python:${PYTHON_VERSION}
   script:
     - pip install --upgrade pip

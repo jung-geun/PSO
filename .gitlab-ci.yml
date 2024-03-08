@@ -1,6 +1,6 @@
 stages:
   - sonarqube-check
-  - build
+  - build-pypi
 
 include:
   - local: ".gitlab/ci/*.gitlab-ci.yml"
