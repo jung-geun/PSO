@@ -50,7 +50,7 @@ class PSO(object):
         # 입력받은 파티클의 개수 * 검색할 차원의 크기 만큼의 균등한 위치를 생성
         # self.velocities = [None] * self.n_particles
         self.velocities = [
-            [0 for i in range(self.particle_depth)] for n in range(n_particles)
+            [0 for __ in range(self.particle_depth)] for _ in range(n_particles)
         ]
         for i in tqdm(range(n_particles), desc="init velocities"):
             # print(i)
@@ -80,7 +80,7 @@ class PSO(object):
         # 최대 사이즈로 전역 최적갑 저장 - global best
         self.g_best = self.model.get_weights()  # 전역 최적값(최적의 가중치)
         self.p_best = self.particles_weights  # 각 파티클의 최적값(최적의 가중치)
-        self.p_best_score = [0 for i in range(n_particles)]  # 각 파티클의 최적값의 점수
+        self.p_best_score = [0 for _ in range(n_particles)]  # 각 파티클의 최적값의 점수
         self.g_best_score = 0  # 전역 최적값의 점수(초기화 - 무한대)
         self.g_history = []
         self.g_best_score_history = []

@@ -45,7 +45,7 @@ class PSO(object):
 
         # 입력받은 파티클의 개수 * 검색할 차원의 크기 만큼의 균등한 위치를 생성
         self.velocities = [
-            [0 for i in range(self.particle_depth)] for n in range(n_particles)
+            [0 for __ in range(self.particle_depth)] for _ in range(n_particles)
         ]
         for i in tqdm(range(n_particles), desc="init velocities"):
 
