@@ -23,7 +23,7 @@ setup(
         "tensorboard",
     ],
     packages=find_packages(exclude=[]),
-    keywords=["pso", "tensorflow", "keras"],
+    keywords=["pso", "tensorflow", "keras", "optimization","particle swarm optimization","pso2keras"],
     python_requires=">=3.8",
     package_data={},
     zip_safe=False,

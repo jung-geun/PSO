@@ -4,6 +4,12 @@
 [![Duplicated Lines (%)](https://sonar.pieroot.xyz/api/project_badges/measure?project=pieroot_pso_6a2f36a9-2688-4900-a4a5-5be85f36f75a&metric=duplicated_lines_density&token=sqb_5fa45d924cd1c13f71a23a9283fba9460dc63eb6)](https://sonar.pieroot.xyz/dashboard?id=pieroot_pso_6a2f36a9-2688-4900-a4a5-5be85f36f75a)
 [![Security Rating](https://sonar.pieroot.xyz/api/project_badges/measure?project=pieroot_pso_6a2f36a9-2688-4900-a4a5-5be85f36f75a&metric=security_rating&token=sqb_5fa45d924cd1c13f71a23a9283fba9460dc63eb6)](https://sonar.pieroot.xyz/dashboard?id=pieroot_pso_6a2f36a9-2688-4900-a4a5-5be85f36f75a)
 
+# PSO
+
+keras model on particle swarm optimization
+
+현재 모델을 python 3.9 버전, tensorflow 2.11 버전에서 테스트 되었습니다
+
 ### 목차
 
 > [PSO 알고리즘 구현 및 새로운 시도](#pso-알고리즘-구현-및-새로운-시도)</br>

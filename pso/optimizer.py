@@ -16,15 +16,6 @@ from tqdm.auto import tqdm
 
 from .particle import Particle
 
-gpus = tf.config.experimental.list_physical_devices("GPU")
-if gpus:
-    try:
-        tf.config.experimental.set_memory_growth(gpus[0], True)
-    except RuntimeError as r:
-        print(r)
-
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-
 
 def find_free_port():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -123,7 +114,6 @@ class Optimizer:
                 mutation_swarm  # 관성을 추가로 사용할 파티클 비율 - 0 ~ 1 사이의 값
             )
             self.avg_score = 0  # 평균 점수
-            # self.sigma = 1.0
 
             self.renewal = "acc"
             self.dispersion = False
@@ -383,7 +373,7 @@ class Optimizer:
             if renewal is None:
                 renewal = "loss"
 
-            if renewal not in ["acc", "loss", "mse"]:
+            elif renewal not in ["acc", "loss", "mse"]:
                 raise ValueError("renewal not in ['acc', 'loss', 'mse']")
 
             if empirical_balance is None:
@@ -392,11 +382,12 @@ class Optimizer:
             if dispersion is None:
                 dispersion = False
 
-            if validate_data is not None:
-                if validate_data[0].shape[0] != validate_data[1].shape[0]:
-                    raise ValueError("validate_data shape error")
-
-            if validate_data is None:
+            if (
+                validate_data is not None
+                and validate_data[0].shape[0] != validate_data[1].shape[0]
+            ):
+                raise ValueError("validate_data shape error")
+            else:
                 validate_data = (x, y)
 
             if validation_split is not None:
@@ -511,7 +502,7 @@ class Optimizer:
                 min_mse = np.inf
                 # 한번의 실행 동안 최고 점수를 받은 파티클의 인덱스
                 best_particle_index = 0
-                # epoch_particle_sum = 0
+
                 part_pbar = tqdm(
                     range(len(self.particles)),
                     desc=f"loss: {min_loss:.4f} acc: {max_acc:.4f} mse: {min_mse:.4f}",
@@ -520,7 +511,6 @@ class Optimizer:
                     position=1,
                 )
 
-                # w = self.w_max - (self.w_max - self.w_min) * epoch / epochs
                 w = (
                     self.w_max
                     - (self.w_max - self.w_min)
@@ -572,22 +562,6 @@ class Optimizer:
                             )
                             p_ = np.exp(-1 * sigma_pre * sigma_post)
 
-                            # p_ = (
-                            #     1
-                            #     / (self.n_particles * np.linalg.norm(self.particle_max - self.particle_min))
-                            #     * np.exp(
-                            #         -np.power(l_b, 2) / (2 * np.power(self.sigma, 2))
-                            #     )
-                            # )
-                            # g_ = (
-                            #     1
-                            #     / np.linalg.norm(self.c1 - self.c0)
-                            #     * np.exp(
-                            #         -np.power(l_b, 2) / (2 * np.power(self.sigma, 2))
-                            #     )
-                            # )
-                            # w_p = p_ / (p_ + g_)
-                            # w_g = g_ / (p_ + g_)
                             w_p = p_
                             w_g = 1 - p_
 

@@ -1,6 +1,7 @@
 variables:
   PYTHON_VERSION: "3.9"
-  TWINE_USERNAME: "__token__"
+  TWINE_USERNAME: $PYPI_USERNAME
+  TWINE_PASSWORD: $PYPI_PASSWORD
 
 build-pypi:
   stage: build-pypi
