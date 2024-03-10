@@ -1,6 +1,0 @@
-version: 2
-updates:
-  - package-ecosystem: package-manager
-    directory: /
-    schedule:
-      interval: daily
