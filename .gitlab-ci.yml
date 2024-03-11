@@ -1,5 +1,6 @@
 stages:
   - test
+  - dependency_scanning
   - sonarqube-check
   - build-pypi
 
