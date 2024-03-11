@@ -1,9 +1,8 @@
 stages:
-  - sonarqube-check
   - test
+  - sonarqube-check
   - build-pypi
 
 include:
-  - local: ".gitlab/ci/*.gitlab-ci.yml"
-
   - template: Jobs/Dependency-Scanning.gitlab-ci.yml
+  - local: ".gitlab/ci/*.gitlab-ci.yml"
