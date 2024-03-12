@@ -530,7 +530,7 @@ class Optimizer:
                     * (epoch % weight_reduction)
                     / weight_reduction
                 )
-                rng = np.random.default_rng()
+                rng = np.random.default_rng(seed=42)
                 for i in part_pbar:
                     part_pbar.set_description(
                         f"loss: {min_loss:.4f} acc: {max_acc:.4f} mse: {min_mse:.4f}"

@@ -139,7 +139,16 @@ class Particle:
 
     def set_model(self, model: keras.Model):
         self.model = model
-        self.__reset_particle()
+
+    def compile(self):
+        if self.model is None:
+            raise ValueError(self.MODEL_IS_NONE)
+
+        self.model.compile(
+            optimizer="adam",
+            loss=self.loss,
+            metrics=["accuracy", "mse"],
+        )
 
     def get_weights(self):
         if self.model is None:
@@ -247,7 +256,7 @@ class Particle:
         encode_p, p_sh, p_len = self._encode(weights=self.best_weights)
         encode_g, g_sh, g_len = self._encode(weights=Particle.g_best_weights)
 
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(seed=42)
         r_0 = rng.random()
         r_1 = rng.random()
 
@@ -300,7 +309,7 @@ class Particle:
         encode_p, p_sh, p_len = self._encode(weights=self.best_weights)
         encode_g, g_sh, g_len = self._encode(weights=Particle.g_best_weights)
 
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(seed=42)
         r_0 = rng.random()
         r_1 = rng.random()
 
