@@ -1,6 +1,7 @@
+from typing import Any
+
 import numpy as np
 from tensorflow import keras
-from typing import Any
 
 
 class Particle:
@@ -40,7 +41,8 @@ class Particle:
             converge_reset (bool, optional): 조기 종료 사용 여부. Defaults to False.
             converge_reset_patience (int, optional): 조기 종료를 위한 기다리는 횟수. Defaults to 10.
         """
-        self.model = model
+        self.set_model(model)
+        self.weights = self._encode(model.get_weights())
         self.loss = loss
 
         try:
@@ -61,11 +63,12 @@ class Particle:
             print(e)
             exit(1)
 
+        self.velocities = np.zeros(len(self.weights))
         self.__reset_particle()
-        self.best_weights = self.get_weights()
+        self.best_weights = self.weights
         self.negative = negative
         self.mutation = mutation
-        self.best_score = [np.inf, 0, np.inf]
+        self.local_best_score = [np.inf, 0, np.inf]
         self.score_history = []
         self.converge_reset = converge_reset
         self.converge_reset_patience = converge_reset_patience
@@ -78,9 +81,21 @@ class Particle:
         del self.loss
         del self.velocities
         del self.negative
-        del self.best_score
+        del self.local_best_score
         del self.best_weights
         Particle.count -= 1
+
+    def set_shape(self, weights: list):
+        """
+        가중치의 shape을 설정
+
+        Args:
+            weights (list): keras model의 가중치
+        """
+        self.shape = [layer.shape for layer in weights]
+
+    def get_shape(self):
+        return self.shape
 
     def _encode(self, weights: list):
         """
@@ -94,17 +109,13 @@ class Particle:
             (list) : 가중치의 원본 shape의 길이
         """
         w_gpu = np.array([])
-        length = []
-        shape = []
         for layer in weights:
-            shape.append(layer.shape)
             w_tmp = layer.reshape(-1)
-            length.append(len(w_tmp))
             w_gpu = np.append(w_gpu, w_tmp)
 
-        return w_gpu, shape, length
+        return w_gpu
 
-    def _decode(self, weight: list, shape, length):
+    def _decode(self, weight: np.ndarray):
         """
         _encode 로 인코딩된 가중치를 원본 shape으로 복원
         파라미터는 encode의 리턴값을 그대로 사용을 권장
@@ -118,15 +129,14 @@ class Particle:
         """
         weights = []
         start = 0
-        for i in range(len(shape)):
-            end = start + length[i]
+        for i in range(len(self.shape)):
+            end = start + np.prod(self.shape[i])
             w_ = weight[start:end]
-            w_ = np.reshape(w_, shape[i])
+            w_ = np.reshape(w_, self.shape[i])
             weights.append(w_)
             start = end
 
         del start, end, w_
-        del shape, length
         del weight
 
         return weights
@@ -139,6 +149,7 @@ class Particle:
 
     def set_model(self, model: keras.Model):
         self.model = model
+        self.set_shape(self.model.get_weights())
 
     def compile(self):
         if self.model is None:
@@ -151,10 +162,9 @@ class Particle:
         )
 
     def get_weights(self):
-        if self.model is None:
-            raise ValueError(self.MODEL_IS_NONE)
+        weights = self._decode(self.weights)
 
-        return self.model.get_weights()
+        return weights
 
     def evaluate(self, x, y):
         if self.model is None:
@@ -177,17 +187,17 @@ class Particle:
 
         score = self.evaluate(x, y)
         if renewal == "loss":
-            if score[0] < self.best_score[0]:
-                self.best_score = score
-                self.best_weights = self.get_weights()
+            if score[0] < self.local_best_score[0]:
+                self.local_best_score = score
+                self.best_weights = self.weights
         elif renewal == "acc":
-            if score[1] > self.best_score[1]:
-                self.best_score = score
-                self.best_weights = self.get_weights()
+            if score[1] > self.local_best_score[1]:
+                self.local_best_score = score
+                self.best_weights = self.weights
         elif renewal == "mse":
-            if score[2] < self.best_score[2]:
-                self.best_score = score
-                self.best_weights = self.get_weights()
+            if score[2] < self.local_best_score[2]:
+                self.local_best_score = score
+                self.best_weights = self.weights
         else:
             raise ValueError("renewal must be 'acc' or 'loss' or 'mse'")
 
@@ -234,12 +244,10 @@ class Particle:
             loss=self.loss,
             metrics=["accuracy", "mse"],
         )
-        i_w_, i_s, i_l = self._encode(self.get_weights())
+        self.weights = self._encode(self.model.get_weights())
         rng = np.random.default_rng()
-        i_w_ = rng.uniform(-0.1, 0.1, len(i_w_))
-        self.velocities = self._decode(i_w_, i_s, i_l)
+        self.velocities = rng.uniform(-0.2, 0.2, len(self.weights))
 
-        del i_w_, i_s, i_l
         self.score_history = []
 
     def _velocity_calculation(self, local_rate, global_rate, w):
@@ -251,10 +259,12 @@ class Particle:
             global_rate (float): 전역 최적해의 영향력
             w (float): 현재 속도의 영향력 - 관성 | 0.9 ~ 0.4 이 적당
         """
-        encode_w, w_sh, w_len = self._encode(weights=self.get_weights())
-        encode_v, v_sh, v_len = self._encode(weights=self.velocities)
-        encode_p, p_sh, p_len = self._encode(weights=self.best_weights)
-        encode_g, g_sh, g_len = self._encode(weights=Particle.g_best_weights)
+        # 0회차 전역 최적해가 없을 경우 현재 파티클의 최적해로 설정 - 전역최적해의 방향을 0으로 만들기 위함
+        best_particle_weights = (
+            self.best_weights
+            if Particle.g_best_weights is None
+            else Particle.g_best_weights
+        )
 
         rng = np.random.default_rng(seed=42)
         r_0 = rng.random()
@@ -263,9 +273,9 @@ class Particle:
         if self.negative:
             # 지역 최적해와 전역 최적해를 음수로 사용하여 전역 탐색을 유도
             new_v = (
-                w * encode_v
-                + local_rate * r_0 * (encode_p - encode_w)
-                - global_rate * r_1 * (encode_g - encode_w)
+                w * self.velocities
+                + local_rate * r_0 * (self.best_weights - self.weights)
+                - global_rate * r_1 * (best_particle_weights - self.weights)
             )
             if (
                 len(self.score_history) > 10
@@ -274,81 +284,35 @@ class Particle:
                 self.__reset_particle()
 
         else:
+            # 전역 최적해의 acc 가 높을수록 더 빠르게 수렴
+            # 하지만 loss 가 커진 상태에서는 전역 최적해의 영향이
             new_v = (
-                w * encode_v
-                + local_rate * r_0 * (encode_p - encode_w)
-                + global_rate * r_1 * (encode_g - encode_w)
+                w * self.velocities
+                + local_rate
+                * self.local_best_score[1]
+                * r_0
+                * (self.best_weights - self.weights)
+                + global_rate
+                * Particle.g_best_score[1]
+                * r_1
+                * (best_particle_weights - self.weights)
             )
 
-        if rng.random() < self.mutation:
-            m_v = rng.uniform(-0.1, 0.1, len(encode_v))
+        if self.mutation != 0.0 and rng.random() < self.mutation:
+            m_v = rng.uniform(-0.2, 0.2, len(self.velocities))
             new_v = m_v
 
-        self.velocities = self._decode(new_v, w_sh, w_len)
+        self.velocities = new_v
 
-        del encode_w, w_sh, w_len
-        del encode_v, v_sh, v_len
-        del encode_p, p_sh, p_len
-        del encode_g, g_sh, g_len
-        del r_0, r_1
-
-    def _velocity_calculation_w(self, local_rate, global_rate, w, w_p, w_g):
-        """
-        현재 속도 업데이트
-        기본 업데이트의 변형으로 지역 최적해와 전역 최적해를 분산시켜 조기 수렴을 방지
-
-        Args:
-            local_rate (float): 지역 최적해의 영향력
-            global_rate (float): 전역 최적해의 영향력
-            w (float): 현재 속도의 영향력 - 관성 | 0.9 ~ 0.4 이 적당
-            w_p (float): 지역 최적해의 분산 정도
-            w_g (float): 전역 최적해의 분산 정도
-        """
-        encode_w, w_sh, w_len = self._encode(weights=self.get_weights())
-        encode_v, v_sh, v_len = self._encode(weights=self.velocities)
-        encode_p, p_sh, p_len = self._encode(weights=self.best_weights)
-        encode_g, g_sh, g_len = self._encode(weights=Particle.g_best_weights)
-
-        rng = np.random.default_rng(seed=42)
-        r_0 = rng.random()
-        r_1 = rng.random()
-
-        if self.negative:
-            new_v = (
-                w * encode_v
-                + local_rate * r_0 * (w_p * encode_p - encode_w)
-                - global_rate * r_1 * (w_g * encode_g - encode_w)
-            )
-        else:
-            new_v = (
-                w * encode_v
-                + local_rate * r_0 * (w_p * encode_p - encode_w)
-                + global_rate * r_1 * (w_g * encode_g - encode_w)
-            )
-
-        if rng.random() < self.mutation:
-            m_v = rng.uniform(-0.1, 0.1, len(encode_v))
-            new_v = m_v
-
-        self.velocities = self._decode(new_v, w_sh, w_len)
-
-        del encode_w, w_sh, w_len
-        del encode_v, v_sh, v_len
-        del encode_p, p_sh, p_len
-        del encode_g, g_sh, g_len
         del r_0, r_1
 
     def _position_update(self):
         """
         가중치 업데이트
         """
-        encode_w, w_sh, w_len = self._encode(weights=self.get_weights())
-        encode_v, v_sh, v_len = self._encode(weights=self.velocities)
-        new_w = encode_w + encode_v
-        self.model.set_weights(self._decode(new_w, w_sh, w_len))
+        new_w = np.add(self.weights, self.velocities)
 
-        del encode_w, w_sh, w_len
-        del encode_v, v_sh, v_len
+        self.model.set_weights(self._decode(new_w))
 
     def step(self, x, y, local_rate, global_rate, w, renewal: str = "acc"):
         """
@@ -399,58 +363,6 @@ class Particle:
 
         return score
 
-    def step_w(self, x, y, local_rate, global_rate, w, w_p, w_g, renewal: str = "acc"):
-        """
-        파티클의 한 스텝을 진행합니다.
-        기본 스텝의 변형으로, 지역최적해와 전역최적해의 분산 정도를 조정할 수 있습니다
-
-        Args:
-            x (list): 입력 데이터
-            y (list): 출력 데이터
-            local_rate (float): 지역 최적해의 영향력
-            global_rate (float): 전역 최적해의 영향력
-            w (float): 관성
-            g_best (list): 전역 최적해
-            w_p (float): 지역 최적해의 분산 정도
-            w_g (float): 전역 최적해의 분산 정도
-            renewal (str, optional): 최고점수 갱신 방식. Defaults to "acc" | "acc" or "loss"
-
-        Returns:
-            float: 현재 파티클의 점수
-        """
-        self._velocity_calculation_w(local_rate, global_rate, w, w_p, w_g)
-        self._position_update()
-
-        score = self.get_score(x, y, renewal)
-
-        if self.converge_reset and self.__check_converge_reset(
-            score,
-            self.converge_reset_monitor,
-            self.converge_reset_patience,
-            self.converge_reset_min_delta,
-        ):
-            self.__reset_particle()
-            score = self.get_score(x, y, renewal)
-
-        while (
-            np.isnan(score[0])
-            or np.isnan(score[1])
-            or np.isnan(score[2])
-            or score[0] == 0
-            or score[1] == 0
-            or score[2] == 0
-            or np.isinf(score[0])
-            or np.isinf(score[1])
-            or np.isinf(score[2])
-            or score[0] > 1000
-            or score[1] > 1
-            or score[2] > 1000
-        ):
-            self.__reset_particle()
-            score = self.get_score(x, y, renewal)
-
-        return score
-
     def get_best_score(self):
         """
         파티클의 최고점수를 반환합니다.
@@ -458,7 +370,7 @@ class Particle:
         Returns:
             float: 최고점수
         """
-        return self.best_score
+        return self.local_best_score
 
     def get_best_weights(self):
         """
@@ -467,11 +379,11 @@ class Particle:
         Returns:
             list: 가중치 리스트
         """
-        return self.best_weights
+        return self._decode(self.best_weights)
 
     def set_global_score(self):
         """전역 최고점수를 현재 파티클의 최고점수로 설정합니다"""
-        Particle.g_best_score = self.best_score
+        Particle.g_best_score = self.local_best_score
 
     def set_global_weights(self):
         """전역 최고점수를 받은 가중치를 현재 파티클의 최고점수를 받은 가중치로 설정합니다"""
@@ -484,8 +396,15 @@ class Particle:
 
     def check_global_best(self, renewal: str = "loss"):
         if (
-            (renewal == "loss" and self.best_score[0] < Particle.g_best_score[0])
-            or (renewal == "acc" and self.best_score[1] > Particle.g_best_score[1])
-            or (renewal == "mse" and self.best_score[2] < Particle.g_best_score[2])
+            (renewal == "loss" and self.local_best_score[0] < Particle.g_best_score[0])
+            or (
+                renewal == "acc" and self.local_best_score[1] > Particle.g_best_score[1]
+            )
+            or (
+                renewal == "mse" and self.local_best_score[2] < Particle.g_best_score[2]
+            )
         ):
             self.update_global_best()
+
+
+# 끝

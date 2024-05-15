@@ -1,8 +1,13 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 import pso
 
 VERSION = pso.__version__
+
+
+def get_requirements(path: str):
+    return [l.strip() for l in open(path)]
+
 
 setup(
     name="pso2keras",
@@ -11,17 +16,7 @@ setup(
     author="pieroot",
     author_email="jgbong0306@gmail.com",
     url="https://github.com/jung-geun/PSO",
-    install_requires=[
-        "tqdm",
-        "numpy",
-        "pandas",
-        "ipython",
-        "matplotlib",
-        "tensorflow",
-        "keras",
-        "scikit-learn",
-        "tensorboard",
-    ],
+    install_requires=get_requirements("requirements.txt"),
     packages=find_packages(exclude=[]),
     keywords=[
         "pso",

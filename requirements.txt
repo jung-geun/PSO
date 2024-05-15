@@ -1,8 +1,7 @@
 ipython
-keras
 numpy
 pandas
-tensorflow
-tqdm
-scikit-learn
-tensorboard
+tensorflow==2.15.1
+tqdm==4.66.4
+scikit-learn==1.4.2
+tensorboard==2.15.1
