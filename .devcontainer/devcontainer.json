@@ -1,13 +1,9 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/miniconda
 {
-	"name": "Miniconda (Python 3)",
+	"image": "nvidia/cuda:12.3.2-runtime-ubuntu22.04",
+	"name": "PSO with cuda",
 	// Configure tool-specific properties.
-	"hostRequirements": {
-		"cpus": 4,
-		"memory": "16gb",
-		"storage": "32gb"
-	},
 	"customizations": {
 		"vscode": {
 			"extensions": [
@@ -15,10 +11,15 @@
 				"ms-toolsai.jupyter",
 				"donjayamanne.python-extension-pack",
 				"ms-python.black-formatter",
-				"github.vscode-github-actions"
+				"github.vscode-github-actions",
+				"ms-python.isort",
+				"ms-azuretools.vscode-docker"
 			]
 		}
 	},
+	"runArgs": [
+		"--gpus=all"
+	],
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
 		"ghcr.io/devcontainers/features/nvidia-cuda:1": {
@@ -37,7 +38,8 @@
 	// "forwardPorts": [],
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": [
-		"conda env create --file environment.yaml --name pso"
+		"conda env create --file environment.yaml --name pso",
+		"nvidia-smi"
 	]
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
