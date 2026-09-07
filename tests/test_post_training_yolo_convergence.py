@@ -166,6 +166,78 @@ def test_native_target_uses_non_square_letterbox_geometry() -> None:
     )
 
 
+def test_cached_detection_loss_streams_source_batches_and_accumulates_gradients(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class ScaledBlock(nn.Module):
+        def __init__(self) -> None:
+            super().__init__()
+            self.weight = nn.Parameter(torch.tensor(1.0))
+            self.batch_sizes: list[int] = []
+
+        def forward(self, value: torch.Tensor) -> torch.Tensor:
+            self.batch_sizes.append(int(value.shape[0]))
+            return value * self.weight
+
+    class Detect(nn.Module):
+        def forward(
+            self,
+            values: list[torch.Tensor],
+        ) -> torch.Tensor:
+            return values[-1]
+
+    class Detector(nn.Module):
+        def __init__(self) -> None:
+            super().__init__()
+            self.block = ScaledBlock()
+            self.model = nn.ModuleList(
+                [nn.Identity() for _ in range(22)]
+                + [self.block, Detect()]
+            )
+
+    targets = tuple(
+        {
+            "batch_idx": torch.tensor([0, 1]),
+            "cls": torch.zeros((2, 1)),
+            "bboxes": torch.zeros((2, 4)),
+            "_image_count": 2,
+        }
+        for _ in range(2)
+    )
+    cache = study.DetectionCache(
+        images=torch.zeros((4, 1)),
+        detect_inputs=(
+            torch.zeros((4, 1)),
+            torch.zeros((4, 1)),
+            torch.arange(1.0, 5.0).reshape(4, 1),
+        ),
+        targets=targets,
+        provenance={"test": "chunking"},
+    )
+    detector = Detector()
+    monkeypatch.setattr(
+        study,
+        "_loss_callable",
+        lambda _model: lambda outputs, _batch: outputs.sum(),
+    )
+
+    value = study.cached_detection_loss_tensor(detector, cache)
+
+    assert value.item() == pytest.approx(2.5)
+    assert detector.block.batch_sizes == [2, 2]
+    detector.block.batch_sizes.clear()
+
+    backward_value = study.cached_detection_loss_tensor(
+        detector,
+        cache,
+        backward=True,
+    )
+
+    assert backward_value.item() == pytest.approx(2.5)
+    assert detector.block.weight.grad.item() == pytest.approx(2.5)
+    assert detector.block.batch_sizes == [2, 2]
+
+
 def test_wbf_uses_normalized_weights_and_stable_score_order(monkeypatch: pytest.MonkeyPatch) -> None:
     captured: dict[str, object] = {}
 

@@ -663,7 +663,14 @@ def build_detection_cache(model: nn.Module, batches: Iterable[tuple[torch.Tensor
             images_out.append(images.cpu())
             for index, value in enumerate(cached):
                 inputs_out[index].append(value.cpu())
-            targets.append(dict(batch))
+            targets.append(
+                {
+                    key: value.detach().cpu()
+                    for key, value in batch.items()
+                    if key != "img" and torch.is_tensor(value)
+                }
+                | {"_image_count": int(images.shape[0])}
+            )
     if not images_out:
         raise YoloProtocolError("cannot create a cache from zero batches")
     return DetectionCache(
@@ -695,21 +702,16 @@ def _loss_value(loss: Any) -> torch.Tensor:
     return value.sum()
 
 
-def _merged_cache_batch(cache: DetectionCache, images: torch.Tensor, device: torch.device) -> dict[str, Any]:
-    batch: dict[str, Any] = {}
-    pieces = {key: [] for key in ("batch_idx", "cls", "bboxes")}
-    cursor = 0
-    for target in cache.targets:
-        batch_idx = torch.as_tensor(target.get("batch_idx", torch.empty(0)), device=device)
-        pieces["batch_idx"].append(batch_idx + cursor)
-        for key in ("cls", "bboxes"):
-            if key in target:
-                pieces[key].append(torch.as_tensor(target[key], device=device))
-        image_count = int(target["img"].shape[0]) if torch.is_tensor(target.get("img")) else 1
-        cursor += image_count
-    for key, values in pieces.items():
-        if values:
-            batch[key] = torch.cat(values)
+def _cache_target_batch(
+    target: Mapping[str, Any],
+    images: torch.Tensor,
+    device: torch.device,
+) -> dict[str, Any]:
+    batch = {
+        key: torch.as_tensor(target[key], device=device)
+        for key in ("batch_idx", "cls", "bboxes")
+        if key in target
+    }
     batch["img"] = images
     return batch
 
@@ -721,19 +723,38 @@ def cached_detection_loss_tensor(
     model_device: torch.device | str = "cpu",
     backward: bool = False,
 ) -> torch.Tensor:
+    """Evaluate cached loss in source-sized chunks.
+
+    When ``backward`` is true, gradients are accumulated per chunk so the
+    complete 2,500-image objective never materializes one CUDA graph.
+    """
     model.eval()
     device = torch.device(model_device)
     loss_fn = _loss_callable(model)
-    images = cache.images.to(device)
-    inputs = tuple(value.to(device) for value in cache.detect_inputs)
-    batch = _merged_cache_batch(cache, images, device)
-    with torch.set_grad_enabled(backward):
-        predictions = model.model[EXPECTED_BLOCK_INDEX](inputs[2])
-        outputs = model.model[EXPECTED_DETECT_INDEX](
-            [inputs[0], inputs[1], predictions]
+    total = torch.zeros((), device=device)
+    cursor = 0
+    for target in cache.targets:
+        image_count = int(target["_image_count"])
+        stop = cursor + image_count
+        images = cache.images[cursor:stop].to(device)
+        inputs = tuple(
+            value[cursor:stop].to(device)
+            for value in cache.detect_inputs
         )
-        value = _loss_value(loss_fn(outputs, batch))
-    return value / max(int(images.shape[0]), 1)
+        batch = _cache_target_batch(target, images, device)
+        with torch.set_grad_enabled(backward):
+            predictions = model.model[EXPECTED_BLOCK_INDEX](inputs[2])
+            outputs = model.model[EXPECTED_DETECT_INDEX](
+                [inputs[0], inputs[1], predictions]
+            )
+            chunk = _loss_value(loss_fn(outputs, batch))
+        if backward:
+            (chunk / int(cache.images.shape[0])).backward()
+        total = total + chunk.detach()
+        cursor = stop
+    if cursor != int(cache.images.shape[0]):
+        raise YoloProtocolError("cached target/image counts disagree")
+    return total / max(cursor, 1)
 
 
 def cached_detection_objective(
@@ -1461,7 +1482,7 @@ def run_feature_search(
 def run_bounded_adam(
     model: nn.Module,
     parameters: Sequence[str],
-    objective: Callable[[], torch.Tensor],
+    objective: Callable[[bool], torch.Tensor],
     *,
     updates: int = 40,
     lr: float = 1e-3,
@@ -1479,14 +1500,15 @@ def run_bounded_adam(
     trajectory: list[dict[str, float]] = []
     try:
         for update in range(updates + 1):
-            value = objective()
+            should_update = update < updates
+            if should_update:
+                optimizer.zero_grad(set_to_none=True)
+            value = objective(should_update)
             if not torch.is_tensor(value) or value.ndim != 0 or not bool(torch.isfinite(value).item()):
                 raise YoloProtocolError("AdamW objective must return one finite scalar tensor")
             trajectory.append({"update": update, "objective": float(value.detach().cpu())})
-            if update == updates:
+            if not should_update:
                 break
-            optimizer.zero_grad(set_to_none=True)
-            value.backward()
             optimizer.step()
             with torch.no_grad():
                 for name, parameter in zip(parameters, selected):
@@ -1505,7 +1527,7 @@ def run_bounded_adam(
 
 def run_head_adam(
     model: nn.Module,
-    objective: Callable[[], torch.Tensor],
+    objective: Callable[[bool], torch.Tensor],
 ) -> dict[str, Any]:
     """Run the six Detect-terminal-bias control with its declared ±0.25 box."""
     return run_bounded_adam(
@@ -1700,7 +1722,7 @@ class YoloConvergenceAdapter:
         objective_batches = []
         for start in range(0, len(objective_records), 8):
             subset = objective_records[start:start + 8]
-            images, batch, _ = native_batch(subset, device=self.device)
+            images, batch, _ = native_batch(subset, device="cpu")
             objective_batches.append((images, batch))
         selection_records = manifest.selection_val
         baselines: dict[str, Any] = dict(
@@ -1914,23 +1936,23 @@ class YoloConvergenceAdapter:
             feature_adam = run_bounded_adam(
                 feature_detector,
                 feature_names,
-                lambda detector=feature_detector, cache=cache:
+                lambda backward, detector=feature_detector, cache=cache:
                 cached_detection_loss_tensor(
                     detector,
                     cache,
                     model_device=self.device,
-                    backward=True,
+                    backward=backward,
                 ),
                 bounds=feature_bounds,
             )
             head_adam = run_head_adam(
                 head_detector,
-                lambda detector=head_detector, cache=cache:
+                lambda backward, detector=head_detector, cache=cache:
                 cached_detection_loss_tensor(
                     detector,
                     cache,
                     model_device=self.device,
-                    backward=True,
+                    backward=backward,
                 ),
             )
             for method, control_model, record in (
