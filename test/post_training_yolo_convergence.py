@@ -1047,9 +1047,10 @@ class StrictScratchTrainer:
         batch: int = 16,
         epochs: int = 100,
     ) -> None:
-        if device not in {"cpu", "mps"}:
+        if device not in {"cpu", "mps", "cuda"}:
             raise YoloProtocolError(
-                "device must remain cpu or mps for the complete run"
+                "device must remain cpu, mps, or cuda for the "
+                "complete run"
             )
         if epochs not in {2, 100}:
             raise YoloProtocolError("trainer epochs must be smoke 2 or production 100")
@@ -1519,8 +1520,10 @@ class YoloConvergenceAdapter:
     def __init__(self, *, workload_id: str, config: StudyConfig, run_root: str | os.PathLike[str], data_root: str | os.PathLike[str], device: str | torch.device, allow_download: bool) -> None:
         if workload_id != WORKLOAD_ID:
             raise YoloProtocolError(f"unsupported workload id: {workload_id}")
-        if str(device) not in {"cpu", "mps"}:
-            raise YoloProtocolError("device must be cpu or mps")
+        if str(device) not in {"cpu", "mps", "cuda"}:
+            raise YoloProtocolError(
+                "device must be cpu, mps, or cuda"
+            )
         self.workload_id, self.config = workload_id, config
         self.run_root, self.data_root, self.device = Path(run_root), Path(data_root), str(device)
         self.allow_download = bool(allow_download)

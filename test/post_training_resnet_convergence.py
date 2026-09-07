@@ -790,8 +790,10 @@ class ResNetConvergenceAdapter:
         self.data_root = Path(data_root)
         self.device = torch.device(device)
         self.allow_download = bool(allow_download)
-        if str(self.device) not in {"cpu", "mps"}:
-            raise ProtocolError("ResNet device must be cpu or mps")
+        if str(self.device) not in {"cpu", "mps", "cuda"}:
+            raise ProtocolError(
+                "ResNet device must be cpu, mps, or cuda"
+            )
 
     def _result_path(self) -> Path:
         return self.run_root / "workloads" / self.workload_id / "result.json"

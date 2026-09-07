@@ -128,8 +128,8 @@ class StudyConfig:
             raise ProtocolError("residual bounds and initialization radius are fixed")
         if tuple(self.objective_checkpoints) != OBJECTIVE_CHECKPOINTS:
             raise ProtocolError("objective checkpoints are fixed")
-        if self.device not in {"cpu", "mps"}:
-            raise ProtocolError("device must be cpu or mps")
+        if self.device not in {"cpu", "mps", "cuda"}:
+            raise ProtocolError("device must be cpu, mps, or cuda")
         if not self.workload_ids:
             raise ProtocolError("at least one workload must be registered")
 
@@ -1303,7 +1303,11 @@ def persist_state(run_root: str | os.PathLike[str], state_machine: StudyStateMac
 def build_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Post-training ResNet/YOLO convergence protocol")
     parser.add_argument("--phase", choices=["prepare", "smoke", "develop", "confirm", "publish", "all"], required=True)
-    parser.add_argument("--device", choices=["mps", "cpu"], default="cpu")
+    parser.add_argument(
+        "--device",
+        choices=["cuda", "mps", "cpu"],
+        default="cpu",
+    )
     parser.add_argument("--data-root", type=Path, default=Path("result/cache"))
     parser.add_argument("--run-root", type=Path, required=True)
     parser.add_argument("--allow-download", action="store_true")
