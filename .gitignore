@@ -27,3 +27,11 @@ logs/
 
 .vscode/
 metacode/
+
+# uv / venv
+.venv/
+.uv/
+
+# Local research execution state and large downloaded datasets
+.omc/
+runs/

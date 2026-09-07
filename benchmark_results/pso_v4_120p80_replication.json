@@ -1,0 +1,1899 @@
+{
+  "replication_protocol_version": "1.0.0",
+  "source_tuning_protocol_version": "1.0.0",
+  "pso_version": "4.0.0",
+  "torch_version": "2.13.0",
+  "timestamp": "2026-09-01 23:24:38",
+  "device": "mps",
+  "hardware": {
+    "platform": "macOS-26.5.2-arm64-arm-64bit",
+    "system": "Darwin",
+    "machine": "arm64",
+    "processor": "arm",
+    "python_version": "3.11.15",
+    "torch_version": "2.13.0",
+    "pso_version": "4.0.0",
+    "device_type": "mps",
+    "device_str": "mps",
+    "mps_available": true
+  },
+  "baseline_json": "benchmark_results/pso_v4_tuning.json",
+  "source_tuning_timestamp": "2026-09-01 07:10:25",
+  "candidate_label": "am_b0.06_s0.5",
+  "config": {
+    "method": "adaptive_moment",
+    "velocity_limit_ratio": 0.025,
+    "mutation_swarm": 0.02,
+    "negative_swarm": 0.0,
+    "particle_min": -3.0,
+    "particle_max": 3.0,
+    "boundary_strategy": "reflect",
+    "initialization": "model_noise",
+    "initial_position_noise": 0.05,
+    "evaluation": "fixed_subset",
+    "fitness_size": 2000,
+    "convergence": "none",
+    "refinement": "none",
+    "c0": 1.49618,
+    "c1": 1.49618,
+    "w_min": 0.7298,
+    "w_max": 0.7298,
+    "method_options": {
+      "moment_blend": 0.06,
+      "moment_step_size": 0.5,
+      "moment_beta1": 0.9
+    }
+  },
+  "data_fingerprint": "dfe645918ece54c0",
+  "criteria": {
+    "replay_seeds": [
+      71,
+      72,
+      73,
+      74,
+      75
+    ],
+    "replay_max_abs_delta_tolerance": 0.005,
+    "require_replay_model_fingerprint_match": true,
+    "independent_seeds": [
+      81,
+      82,
+      83,
+      84,
+      85
+    ],
+    "independent_mean_abs_diff_margin": 0.03,
+    "require_ci_overlap": true
+  },
+  "summaries": {
+    "baseline": {
+      "mean": 0.7234,
+      "std": 0.018188,
+      "median": 0.73,
+      "iqr": 0.011,
+      "ci95_t": 0.022583
+    },
+    "replay": {
+      "mean": 0.7234,
+      "std": 0.018188,
+      "median": 0.73,
+      "iqr": 0.011,
+      "ci95_t": 0.022583
+    },
+    "independent": {
+      "mean": 0.736,
+      "std": 0.016583,
+      "median": 0.732,
+      "iqr": 0.018,
+      "ci95_t": 0.02059
+    }
+  },
+  "comparison": {
+    "replay_per_seed_deltas": {
+      "71": 0.0,
+      "72": 0.0,
+      "73": 0.0,
+      "74": 0.0,
+      "75": 0.0
+    },
+    "replay_max_abs_delta": 0.0,
+    "replay_model_fingerprint_match": true,
+    "replay_pass": true,
+    "independent_mean_abs_diff": 0.0126,
+    "independent_mean_pass": true,
+    "baseline_ci95_t_interval": [
+      0.700817,
+      0.745983
+    ],
+    "independent_ci95_t_interval": [
+      0.71541,
+      0.75659
+    ],
+    "ci_overlap_pass": true,
+    "independent_pass": true,
+    "overall_pass": true
+  },
+  "baseline_runs": [
+    {
+      "protocol_version": "1.0.0",
+      "pso_version": "4.0.0",
+      "torch_version": "2.13.0",
+      "hardware": {
+        "platform": "macOS-26.5.2-arm64-arm-64bit",
+        "system": "Darwin",
+        "machine": "arm64",
+        "processor": "arm",
+        "python_version": "3.11.15",
+        "torch_version": "2.13.0",
+        "pso_version": "4.0.0",
+        "device_type": "mps",
+        "device_str": "mps",
+        "mps_available": true
+      },
+      "timing_scope": "fit_only_after_method_specific_warmup",
+      "warmup_epochs": 2,
+      "error": null,
+      "phase": "scaling",
+      "method": "adaptive_moment",
+      "candidate_label": "am_b0.06_s0.5",
+      "seed": 71,
+      "n_particles": 120,
+      "epochs": 80,
+      "particle_epochs": 9600,
+      "train_loss": 0.6516683101654053,
+      "train_acc": 0.7950000166893005,
+      "train_mse": 0.028850017115473747,
+      "test_loss": 0.8584634065628052,
+      "test_acc": 0.7360000014305115,
+      "test_mse": 0.037673790007829666,
+      "fit_time_sec": 11.962705624988303,
+      "data_fingerprint": "dfe645918ece54c0",
+      "model_fingerprint": "0777bd52fd76272d",
+      "device": "mps",
+      "completed": true,
+      "plugins": {
+        "movement": {
+          "title": "Adaptive Path-Moment PSO",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "c0": 1.49618,
+            "c1": 1.49618,
+            "w_min": 0.7298,
+            "w_max": 0.7298,
+            "moment_blend": 0.06,
+            "moment_beta1": 0.9,
+            "moment_beta2": 0.999,
+            "moment_step_size": 0.5,
+            "moment_epsilon": 1e-08
+          }
+        },
+        "initialization": {
+          "title": "Model Weight + Uniform Noise Initialization",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {
+            "noise": 0.05
+          }
+        },
+        "evaluation": {
+          "title": "Fixed Subset Evaluation",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "fitness_size": 2000
+          }
+        },
+        "convergence": {
+          "title": "No Convergence Action",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        },
+        "refinement": {
+          "title": "No Refinement",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        }
+      },
+      "config": {
+        "method": "adaptive_moment",
+        "velocity_limit_ratio": 0.025,
+        "mutation_swarm": 0.02,
+        "negative_swarm": 0.0,
+        "particle_min": -3.0,
+        "particle_max": 3.0,
+        "boundary_strategy": "reflect",
+        "initialization": "model_noise",
+        "initial_position_noise": 0.05,
+        "evaluation": "fixed_subset",
+        "fitness_size": 2000,
+        "convergence": "none",
+        "refinement": "none",
+        "c0": 1.49618,
+        "c1": 1.49618,
+        "w_min": 0.7298,
+        "w_max": 0.7298,
+        "method_options": {
+          "moment_blend": 0.06,
+          "moment_step_size": 0.5,
+          "moment_beta1": 0.9
+        },
+        "n_particles": 120,
+        "epochs": 80,
+        "batch_size": 1000,
+        "renewal": "loss"
+      },
+      "run_id": "scaling_120p_80e_fixed_epoch_seed71_e66d603db8f5",
+      "regimen": "fixed_epoch"
+    },
+    {
+      "protocol_version": "1.0.0",
+      "pso_version": "4.0.0",
+      "torch_version": "2.13.0",
+      "hardware": {
+        "platform": "macOS-26.5.2-arm64-arm-64bit",
+        "system": "Darwin",
+        "machine": "arm64",
+        "processor": "arm",
+        "python_version": "3.11.15",
+        "torch_version": "2.13.0",
+        "pso_version": "4.0.0",
+        "device_type": "mps",
+        "device_str": "mps",
+        "mps_available": true
+      },
+      "timing_scope": "fit_only_after_method_specific_warmup",
+      "warmup_epochs": 2,
+      "error": null,
+      "phase": "scaling",
+      "method": "adaptive_moment",
+      "candidate_label": "am_b0.06_s0.5",
+      "seed": 72,
+      "n_particles": 120,
+      "epochs": 80,
+      "particle_epochs": 9600,
+      "train_loss": 0.6982801556587219,
+      "train_acc": 0.7914999723434448,
+      "train_mse": 0.030153820291161537,
+      "test_loss": 0.9025362133979797,
+      "test_acc": 0.7239999771118164,
+      "test_mse": 0.038956169039011,
+      "fit_time_sec": 11.906837583053857,
+      "data_fingerprint": "dfe645918ece54c0",
+      "model_fingerprint": "6fcb6e473bdacbd2",
+      "device": "mps",
+      "completed": true,
+      "plugins": {
+        "movement": {
+          "title": "Adaptive Path-Moment PSO",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "c0": 1.49618,
+            "c1": 1.49618,
+            "w_min": 0.7298,
+            "w_max": 0.7298,
+            "moment_blend": 0.06,
+            "moment_beta1": 0.9,
+            "moment_beta2": 0.999,
+            "moment_step_size": 0.5,
+            "moment_epsilon": 1e-08
+          }
+        },
+        "initialization": {
+          "title": "Model Weight + Uniform Noise Initialization",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {
+            "noise": 0.05
+          }
+        },
+        "evaluation": {
+          "title": "Fixed Subset Evaluation",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "fitness_size": 2000
+          }
+        },
+        "convergence": {
+          "title": "No Convergence Action",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        },
+        "refinement": {
+          "title": "No Refinement",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        }
+      },
+      "config": {
+        "method": "adaptive_moment",
+        "velocity_limit_ratio": 0.025,
+        "mutation_swarm": 0.02,
+        "negative_swarm": 0.0,
+        "particle_min": -3.0,
+        "particle_max": 3.0,
+        "boundary_strategy": "reflect",
+        "initialization": "model_noise",
+        "initial_position_noise": 0.05,
+        "evaluation": "fixed_subset",
+        "fitness_size": 2000,
+        "convergence": "none",
+        "refinement": "none",
+        "c0": 1.49618,
+        "c1": 1.49618,
+        "w_min": 0.7298,
+        "w_max": 0.7298,
+        "method_options": {
+          "moment_blend": 0.06,
+          "moment_step_size": 0.5,
+          "moment_beta1": 0.9
+        },
+        "n_particles": 120,
+        "epochs": 80,
+        "batch_size": 1000,
+        "renewal": "loss"
+      },
+      "run_id": "scaling_120p_80e_fixed_epoch_seed72_47cdadf9a983",
+      "regimen": "fixed_epoch"
+    },
+    {
+      "protocol_version": "1.0.0",
+      "pso_version": "4.0.0",
+      "torch_version": "2.13.0",
+      "hardware": {
+        "platform": "macOS-26.5.2-arm64-arm-64bit",
+        "system": "Darwin",
+        "machine": "arm64",
+        "processor": "arm",
+        "python_version": "3.11.15",
+        "torch_version": "2.13.0",
+        "pso_version": "4.0.0",
+        "device_type": "mps",
+        "device_str": "mps",
+        "mps_available": true
+      },
+      "timing_scope": "fit_only_after_method_specific_warmup",
+      "warmup_epochs": 2,
+      "error": null,
+      "phase": "scaling",
+      "method": "adaptive_moment",
+      "candidate_label": "am_b0.06_s0.5",
+      "seed": 73,
+      "n_particles": 120,
+      "epochs": 80,
+      "particle_epochs": 9600,
+      "train_loss": 0.7527623772621155,
+      "train_acc": 0.7749999761581421,
+      "train_mse": 0.032556530088186264,
+      "test_loss": 1.001193642616272,
+      "test_acc": 0.6919999718666077,
+      "test_mse": 0.04309915751218796,
+      "fit_time_sec": 10.664651792030782,
+      "data_fingerprint": "dfe645918ece54c0",
+      "model_fingerprint": "2e6c351372592f10",
+      "device": "mps",
+      "completed": true,
+      "plugins": {
+        "movement": {
+          "title": "Adaptive Path-Moment PSO",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "c0": 1.49618,
+            "c1": 1.49618,
+            "w_min": 0.7298,
+            "w_max": 0.7298,
+            "moment_blend": 0.06,
+            "moment_beta1": 0.9,
+            "moment_beta2": 0.999,
+            "moment_step_size": 0.5,
+            "moment_epsilon": 1e-08
+          }
+        },
+        "initialization": {
+          "title": "Model Weight + Uniform Noise Initialization",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {
+            "noise": 0.05
+          }
+        },
+        "evaluation": {
+          "title": "Fixed Subset Evaluation",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "fitness_size": 2000
+          }
+        },
+        "convergence": {
+          "title": "No Convergence Action",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        },
+        "refinement": {
+          "title": "No Refinement",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        }
+      },
+      "config": {
+        "method": "adaptive_moment",
+        "velocity_limit_ratio": 0.025,
+        "mutation_swarm": 0.02,
+        "negative_swarm": 0.0,
+        "particle_min": -3.0,
+        "particle_max": 3.0,
+        "boundary_strategy": "reflect",
+        "initialization": "model_noise",
+        "initial_position_noise": 0.05,
+        "evaluation": "fixed_subset",
+        "fitness_size": 2000,
+        "convergence": "none",
+        "refinement": "none",
+        "c0": 1.49618,
+        "c1": 1.49618,
+        "w_min": 0.7298,
+        "w_max": 0.7298,
+        "method_options": {
+          "moment_blend": 0.06,
+          "moment_step_size": 0.5,
+          "moment_beta1": 0.9
+        },
+        "n_particles": 120,
+        "epochs": 80,
+        "batch_size": 1000,
+        "renewal": "loss"
+      },
+      "run_id": "scaling_120p_80e_fixed_epoch_seed73_78208b86e119",
+      "regimen": "fixed_epoch"
+    },
+    {
+      "protocol_version": "1.0.0",
+      "pso_version": "4.0.0",
+      "torch_version": "2.13.0",
+      "hardware": {
+        "platform": "macOS-26.5.2-arm64-arm-64bit",
+        "system": "Darwin",
+        "machine": "arm64",
+        "processor": "arm",
+        "python_version": "3.11.15",
+        "torch_version": "2.13.0",
+        "pso_version": "4.0.0",
+        "device_type": "mps",
+        "device_str": "mps",
+        "mps_available": true
+      },
+      "timing_scope": "fit_only_after_method_specific_warmup",
+      "warmup_epochs": 2,
+      "error": null,
+      "phase": "scaling",
+      "method": "adaptive_moment",
+      "candidate_label": "am_b0.06_s0.5",
+      "seed": 74,
+      "n_particles": 120,
+      "epochs": 80,
+      "particle_epochs": 9600,
+      "train_loss": 0.6858600974082947,
+      "train_acc": 0.784500002861023,
+      "train_mse": 0.030640259385108948,
+      "test_loss": 0.8601324558258057,
+      "test_acc": 0.7350000143051147,
+      "test_mse": 0.03845023736357689,
+      "fit_time_sec": 10.921957665821537,
+      "data_fingerprint": "dfe645918ece54c0",
+      "model_fingerprint": "4000fe3fb26ef207",
+      "device": "mps",
+      "completed": true,
+      "plugins": {
+        "movement": {
+          "title": "Adaptive Path-Moment PSO",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "c0": 1.49618,
+            "c1": 1.49618,
+            "w_min": 0.7298,
+            "w_max": 0.7298,
+            "moment_blend": 0.06,
+            "moment_beta1": 0.9,
+            "moment_beta2": 0.999,
+            "moment_step_size": 0.5,
+            "moment_epsilon": 1e-08
+          }
+        },
+        "initialization": {
+          "title": "Model Weight + Uniform Noise Initialization",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {
+            "noise": 0.05
+          }
+        },
+        "evaluation": {
+          "title": "Fixed Subset Evaluation",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "fitness_size": 2000
+          }
+        },
+        "convergence": {
+          "title": "No Convergence Action",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        },
+        "refinement": {
+          "title": "No Refinement",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        }
+      },
+      "config": {
+        "method": "adaptive_moment",
+        "velocity_limit_ratio": 0.025,
+        "mutation_swarm": 0.02,
+        "negative_swarm": 0.0,
+        "particle_min": -3.0,
+        "particle_max": 3.0,
+        "boundary_strategy": "reflect",
+        "initialization": "model_noise",
+        "initial_position_noise": 0.05,
+        "evaluation": "fixed_subset",
+        "fitness_size": 2000,
+        "convergence": "none",
+        "refinement": "none",
+        "c0": 1.49618,
+        "c1": 1.49618,
+        "w_min": 0.7298,
+        "w_max": 0.7298,
+        "method_options": {
+          "moment_blend": 0.06,
+          "moment_step_size": 0.5,
+          "moment_beta1": 0.9
+        },
+        "n_particles": 120,
+        "epochs": 80,
+        "batch_size": 1000,
+        "renewal": "loss"
+      },
+      "run_id": "scaling_120p_80e_fixed_epoch_seed74_e44bd395ec76",
+      "regimen": "fixed_epoch"
+    },
+    {
+      "protocol_version": "1.0.0",
+      "pso_version": "4.0.0",
+      "torch_version": "2.13.0",
+      "hardware": {
+        "platform": "macOS-26.5.2-arm64-arm-64bit",
+        "system": "Darwin",
+        "machine": "arm64",
+        "processor": "arm",
+        "python_version": "3.11.15",
+        "torch_version": "2.13.0",
+        "pso_version": "4.0.0",
+        "device_type": "mps",
+        "device_str": "mps",
+        "mps_available": true
+      },
+      "timing_scope": "fit_only_after_method_specific_warmup",
+      "warmup_epochs": 2,
+      "error": null,
+      "phase": "scaling",
+      "method": "adaptive_moment",
+      "candidate_label": "am_b0.06_s0.5",
+      "seed": 75,
+      "n_particles": 120,
+      "epochs": 80,
+      "particle_epochs": 9600,
+      "train_loss": 0.6326538324356079,
+      "train_acc": 0.8125,
+      "train_mse": 0.02839995175600052,
+      "test_loss": 0.889915406703949,
+      "test_acc": 0.7300000190734863,
+      "test_mse": 0.03931796923279762,
+      "fit_time_sec": 10.411899874918163,
+      "data_fingerprint": "dfe645918ece54c0",
+      "model_fingerprint": "0966039f5ef7af88",
+      "device": "mps",
+      "completed": true,
+      "plugins": {
+        "movement": {
+          "title": "Adaptive Path-Moment PSO",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "c0": 1.49618,
+            "c1": 1.49618,
+            "w_min": 0.7298,
+            "w_max": 0.7298,
+            "moment_blend": 0.06,
+            "moment_beta1": 0.9,
+            "moment_beta2": 0.999,
+            "moment_step_size": 0.5,
+            "moment_epsilon": 1e-08
+          }
+        },
+        "initialization": {
+          "title": "Model Weight + Uniform Noise Initialization",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {
+            "noise": 0.05
+          }
+        },
+        "evaluation": {
+          "title": "Fixed Subset Evaluation",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "fitness_size": 2000
+          }
+        },
+        "convergence": {
+          "title": "No Convergence Action",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        },
+        "refinement": {
+          "title": "No Refinement",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        }
+      },
+      "config": {
+        "method": "adaptive_moment",
+        "velocity_limit_ratio": 0.025,
+        "mutation_swarm": 0.02,
+        "negative_swarm": 0.0,
+        "particle_min": -3.0,
+        "particle_max": 3.0,
+        "boundary_strategy": "reflect",
+        "initialization": "model_noise",
+        "initial_position_noise": 0.05,
+        "evaluation": "fixed_subset",
+        "fitness_size": 2000,
+        "convergence": "none",
+        "refinement": "none",
+        "c0": 1.49618,
+        "c1": 1.49618,
+        "w_min": 0.7298,
+        "w_max": 0.7298,
+        "method_options": {
+          "moment_blend": 0.06,
+          "moment_step_size": 0.5,
+          "moment_beta1": 0.9
+        },
+        "n_particles": 120,
+        "epochs": 80,
+        "batch_size": 1000,
+        "renewal": "loss"
+      },
+      "run_id": "scaling_120p_80e_fixed_epoch_seed75_17aefd097619",
+      "regimen": "fixed_epoch"
+    }
+  ],
+  "replay_runs": [
+    {
+      "protocol_version": "1.0.0",
+      "pso_version": "4.0.0",
+      "torch_version": "2.13.0",
+      "hardware": {
+        "platform": "macOS-26.5.2-arm64-arm-64bit",
+        "system": "Darwin",
+        "machine": "arm64",
+        "processor": "arm",
+        "python_version": "3.11.15",
+        "torch_version": "2.13.0",
+        "pso_version": "4.0.0",
+        "device_type": "mps",
+        "device_str": "mps",
+        "mps_available": true
+      },
+      "timing_scope": "fit_only_after_method_specific_warmup",
+      "warmup_epochs": 2,
+      "error": null,
+      "phase": "replication_replay",
+      "method": "adaptive_moment",
+      "candidate_label": "am_b0.06_s0.5",
+      "seed": 71,
+      "n_particles": 120,
+      "epochs": 80,
+      "particle_epochs": 9600,
+      "train_loss": 0.6516683101654053,
+      "train_acc": 0.7950000166893005,
+      "train_mse": 0.028850017115473747,
+      "test_loss": 0.8584634065628052,
+      "test_acc": 0.7360000014305115,
+      "test_mse": 0.037673790007829666,
+      "fit_time_sec": 11.090910458937287,
+      "data_fingerprint": "dfe645918ece54c0",
+      "model_fingerprint": "0777bd52fd76272d",
+      "device": "mps",
+      "completed": true,
+      "plugins": {
+        "movement": {
+          "title": "Adaptive Path-Moment PSO",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "c0": 1.49618,
+            "c1": 1.49618,
+            "w_min": 0.7298,
+            "w_max": 0.7298,
+            "moment_blend": 0.06,
+            "moment_beta1": 0.9,
+            "moment_beta2": 0.999,
+            "moment_step_size": 0.5,
+            "moment_epsilon": 1e-08
+          }
+        },
+        "initialization": {
+          "title": "Model Weight + Uniform Noise Initialization",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {
+            "noise": 0.05
+          }
+        },
+        "evaluation": {
+          "title": "Fixed Subset Evaluation",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "fitness_size": 2000
+          }
+        },
+        "convergence": {
+          "title": "No Convergence Action",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        },
+        "refinement": {
+          "title": "No Refinement",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        }
+      },
+      "config": {
+        "method": "adaptive_moment",
+        "velocity_limit_ratio": 0.025,
+        "mutation_swarm": 0.02,
+        "negative_swarm": 0.0,
+        "particle_min": -3.0,
+        "particle_max": 3.0,
+        "boundary_strategy": "reflect",
+        "initialization": "model_noise",
+        "initial_position_noise": 0.05,
+        "evaluation": "fixed_subset",
+        "fitness_size": 2000,
+        "convergence": "none",
+        "refinement": "none",
+        "c0": 1.49618,
+        "c1": 1.49618,
+        "w_min": 0.7298,
+        "w_max": 0.7298,
+        "method_options": {
+          "moment_blend": 0.06,
+          "moment_step_size": 0.5,
+          "moment_beta1": 0.9
+        },
+        "n_particles": 120,
+        "epochs": 80,
+        "batch_size": 1000,
+        "renewal": "loss"
+      },
+      "regimen": "fixed_epoch"
+    },
+    {
+      "protocol_version": "1.0.0",
+      "pso_version": "4.0.0",
+      "torch_version": "2.13.0",
+      "hardware": {
+        "platform": "macOS-26.5.2-arm64-arm-64bit",
+        "system": "Darwin",
+        "machine": "arm64",
+        "processor": "arm",
+        "python_version": "3.11.15",
+        "torch_version": "2.13.0",
+        "pso_version": "4.0.0",
+        "device_type": "mps",
+        "device_str": "mps",
+        "mps_available": true
+      },
+      "timing_scope": "fit_only_after_method_specific_warmup",
+      "warmup_epochs": 2,
+      "error": null,
+      "phase": "replication_replay",
+      "method": "adaptive_moment",
+      "candidate_label": "am_b0.06_s0.5",
+      "seed": 72,
+      "n_particles": 120,
+      "epochs": 80,
+      "particle_epochs": 9600,
+      "train_loss": 0.6982801556587219,
+      "train_acc": 0.7914999723434448,
+      "train_mse": 0.030153820291161537,
+      "test_loss": 0.9025362133979797,
+      "test_acc": 0.7239999771118164,
+      "test_mse": 0.038956169039011,
+      "fit_time_sec": 10.668682500021532,
+      "data_fingerprint": "dfe645918ece54c0",
+      "model_fingerprint": "6fcb6e473bdacbd2",
+      "device": "mps",
+      "completed": true,
+      "plugins": {
+        "movement": {
+          "title": "Adaptive Path-Moment PSO",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "c0": 1.49618,
+            "c1": 1.49618,
+            "w_min": 0.7298,
+            "w_max": 0.7298,
+            "moment_blend": 0.06,
+            "moment_beta1": 0.9,
+            "moment_beta2": 0.999,
+            "moment_step_size": 0.5,
+            "moment_epsilon": 1e-08
+          }
+        },
+        "initialization": {
+          "title": "Model Weight + Uniform Noise Initialization",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {
+            "noise": 0.05
+          }
+        },
+        "evaluation": {
+          "title": "Fixed Subset Evaluation",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "fitness_size": 2000
+          }
+        },
+        "convergence": {
+          "title": "No Convergence Action",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        },
+        "refinement": {
+          "title": "No Refinement",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        }
+      },
+      "config": {
+        "method": "adaptive_moment",
+        "velocity_limit_ratio": 0.025,
+        "mutation_swarm": 0.02,
+        "negative_swarm": 0.0,
+        "particle_min": -3.0,
+        "particle_max": 3.0,
+        "boundary_strategy": "reflect",
+        "initialization": "model_noise",
+        "initial_position_noise": 0.05,
+        "evaluation": "fixed_subset",
+        "fitness_size": 2000,
+        "convergence": "none",
+        "refinement": "none",
+        "c0": 1.49618,
+        "c1": 1.49618,
+        "w_min": 0.7298,
+        "w_max": 0.7298,
+        "method_options": {
+          "moment_blend": 0.06,
+          "moment_step_size": 0.5,
+          "moment_beta1": 0.9
+        },
+        "n_particles": 120,
+        "epochs": 80,
+        "batch_size": 1000,
+        "renewal": "loss"
+      },
+      "regimen": "fixed_epoch"
+    },
+    {
+      "protocol_version": "1.0.0",
+      "pso_version": "4.0.0",
+      "torch_version": "2.13.0",
+      "hardware": {
+        "platform": "macOS-26.5.2-arm64-arm-64bit",
+        "system": "Darwin",
+        "machine": "arm64",
+        "processor": "arm",
+        "python_version": "3.11.15",
+        "torch_version": "2.13.0",
+        "pso_version": "4.0.0",
+        "device_type": "mps",
+        "device_str": "mps",
+        "mps_available": true
+      },
+      "timing_scope": "fit_only_after_method_specific_warmup",
+      "warmup_epochs": 2,
+      "error": null,
+      "phase": "replication_replay",
+      "method": "adaptive_moment",
+      "candidate_label": "am_b0.06_s0.5",
+      "seed": 73,
+      "n_particles": 120,
+      "epochs": 80,
+      "particle_epochs": 9600,
+      "train_loss": 0.7527623772621155,
+      "train_acc": 0.7749999761581421,
+      "train_mse": 0.032556530088186264,
+      "test_loss": 1.001193642616272,
+      "test_acc": 0.6919999718666077,
+      "test_mse": 0.04309915751218796,
+      "fit_time_sec": 11.617381499847397,
+      "data_fingerprint": "dfe645918ece54c0",
+      "model_fingerprint": "2e6c351372592f10",
+      "device": "mps",
+      "completed": true,
+      "plugins": {
+        "movement": {
+          "title": "Adaptive Path-Moment PSO",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "c0": 1.49618,
+            "c1": 1.49618,
+            "w_min": 0.7298,
+            "w_max": 0.7298,
+            "moment_blend": 0.06,
+            "moment_beta1": 0.9,
+            "moment_beta2": 0.999,
+            "moment_step_size": 0.5,
+            "moment_epsilon": 1e-08
+          }
+        },
+        "initialization": {
+          "title": "Model Weight + Uniform Noise Initialization",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {
+            "noise": 0.05
+          }
+        },
+        "evaluation": {
+          "title": "Fixed Subset Evaluation",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "fitness_size": 2000
+          }
+        },
+        "convergence": {
+          "title": "No Convergence Action",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        },
+        "refinement": {
+          "title": "No Refinement",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        }
+      },
+      "config": {
+        "method": "adaptive_moment",
+        "velocity_limit_ratio": 0.025,
+        "mutation_swarm": 0.02,
+        "negative_swarm": 0.0,
+        "particle_min": -3.0,
+        "particle_max": 3.0,
+        "boundary_strategy": "reflect",
+        "initialization": "model_noise",
+        "initial_position_noise": 0.05,
+        "evaluation": "fixed_subset",
+        "fitness_size": 2000,
+        "convergence": "none",
+        "refinement": "none",
+        "c0": 1.49618,
+        "c1": 1.49618,
+        "w_min": 0.7298,
+        "w_max": 0.7298,
+        "method_options": {
+          "moment_blend": 0.06,
+          "moment_step_size": 0.5,
+          "moment_beta1": 0.9
+        },
+        "n_particles": 120,
+        "epochs": 80,
+        "batch_size": 1000,
+        "renewal": "loss"
+      },
+      "regimen": "fixed_epoch"
+    },
+    {
+      "protocol_version": "1.0.0",
+      "pso_version": "4.0.0",
+      "torch_version": "2.13.0",
+      "hardware": {
+        "platform": "macOS-26.5.2-arm64-arm-64bit",
+        "system": "Darwin",
+        "machine": "arm64",
+        "processor": "arm",
+        "python_version": "3.11.15",
+        "torch_version": "2.13.0",
+        "pso_version": "4.0.0",
+        "device_type": "mps",
+        "device_str": "mps",
+        "mps_available": true
+      },
+      "timing_scope": "fit_only_after_method_specific_warmup",
+      "warmup_epochs": 2,
+      "error": null,
+      "phase": "replication_replay",
+      "method": "adaptive_moment",
+      "candidate_label": "am_b0.06_s0.5",
+      "seed": 74,
+      "n_particles": 120,
+      "epochs": 80,
+      "particle_epochs": 9600,
+      "train_loss": 0.6858600974082947,
+      "train_acc": 0.784500002861023,
+      "train_mse": 0.030640259385108948,
+      "test_loss": 0.8601324558258057,
+      "test_acc": 0.7350000143051147,
+      "test_mse": 0.03845023736357689,
+      "fit_time_sec": 12.46007908298634,
+      "data_fingerprint": "dfe645918ece54c0",
+      "model_fingerprint": "4000fe3fb26ef207",
+      "device": "mps",
+      "completed": true,
+      "plugins": {
+        "movement": {
+          "title": "Adaptive Path-Moment PSO",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "c0": 1.49618,
+            "c1": 1.49618,
+            "w_min": 0.7298,
+            "w_max": 0.7298,
+            "moment_blend": 0.06,
+            "moment_beta1": 0.9,
+            "moment_beta2": 0.999,
+            "moment_step_size": 0.5,
+            "moment_epsilon": 1e-08
+          }
+        },
+        "initialization": {
+          "title": "Model Weight + Uniform Noise Initialization",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {
+            "noise": 0.05
+          }
+        },
+        "evaluation": {
+          "title": "Fixed Subset Evaluation",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "fitness_size": 2000
+          }
+        },
+        "convergence": {
+          "title": "No Convergence Action",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        },
+        "refinement": {
+          "title": "No Refinement",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        }
+      },
+      "config": {
+        "method": "adaptive_moment",
+        "velocity_limit_ratio": 0.025,
+        "mutation_swarm": 0.02,
+        "negative_swarm": 0.0,
+        "particle_min": -3.0,
+        "particle_max": 3.0,
+        "boundary_strategy": "reflect",
+        "initialization": "model_noise",
+        "initial_position_noise": 0.05,
+        "evaluation": "fixed_subset",
+        "fitness_size": 2000,
+        "convergence": "none",
+        "refinement": "none",
+        "c0": 1.49618,
+        "c1": 1.49618,
+        "w_min": 0.7298,
+        "w_max": 0.7298,
+        "method_options": {
+          "moment_blend": 0.06,
+          "moment_step_size": 0.5,
+          "moment_beta1": 0.9
+        },
+        "n_particles": 120,
+        "epochs": 80,
+        "batch_size": 1000,
+        "renewal": "loss"
+      },
+      "regimen": "fixed_epoch"
+    },
+    {
+      "protocol_version": "1.0.0",
+      "pso_version": "4.0.0",
+      "torch_version": "2.13.0",
+      "hardware": {
+        "platform": "macOS-26.5.2-arm64-arm-64bit",
+        "system": "Darwin",
+        "machine": "arm64",
+        "processor": "arm",
+        "python_version": "3.11.15",
+        "torch_version": "2.13.0",
+        "pso_version": "4.0.0",
+        "device_type": "mps",
+        "device_str": "mps",
+        "mps_available": true
+      },
+      "timing_scope": "fit_only_after_method_specific_warmup",
+      "warmup_epochs": 2,
+      "error": null,
+      "phase": "replication_replay",
+      "method": "adaptive_moment",
+      "candidate_label": "am_b0.06_s0.5",
+      "seed": 75,
+      "n_particles": 120,
+      "epochs": 80,
+      "particle_epochs": 9600,
+      "train_loss": 0.6326538324356079,
+      "train_acc": 0.8125,
+      "train_mse": 0.02839995175600052,
+      "test_loss": 0.889915406703949,
+      "test_acc": 0.7300000190734863,
+      "test_mse": 0.03931796923279762,
+      "fit_time_sec": 11.499297459144145,
+      "data_fingerprint": "dfe645918ece54c0",
+      "model_fingerprint": "0966039f5ef7af88",
+      "device": "mps",
+      "completed": true,
+      "plugins": {
+        "movement": {
+          "title": "Adaptive Path-Moment PSO",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "c0": 1.49618,
+            "c1": 1.49618,
+            "w_min": 0.7298,
+            "w_max": 0.7298,
+            "moment_blend": 0.06,
+            "moment_beta1": 0.9,
+            "moment_beta2": 0.999,
+            "moment_step_size": 0.5,
+            "moment_epsilon": 1e-08
+          }
+        },
+        "initialization": {
+          "title": "Model Weight + Uniform Noise Initialization",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {
+            "noise": 0.05
+          }
+        },
+        "evaluation": {
+          "title": "Fixed Subset Evaluation",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "fitness_size": 2000
+          }
+        },
+        "convergence": {
+          "title": "No Convergence Action",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        },
+        "refinement": {
+          "title": "No Refinement",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        }
+      },
+      "config": {
+        "method": "adaptive_moment",
+        "velocity_limit_ratio": 0.025,
+        "mutation_swarm": 0.02,
+        "negative_swarm": 0.0,
+        "particle_min": -3.0,
+        "particle_max": 3.0,
+        "boundary_strategy": "reflect",
+        "initialization": "model_noise",
+        "initial_position_noise": 0.05,
+        "evaluation": "fixed_subset",
+        "fitness_size": 2000,
+        "convergence": "none",
+        "refinement": "none",
+        "c0": 1.49618,
+        "c1": 1.49618,
+        "w_min": 0.7298,
+        "w_max": 0.7298,
+        "method_options": {
+          "moment_blend": 0.06,
+          "moment_step_size": 0.5,
+          "moment_beta1": 0.9
+        },
+        "n_particles": 120,
+        "epochs": 80,
+        "batch_size": 1000,
+        "renewal": "loss"
+      },
+      "regimen": "fixed_epoch"
+    }
+  ],
+  "independent_runs": [
+    {
+      "protocol_version": "1.0.0",
+      "pso_version": "4.0.0",
+      "torch_version": "2.13.0",
+      "hardware": {
+        "platform": "macOS-26.5.2-arm64-arm-64bit",
+        "system": "Darwin",
+        "machine": "arm64",
+        "processor": "arm",
+        "python_version": "3.11.15",
+        "torch_version": "2.13.0",
+        "pso_version": "4.0.0",
+        "device_type": "mps",
+        "device_str": "mps",
+        "mps_available": true
+      },
+      "timing_scope": "fit_only_after_method_specific_warmup",
+      "warmup_epochs": 2,
+      "error": null,
+      "phase": "replication_independent",
+      "method": "adaptive_moment",
+      "candidate_label": "am_b0.06_s0.5",
+      "seed": 81,
+      "n_particles": 120,
+      "epochs": 80,
+      "particle_epochs": 9600,
+      "train_loss": 0.7000858783721924,
+      "train_acc": 0.781000018119812,
+      "train_mse": 0.03082381933927536,
+      "test_loss": 0.9081020355224609,
+      "test_acc": 0.7250000238418579,
+      "test_mse": 0.039418451488018036,
+      "fit_time_sec": 10.6923490408808,
+      "data_fingerprint": "dfe645918ece54c0",
+      "model_fingerprint": "b9e1b8cbb9345add",
+      "device": "mps",
+      "completed": true,
+      "plugins": {
+        "movement": {
+          "title": "Adaptive Path-Moment PSO",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "c0": 1.49618,
+            "c1": 1.49618,
+            "w_min": 0.7298,
+            "w_max": 0.7298,
+            "moment_blend": 0.06,
+            "moment_beta1": 0.9,
+            "moment_beta2": 0.999,
+            "moment_step_size": 0.5,
+            "moment_epsilon": 1e-08
+          }
+        },
+        "initialization": {
+          "title": "Model Weight + Uniform Noise Initialization",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {
+            "noise": 0.05
+          }
+        },
+        "evaluation": {
+          "title": "Fixed Subset Evaluation",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "fitness_size": 2000
+          }
+        },
+        "convergence": {
+          "title": "No Convergence Action",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        },
+        "refinement": {
+          "title": "No Refinement",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        }
+      },
+      "config": {
+        "method": "adaptive_moment",
+        "velocity_limit_ratio": 0.025,
+        "mutation_swarm": 0.02,
+        "negative_swarm": 0.0,
+        "particle_min": -3.0,
+        "particle_max": 3.0,
+        "boundary_strategy": "reflect",
+        "initialization": "model_noise",
+        "initial_position_noise": 0.05,
+        "evaluation": "fixed_subset",
+        "fitness_size": 2000,
+        "convergence": "none",
+        "refinement": "none",
+        "c0": 1.49618,
+        "c1": 1.49618,
+        "w_min": 0.7298,
+        "w_max": 0.7298,
+        "method_options": {
+          "moment_blend": 0.06,
+          "moment_step_size": 0.5,
+          "moment_beta1": 0.9
+        },
+        "n_particles": 120,
+        "epochs": 80,
+        "batch_size": 1000,
+        "renewal": "loss"
+      },
+      "regimen": "fixed_epoch"
+    },
+    {
+      "protocol_version": "1.0.0",
+      "pso_version": "4.0.0",
+      "torch_version": "2.13.0",
+      "hardware": {
+        "platform": "macOS-26.5.2-arm64-arm-64bit",
+        "system": "Darwin",
+        "machine": "arm64",
+        "processor": "arm",
+        "python_version": "3.11.15",
+        "torch_version": "2.13.0",
+        "pso_version": "4.0.0",
+        "device_type": "mps",
+        "device_str": "mps",
+        "mps_available": true
+      },
+      "timing_scope": "fit_only_after_method_specific_warmup",
+      "warmup_epochs": 2,
+      "error": null,
+      "phase": "replication_independent",
+      "method": "adaptive_moment",
+      "candidate_label": "am_b0.06_s0.5",
+      "seed": 82,
+      "n_particles": 120,
+      "epochs": 80,
+      "particle_epochs": 9600,
+      "train_loss": 0.6899945139884949,
+      "train_acc": 0.796999990940094,
+      "train_mse": 0.02961476519703865,
+      "test_loss": 0.9245963096618652,
+      "test_acc": 0.718999981880188,
+      "test_mse": 0.03965267166495323,
+      "fit_time_sec": 11.110405791085213,
+      "data_fingerprint": "dfe645918ece54c0",
+      "model_fingerprint": "f1a0025f5b3b5b7c",
+      "device": "mps",
+      "completed": true,
+      "plugins": {
+        "movement": {
+          "title": "Adaptive Path-Moment PSO",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "c0": 1.49618,
+            "c1": 1.49618,
+            "w_min": 0.7298,
+            "w_max": 0.7298,
+            "moment_blend": 0.06,
+            "moment_beta1": 0.9,
+            "moment_beta2": 0.999,
+            "moment_step_size": 0.5,
+            "moment_epsilon": 1e-08
+          }
+        },
+        "initialization": {
+          "title": "Model Weight + Uniform Noise Initialization",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {
+            "noise": 0.05
+          }
+        },
+        "evaluation": {
+          "title": "Fixed Subset Evaluation",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "fitness_size": 2000
+          }
+        },
+        "convergence": {
+          "title": "No Convergence Action",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        },
+        "refinement": {
+          "title": "No Refinement",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        }
+      },
+      "config": {
+        "method": "adaptive_moment",
+        "velocity_limit_ratio": 0.025,
+        "mutation_swarm": 0.02,
+        "negative_swarm": 0.0,
+        "particle_min": -3.0,
+        "particle_max": 3.0,
+        "boundary_strategy": "reflect",
+        "initialization": "model_noise",
+        "initial_position_noise": 0.05,
+        "evaluation": "fixed_subset",
+        "fitness_size": 2000,
+        "convergence": "none",
+        "refinement": "none",
+        "c0": 1.49618,
+        "c1": 1.49618,
+        "w_min": 0.7298,
+        "w_max": 0.7298,
+        "method_options": {
+          "moment_blend": 0.06,
+          "moment_step_size": 0.5,
+          "moment_beta1": 0.9
+        },
+        "n_particles": 120,
+        "epochs": 80,
+        "batch_size": 1000,
+        "renewal": "loss"
+      },
+      "regimen": "fixed_epoch"
+    },
+    {
+      "protocol_version": "1.0.0",
+      "pso_version": "4.0.0",
+      "torch_version": "2.13.0",
+      "hardware": {
+        "platform": "macOS-26.5.2-arm64-arm-64bit",
+        "system": "Darwin",
+        "machine": "arm64",
+        "processor": "arm",
+        "python_version": "3.11.15",
+        "torch_version": "2.13.0",
+        "pso_version": "4.0.0",
+        "device_type": "mps",
+        "device_str": "mps",
+        "mps_available": true
+      },
+      "timing_scope": "fit_only_after_method_specific_warmup",
+      "warmup_epochs": 2,
+      "error": null,
+      "phase": "replication_independent",
+      "method": "adaptive_moment",
+      "candidate_label": "am_b0.06_s0.5",
+      "seed": 83,
+      "n_particles": 120,
+      "epochs": 80,
+      "particle_epochs": 9600,
+      "train_loss": 0.6943607330322266,
+      "train_acc": 0.7929999828338623,
+      "train_mse": 0.029856808483600616,
+      "test_loss": 0.8056192398071289,
+      "test_acc": 0.7609999775886536,
+      "test_mse": 0.034950967878103256,
+      "fit_time_sec": 10.71645870897919,
+      "data_fingerprint": "dfe645918ece54c0",
+      "model_fingerprint": "9cb7fe904bf992ac",
+      "device": "mps",
+      "completed": true,
+      "plugins": {
+        "movement": {
+          "title": "Adaptive Path-Moment PSO",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "c0": 1.49618,
+            "c1": 1.49618,
+            "w_min": 0.7298,
+            "w_max": 0.7298,
+            "moment_blend": 0.06,
+            "moment_beta1": 0.9,
+            "moment_beta2": 0.999,
+            "moment_step_size": 0.5,
+            "moment_epsilon": 1e-08
+          }
+        },
+        "initialization": {
+          "title": "Model Weight + Uniform Noise Initialization",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {
+            "noise": 0.05
+          }
+        },
+        "evaluation": {
+          "title": "Fixed Subset Evaluation",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "fitness_size": 2000
+          }
+        },
+        "convergence": {
+          "title": "No Convergence Action",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        },
+        "refinement": {
+          "title": "No Refinement",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        }
+      },
+      "config": {
+        "method": "adaptive_moment",
+        "velocity_limit_ratio": 0.025,
+        "mutation_swarm": 0.02,
+        "negative_swarm": 0.0,
+        "particle_min": -3.0,
+        "particle_max": 3.0,
+        "boundary_strategy": "reflect",
+        "initialization": "model_noise",
+        "initial_position_noise": 0.05,
+        "evaluation": "fixed_subset",
+        "fitness_size": 2000,
+        "convergence": "none",
+        "refinement": "none",
+        "c0": 1.49618,
+        "c1": 1.49618,
+        "w_min": 0.7298,
+        "w_max": 0.7298,
+        "method_options": {
+          "moment_blend": 0.06,
+          "moment_step_size": 0.5,
+          "moment_beta1": 0.9
+        },
+        "n_particles": 120,
+        "epochs": 80,
+        "batch_size": 1000,
+        "renewal": "loss"
+      },
+      "regimen": "fixed_epoch"
+    },
+    {
+      "protocol_version": "1.0.0",
+      "pso_version": "4.0.0",
+      "torch_version": "2.13.0",
+      "hardware": {
+        "platform": "macOS-26.5.2-arm64-arm-64bit",
+        "system": "Darwin",
+        "machine": "arm64",
+        "processor": "arm",
+        "python_version": "3.11.15",
+        "torch_version": "2.13.0",
+        "pso_version": "4.0.0",
+        "device_type": "mps",
+        "device_str": "mps",
+        "mps_available": true
+      },
+      "timing_scope": "fit_only_after_method_specific_warmup",
+      "warmup_epochs": 2,
+      "error": null,
+      "phase": "replication_independent",
+      "method": "adaptive_moment",
+      "candidate_label": "am_b0.06_s0.5",
+      "seed": 84,
+      "n_particles": 120,
+      "epochs": 80,
+      "particle_epochs": 9600,
+      "train_loss": 0.7076351046562195,
+      "train_acc": 0.7885000109672546,
+      "train_mse": 0.03054513782262802,
+      "test_loss": 0.8160682320594788,
+      "test_acc": 0.7429999709129333,
+      "test_mse": 0.0366184301674366,
+      "fit_time_sec": 10.859140583081171,
+      "data_fingerprint": "dfe645918ece54c0",
+      "model_fingerprint": "b833ebd886fce382",
+      "device": "mps",
+      "completed": true,
+      "plugins": {
+        "movement": {
+          "title": "Adaptive Path-Moment PSO",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "c0": 1.49618,
+            "c1": 1.49618,
+            "w_min": 0.7298,
+            "w_max": 0.7298,
+            "moment_blend": 0.06,
+            "moment_beta1": 0.9,
+            "moment_beta2": 0.999,
+            "moment_step_size": 0.5,
+            "moment_epsilon": 1e-08
+          }
+        },
+        "initialization": {
+          "title": "Model Weight + Uniform Noise Initialization",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {
+            "noise": 0.05
+          }
+        },
+        "evaluation": {
+          "title": "Fixed Subset Evaluation",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "fitness_size": 2000
+          }
+        },
+        "convergence": {
+          "title": "No Convergence Action",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        },
+        "refinement": {
+          "title": "No Refinement",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        }
+      },
+      "config": {
+        "method": "adaptive_moment",
+        "velocity_limit_ratio": 0.025,
+        "mutation_swarm": 0.02,
+        "negative_swarm": 0.0,
+        "particle_min": -3.0,
+        "particle_max": 3.0,
+        "boundary_strategy": "reflect",
+        "initialization": "model_noise",
+        "initial_position_noise": 0.05,
+        "evaluation": "fixed_subset",
+        "fitness_size": 2000,
+        "convergence": "none",
+        "refinement": "none",
+        "c0": 1.49618,
+        "c1": 1.49618,
+        "w_min": 0.7298,
+        "w_max": 0.7298,
+        "method_options": {
+          "moment_blend": 0.06,
+          "moment_step_size": 0.5,
+          "moment_beta1": 0.9
+        },
+        "n_particles": 120,
+        "epochs": 80,
+        "batch_size": 1000,
+        "renewal": "loss"
+      },
+      "regimen": "fixed_epoch"
+    },
+    {
+      "protocol_version": "1.0.0",
+      "pso_version": "4.0.0",
+      "torch_version": "2.13.0",
+      "hardware": {
+        "platform": "macOS-26.5.2-arm64-arm-64bit",
+        "system": "Darwin",
+        "machine": "arm64",
+        "processor": "arm",
+        "python_version": "3.11.15",
+        "torch_version": "2.13.0",
+        "pso_version": "4.0.0",
+        "device_type": "mps",
+        "device_str": "mps",
+        "mps_available": true
+      },
+      "timing_scope": "fit_only_after_method_specific_warmup",
+      "warmup_epochs": 2,
+      "error": null,
+      "phase": "replication_independent",
+      "method": "adaptive_moment",
+      "candidate_label": "am_b0.06_s0.5",
+      "seed": 85,
+      "n_particles": 120,
+      "epochs": 80,
+      "particle_epochs": 9600,
+      "train_loss": 0.6802449822425842,
+      "train_acc": 0.7875000238418579,
+      "train_mse": 0.0307244174182415,
+      "test_loss": 0.8681835532188416,
+      "test_acc": 0.7319999933242798,
+      "test_mse": 0.038917701691389084,
+      "fit_time_sec": 10.97266870806925,
+      "data_fingerprint": "dfe645918ece54c0",
+      "model_fingerprint": "e6bdf9e5d849521b",
+      "device": "mps",
+      "completed": true,
+      "plugins": {
+        "movement": {
+          "title": "Adaptive Path-Moment PSO",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "c0": 1.49618,
+            "c1": 1.49618,
+            "w_min": 0.7298,
+            "w_max": 0.7298,
+            "moment_blend": 0.06,
+            "moment_beta1": 0.9,
+            "moment_beta2": 0.999,
+            "moment_step_size": 0.5,
+            "moment_epsilon": 1e-08
+          }
+        },
+        "initialization": {
+          "title": "Model Weight + Uniform Noise Initialization",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {
+            "noise": 0.05
+          }
+        },
+        "evaluation": {
+          "title": "Fixed Subset Evaluation",
+          "source": null,
+          "fidelity": "experimental",
+          "gradient_required": false,
+          "options": {
+            "fitness_size": 2000
+          }
+        },
+        "convergence": {
+          "title": "No Convergence Action",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        },
+        "refinement": {
+          "title": "No Refinement",
+          "source": null,
+          "fidelity": "canonical",
+          "gradient_required": false,
+          "options": {}
+        }
+      },
+      "config": {
+        "method": "adaptive_moment",
+        "velocity_limit_ratio": 0.025,
+        "mutation_swarm": 0.02,
+        "negative_swarm": 0.0,
+        "particle_min": -3.0,
+        "particle_max": 3.0,
+        "boundary_strategy": "reflect",
+        "initialization": "model_noise",
+        "initial_position_noise": 0.05,
+        "evaluation": "fixed_subset",
+        "fitness_size": 2000,
+        "convergence": "none",
+        "refinement": "none",
+        "c0": 1.49618,
+        "c1": 1.49618,
+        "w_min": 0.7298,
+        "w_max": 0.7298,
+        "method_options": {
+          "moment_blend": 0.06,
+          "moment_step_size": 0.5,
+          "moment_beta1": 0.9
+        },
+        "n_particles": 120,
+        "epochs": 80,
+        "batch_size": 1000,
+        "renewal": "loss"
+      },
+      "regimen": "fixed_epoch"
+    }
+  ],
+  "completed": true,
+  "error": null
+}

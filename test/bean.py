@@ -1,72 +1,138 @@
-import os
+"""Dry Bean dataset gradient baseline (PyTorch standard backprop optimizer, non-PSO)."""
 
-from keras.layers import Dense
-from keras.models import Sequential
-from keras.utils import to_categorical
+import copy
+import numpy as np
+import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader, TensorDataset
 from sklearn.model_selection import train_test_split
-from tensorflow import keras
+from sklearn.preprocessing import LabelEncoder
 from ucimlrepo import fetch_ucirepo
 
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
-os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true"
+
+class BeanModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(16, 12),
+            nn.ReLU(),
+            nn.Linear(12, 8),
+            nn.ReLU(),
+            nn.Linear(8, 7),
+        )
+
+    def forward(self, x):
+        return self.net(x)
 
 
-def make_model():
-    model = Sequential()
-    model.add(Dense(12, input_dim=16, activation="relu"))
-    model.add(Dense(8, activation="relu"))
-    model.add(Dense(7, activation="softmax"))
-
-    return model
-
-
-def get_data():
-    # fetch dataset
+def get_data(seed: int = 42):
     dry_bean_dataset = fetch_ucirepo(id=602)
-
-    # data (as pandas dataframes)
     X = dry_bean_dataset.data.features
     y = dry_bean_dataset.data.targets
 
-    x = X.to_numpy()
-    # object to categorical
-
-    x = x.astype("float32")
-
-    y_class = to_categorical(y)
-
-    # metadata
-    # print(dry_bean_dataset.metadata)
-
-    # variable information
-    # print(dry_bean_dataset.variables)
-
-    # print(X.head())
-    # print(y.head())
-    # y_class = to_categorical(y)
+    x = X.to_numpy().astype("float32")
+    encoder = LabelEncoder()
+    y_encoded = encoder.fit_transform(y.values.ravel()).astype("int64")
 
     x_train, x_test, y_train, y_test = train_test_split(
-        x, y_class, test_size=0.2, random_state=42, shuffle=True
+        x, y_encoded, test_size=0.2, random_state=seed, shuffle=True
     )
-    return x_train, x_test, y_train, y_test
+    return (
+        torch.tensor(x_train, dtype=torch.float32),
+        torch.tensor(x_test, dtype=torch.float32),
+        torch.tensor(y_train, dtype=torch.int64),
+        torch.tensor(y_test, dtype=torch.int64),
+    )
 
 
-x_train, x_test, y_train, y_test = get_data()
-model = make_model()
-early_stopping = keras.callbacks.EarlyStopping(
-    patience=10, min_delta=0.001, restore_best_weights=True
-)
+def get_device() -> torch.device:
+    if (
+        hasattr(torch.backends, "mps")
+        and torch.backends.mps.is_built()
+        and torch.backends.mps.is_available()
+    ):
+        return torch.device("mps")
+    elif torch.cuda.is_available():
+        return torch.device("cuda")
+    return torch.device("cpu")
 
 
-model.compile(
-    loss="sparse_categorical_crossentropy",
-    optimizer="adam",
-    metrics=["accuracy", "mse"],
-)
+def main():
+    torch.manual_seed(42)
+    np.random.seed(42)
 
-model.summary()
+    device = get_device()
+    print(f"Selected device: {device}")
 
-history = model.fit(
-    x_train, y_train, epochs=150, batch_size=10, callbacks=[early_stopping]
-)
-score = model.evaluate(x_test, y_test, verbose=2)
+    x_train, x_test, y_train, y_test = get_data(seed=42)
+    train_dataset = TensorDataset(x_train, y_train)
+    val_dataset = TensorDataset(x_test, y_test)
+    train_loader = DataLoader(train_dataset, batch_size=10, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=10, shuffle=False)
+
+    model = BeanModel().to(device)
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+    criterion = nn.CrossEntropyLoss()
+
+    best_val_loss = float("inf")
+    best_state = None
+    patience = 10
+    min_delta = 0.001
+    patience_counter = 0
+
+    for epoch in range(150):
+        model.train()
+        for bx, by in train_loader:
+            bx, by = bx.to(device), by.to(device)
+            optimizer.zero_grad()
+            out = model(bx)
+            loss = criterion(out, by)
+            loss.backward()
+            optimizer.step()
+
+        model.eval()
+        val_loss = 0.0
+        total = 0
+        with torch.no_grad():
+            for bx, by in val_loader:
+                bx, by = bx.to(device), by.to(device)
+                out = model(bx)
+                loss = criterion(out, by)
+                val_loss += loss.item() * bx.size(0)
+                total += bx.size(0)
+
+        val_loss /= total
+
+        if val_loss < best_val_loss - min_delta:
+            best_val_loss = val_loss
+            best_state = copy.deepcopy(model.state_dict())
+            patience_counter = 0
+        else:
+            patience_counter += 1
+            if patience_counter >= patience:
+                break
+
+    if best_state is not None:
+        model.load_state_dict(best_state)
+
+    model.eval()
+    test_loss = 0.0
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for bx, by in val_loader:
+            bx, by = bx.to(device), by.to(device)
+            out = model(bx)
+            loss = criterion(out, by)
+            test_loss += loss.item() * bx.size(0)
+            preds = out.argmax(dim=1)
+            correct += (preds == by).sum().item()
+            total += bx.size(0)
+
+    test_loss /= total
+    test_acc = correct / total
+    print(f"Final test loss: {test_loss:.4f}, accuracy: {test_acc:.4f}")
+
+
+if __name__ == "__main__":
+    main()

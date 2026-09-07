@@ -1,0 +1,70 @@
+def test_binary_1d_target_normalization_no_broadcasting(model_factory):
+    """Verify binary [N, 1] logits model with 1-D [N] targets normalizes target shape and fits without broadcasting."""
+    torch.manual_seed(42)
+    x = torch.randn(6, 2, dtype=torch.float32)
+    y_1d = torch.tensor([0.0, 1.0, 1.0, 0.0, 1.0, 0.0], dtype=torch.float32)  # Shape [6]
+
+    model = model_factory(input_dim=2, units=4, output_dim=1)  # Output shape [6, 1]
+    loss = nn.BCEWithLogitsLoss()
+
+    opt = Optimizer(model, loss, task="binary", n_particles=3, seed=42)
+    score = opt.fit(x, y_1d, epochs=2)
+
+    assert isinstance(score, tuple)
+    assert len(score) == 3
+    assert all(math.isfinite(s) for s in score)
+
+
+def test_regression_1d_target_normalization_and_mse(model_factory):
+    """Verify regression [N, 1] model output with 1-D [N] targets normalizes shape, loss ≈ MSE, and no broadcasting."""
+    torch.manual_seed(42)
+    x = torch.randn(8, 2, dtype=torch.float32)
+    y_1d = torch.randn(8, dtype=torch.float32)  # Shape [8]
+
+    model = model_factory(input_dim=2, units=4, output_dim=1)  # Output shape [8, 1]
+    loss = nn.MSELoss()
+
+    opt = Optimizer(model, loss, task="regression", n_particles=3, seed=42)
+    score = opt.fit(x, y_1d, epochs=2)
+
+    assert isinstance(score, tuple)
+    assert len(score) == 3
+    assert all(math.isfinite(s) for s in score)
+    assert math.isclose(score[0], score[2], rel_tol=1e-5, abs_tol=1e-5)
+
+
+def test_binary_regression_incompatible_target_counts_fail_fast(model_factory):
+    """Verify binary and regression fail with contextual ValueError when target element count mismatches output."""
+    x = torch.randn(4, 2, dtype=torch.float32)
+    # Shape [4, 2] has leading dimension 4 (matches x), but 8 elements (mismatches model output [4, 1] 4 elements)
+    y_bad = torch.randn(4, 2, dtype=torch.float32)
+
+    model = model_factory(input_dim=2, units=4, output_dim=1)  # Output shape [4, 1] -> 4 elements
+
+    opt_bin = Optimizer(model, nn.BCEWithLogitsLoss(), task="binary", n_particles=2)
+    with pytest.raises(ValueError, match="(?i)target element count"):
+        opt_bin.fit(x, y_bad)
+
+    opt_reg = Optimizer(model, nn.MSELoss(), task="regression", n_particles=2)
+    with pytest.raises(ValueError, match="(?i)target element count"):
+        opt_reg.fit(x, y_bad)
+
+
+def test_multiclass_target_shapes_and_incompatible_fail_fast(model_factory):
+    """Verify multiclass fits with [N, 1] integer targets reshaped to [N], and incompatible target shapes fail."""
+    x = torch.randn(6, 4, dtype=torch.float32)
+    # [N, 1] integer class targets
+    y_col = torch.tensor([[0], [1], [2], [0], [1], [2]], dtype=torch.int64)
+
+    model = model_factory(input_dim=4, units=8, output_dim=3)  # Output shape [6, 3]
+    loss = nn.CrossEntropyLoss()
+
+    opt = Optimizer(model, loss, task="multiclass", n_particles=3, seed=42)
+    score = opt.fit(x, y_col, epochs=2)
+    assert isinstance(score, tuple)
+    assert all(math.isfinite(s) for s in score)
+
+    # Incompatible target shape (e.g. 5 columns for 3 classes)
+    y_bad = torch.randn(6, 5, dtype=torch.float32)
+    with pytest.raises(ValueError, match="(?i)target shape"):
+        opt.fit(x, y_bad)

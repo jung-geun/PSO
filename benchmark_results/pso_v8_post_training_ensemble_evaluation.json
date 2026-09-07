@@ -1,0 +1,53 @@
+{
+  "evaluator_version": "POST-TRAINING-PSO-ENSEMBLE-EVALUATOR 1.2.0",
+  "pass": true,
+  "score": 22.55299842776338,
+  "development_pass": true,
+  "confirmation_pass": true,
+  "failed_hard_gate_count": 0,
+  "issues": {
+    "schema": [],
+    "config": [],
+    "finite": [],
+    "weights": [],
+    "accounting": [],
+    "leakage": [],
+    "tuning": [],
+    "slsqp": [],
+    "consistency": [],
+    "gates": []
+  },
+  "development_gates": {
+    "all_values_finite": true,
+    "simplex_tolerance": true,
+    "validation_pool_forward_passes_each_dataset": true,
+    "optimization_base_model_forward_passes": true,
+    "official_test_data_loaded_before_freeze": true,
+    "official_test_evaluations_before_freeze": true,
+    "query_and_sample_accounting_exact": true,
+    "maximum_pso_nll_regression_vs_uniform": true,
+    "maximum_pso_accuracy_regression_vs_uniform_pp": true,
+    "pso_nll_below_reference_single": true,
+    "maximum_pso_nll_regression_vs_equal_budget_single": true,
+    "maximum_relative_pso_nll_gap_vs_slsqp": true,
+    "cross_dataset_mean_relative_pso_nll_reduction_vs_uniform_minimum": true,
+    "maximum_median_one_seed_pso_to_pool_training_wall_ratio": true
+  },
+  "confirmation_gates": {
+    "all_values_finite": true,
+    "official_test_dataset_loads_each_dataset": true,
+    "official_test_pool_forward_passes_each_dataset": true,
+    "official_test_long_single_forward_passes_each_dataset": true,
+    "frozen_policy_consistency": true,
+    "maximum_pso_accuracy_regression_vs_uniform_pp": true,
+    "pso_nll_below_reference_single": true,
+    "maximum_pso_nll_regression_vs_equal_budget_single": true,
+    "post_test_tuning_or_reruns": true
+  },
+  "metrics": {
+    "mean_val_relative_nll_reduction_vs_equal_budget_single": 0.197261519715641,
+    "mean_val_accuracy_gain_vs_equal_budget_single_pp": 0.09500000000000597,
+    "mean_test_relative_nll_reduction_vs_equal_budget_single": 0.2263299842776338,
+    "mean_test_accuracy_gain_vs_equal_budget_single_pp": -0.0799999999999983
+  }
+}

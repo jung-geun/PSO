@@ -1,0 +1,19 @@
+lane,profile_or_arch,seed,model_name,param_count,initial_test_acc,final_test_acc,final_test_loss,subset_fitness_acc,subset_fitness_loss,pso_epochs,adam_epochs,elapsed_sec,model_fingerprint,data_fingerprint
+architecture,raw_linear,101,Raw Linear (784->10),7850,0.1449,0.9239,0.269691,,,0,10,2.6001,12cef21a80b85b0b,8dd702555745641a
+architecture,raw_linear,102,Raw Linear (784->10),7850,0.1308,0.924,0.270518,,,0,10,2.6265,0f099d5ae79e7863,8dd702555745641a
+architecture,raw_linear,103,Raw Linear (784->10),7850,0.0559,0.9257,0.266626,,,0,10,2.8535,23a4a6362abdad3d,8dd702555745641a
+architecture,raw_mlp,101,Raw MLP (784->128->64->10),109386,0.0812,0.9773,0.076661,,,0,10,8.8041,9ac96d5f45d71cb3,8dd702555745641a
+architecture,raw_mlp,102,Raw MLP (784->128->64->10),109386,0.0522,0.976,0.081621,,,0,10,5.7141,55966246db4dfff1,8dd702555745641a
+architecture,raw_mlp,103,Raw MLP (784->128->64->10),109386,0.1111,0.9776,0.076823,,,0,10,4.5491,723217e2418edcfd,8dd702555745641a
+architecture,compact_cnn,101,"Compact CNN (9,098 params)",9098,0.0851,0.9866,0.039444,,,0,10,6.228,db41fb515dcb49fa,8dd702555745641a
+architecture,compact_cnn,102,"Compact CNN (9,098 params)",9098,0.0963,0.9858,0.042864,,,0,10,5.396,efd743cad60c7530,8dd702555745641a
+architecture,compact_cnn,103,"Compact CNN (9,098 params)",9098,0.1072,0.9836,0.04912,,,0,10,5.4935,17891ec08e79ee74,8dd702555745641a
+optimizer,adam_only,101,Compact CNN (Adam-Only),9098,0.0851,0.9866,0.039444,,,0,10,6.228,db41fb515dcb49fa,8dd702555745641a
+optimizer,adam_only,102,Compact CNN (Adam-Only),9098,0.0963,0.9858,0.042864,,,0,10,5.396,efd743cad60c7530,8dd702555745641a
+optimizer,adam_only,103,Compact CNN (Adam-Only),9098,0.1072,0.9836,0.04912,,,0,10,5.4935,17891ec08e79ee74,8dd702555745641a
+optimizer,pso_only,101,Compact CNN (PSO-Only),9098,0.0851,0.3901,22.182518,0.399,21.674469,40,0,2.5761,db41fb515dcb49fa,8dd702555745641a
+optimizer,pso_only,102,Compact CNN (PSO-Only),9098,0.0963,0.3886,6.031698,0.3925,5.977414,40,0,2.331,efd743cad60c7530,8dd702555745641a
+optimizer,pso_only,103,Compact CNN (PSO-Only),9098,0.1072,0.3242,14.099036,0.3405,14.065619,40,0,2.7469,17891ec08e79ee74,8dd702555745641a
+optimizer,hybrid,101,Compact CNN (Hybrid),9098,0.0851,0.9658,0.109308,0.399,21.674469,40,10,7.4414,db41fb515dcb49fa,8dd702555745641a
+optimizer,hybrid,102,Compact CNN (Hybrid),9098,0.0963,0.9807,0.061528,0.3925,5.977414,40,10,7.226,efd743cad60c7530,8dd702555745641a
+optimizer,hybrid,103,Compact CNN (Hybrid),9098,0.1072,0.9725,0.088789,0.3405,14.065619,40,10,7.7426,17891ec08e79ee74,8dd702555745641a

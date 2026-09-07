@@ -1,0 +1,1008 @@
+{
+  "protocol_version": "HEAVY-PSO-AUTORESEARCH-SUMMARY 1.0.0",
+  "timestamp": "2026-09-02T16:58:44.813352Z",
+  "mission": "Improve robust validation-quality/resource-efficiency Pareto frontier across four heavy PSO workloads",
+  "baseline_artifact": "benchmark_results/pso_v6_heavy_tasks.json",
+  "official_test_data_loaded": false,
+  "official_test_evaluations": 0,
+  "fixed_budget": {
+    "particles": 12,
+    "epochs": 80,
+    "fitness_subset_size": 10000,
+    "queries_per_run": 960,
+    "sample_evaluations_per_run": 9600000
+  },
+  "retained_development_policy": {
+    "candidate_id": "fixed_global_hybrid_v3",
+    "artifact": ".omc/autoresearch/heavy-pso-progressive-improvement/runs/20260902T153426Z/candidates/iteration-0008-development.json",
+    "evaluation_artifact": ".omc/autoresearch/heavy-pso-progressive-improvement/runs/20260902T153426Z/evaluations/iteration-0008-development.json",
+    "pass": true,
+    "score": 15.030088553498544,
+    "gate_details": {
+      "gate_finite": true,
+      "gate_test_sealed": true,
+      "gate_config_matched": true,
+      "gate_state_ratio": true,
+      "gate_acc_regression": true,
+      "gate_nll_regression": true,
+      "gate_baseline_worst_improvement": true
+    },
+    "summary_metrics": {
+      "mean_rel_nll_reduction_pct": 2.4967550534985445,
+      "mean_acc_gain_pp": 2.5333334999999995,
+      "max_state_ratio": 0.5,
+      "state_efficiency_bonus": 10.0
+    }
+  },
+  "independent_confirmation": {
+    "candidate_id": "fixed_global_hybrid_v3_confirmation",
+    "seeds": [
+      111,
+      112,
+      113
+    ],
+    "artifact": ".omc/autoresearch/heavy-pso-progressive-improvement/runs/20260902T153426Z/candidates/iteration-0008.json",
+    "evaluation_artifact": ".omc/autoresearch/heavy-pso-progressive-improvement/runs/20260902T153426Z/evaluations/iteration-0008.json",
+    "pass": false,
+    "score": -84.8703515707342,
+    "failed_gates": [
+      "gate_baseline_worst_improvement"
+    ],
+    "gate_details": {
+      "gate_finite": true,
+      "gate_test_sealed": true,
+      "gate_config_matched_for_confirmation_seeds": true,
+      "gate_state_ratio": true,
+      "gate_acc_regression": true,
+      "gate_nll_regression": true,
+      "gate_baseline_worst_improvement": false
+    },
+    "summary_metrics": {
+      "mean_rel_nll_reduction_pct": 2.4954814292658,
+      "mean_acc_gain_pp": 2.634166999999998,
+      "max_state_ratio": 0.5,
+      "state_efficiency_bonus": 10.0
+    },
+    "interpretation": "All gates except MNIST Wide >=2pp or >=5% NLL improvement passed; MNIST Wide accuracy gain was 1.863333pp."
+  },
+  "workloads": {
+    "mnist_compact": {
+      "configuration": {
+        "ratio": 0.5,
+        "projection_mode": "fixed",
+        "projection_seed": 1800044939
+      },
+      "baseline": {
+        "acc": 49.153333,
+        "nll": 1.518089
+      },
+      "development_seeds_101_103": {
+        "accuracy_mean": 49.053333,
+        "accuracy_sd": 0.417652,
+        "nll_mean": 1.525704,
+        "nll_sd": 0.01494,
+        "state_ratio": 0.4918032786885246,
+        "per_seed_runs": [
+          {
+            "seed": 101,
+            "projection_seed": 1800044939,
+            "projection_salt": "",
+            "projection_scope": "global",
+            "projection_seed_mode": "fixed",
+            "val_selected_loss": 1.508496,
+            "val_selected_acc": 49.37,
+            "val_metrics": {
+              "accuracy": 49.37,
+              "nll": 1.508496,
+              "brier": 0.661818,
+              "ece": 0.059748,
+              "margin": 0.242134
+            },
+            "gbest_loss": 1.500976,
+            "gbest_acc": 49.96,
+            "wall_time_sec": 4.1926,
+            "optimization_wall_time_sec": 4.0964,
+            "validation_wall_time_sec": 0.0962,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 1091760,
+            "throughput_samples_per_sec": 2343521.14,
+            "is_finite": true
+          },
+          {
+            "seed": 102,
+            "projection_seed": 1800044939,
+            "projection_salt": "",
+            "projection_scope": "global",
+            "projection_seed_mode": "fixed",
+            "val_selected_loss": 1.535355,
+            "val_selected_acc": 48.58,
+            "val_metrics": {
+              "accuracy": 48.58,
+              "nll": 1.535355,
+              "brier": 0.67486,
+              "ece": 0.040094,
+              "margin": 0.256588
+            },
+            "gbest_loss": 1.538532,
+            "gbest_acc": 49.1,
+            "wall_time_sec": 4.0102,
+            "optimization_wall_time_sec": 3.9255,
+            "validation_wall_time_sec": 0.0847,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 1091760,
+            "throughput_samples_per_sec": 2445548.34,
+            "is_finite": true
+          },
+          {
+            "seed": 103,
+            "projection_seed": 1800044939,
+            "projection_salt": "",
+            "projection_scope": "global",
+            "projection_seed_mode": "fixed",
+            "val_selected_loss": 1.533262,
+            "val_selected_acc": 49.21,
+            "val_metrics": {
+              "accuracy": 49.21,
+              "nll": 1.533262,
+              "brier": 0.677455,
+              "ece": 0.106045,
+              "margin": 0.189773
+            },
+            "gbest_loss": 1.533525,
+            "gbest_acc": 49.09,
+            "wall_time_sec": 4.122,
+            "optimization_wall_time_sec": 4.0346,
+            "validation_wall_time_sec": 0.0874,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 1091760,
+            "throughput_samples_per_sec": 2379418.03,
+            "is_finite": true
+          }
+        ]
+      },
+      "confirmation_seeds_111_113": {
+        "accuracy_mean": 48.466667,
+        "accuracy_sd": 2.515002,
+        "nll_mean": 1.550212,
+        "nll_sd": 0.046101,
+        "state_ratio": 0.4918032786885246,
+        "per_seed_runs": [
+          {
+            "seed": 111,
+            "projection_seed": 1800044939,
+            "projection_salt": "",
+            "projection_scope": "global",
+            "projection_seed_mode": "fixed",
+            "val_selected_loss": 1.49861,
+            "val_selected_acc": 50.98,
+            "val_metrics": {
+              "accuracy": 50.98,
+              "nll": 1.49861,
+              "brier": 0.6511,
+              "ece": 0.10158,
+              "margin": 0.22606
+            },
+            "gbest_loss": 1.49346,
+            "gbest_acc": 51.43,
+            "wall_time_sec": 4.1571,
+            "optimization_wall_time_sec": 4.067,
+            "validation_wall_time_sec": 0.0901,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 1091760,
+            "throughput_samples_per_sec": 2360462.26,
+            "is_finite": true
+          },
+          {
+            "seed": 112,
+            "projection_seed": 1800044939,
+            "projection_salt": "",
+            "projection_scope": "global",
+            "projection_seed_mode": "fixed",
+            "val_selected_loss": 1.587337,
+            "val_selected_acc": 45.95,
+            "val_metrics": {
+              "accuracy": 45.95,
+              "nll": 1.587337,
+              "brier": 0.708292,
+              "ece": 0.078185,
+              "margin": 0.188558
+            },
+            "gbest_loss": 1.604532,
+            "gbest_acc": 45.63,
+            "wall_time_sec": 4.0905,
+            "optimization_wall_time_sec": 4.004,
+            "validation_wall_time_sec": 0.0865,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 1091760,
+            "throughput_samples_per_sec": 2397602.4,
+            "is_finite": true
+          },
+          {
+            "seed": 113,
+            "projection_seed": 1800044939,
+            "projection_salt": "",
+            "projection_scope": "global",
+            "projection_seed_mode": "fixed",
+            "val_selected_loss": 1.564689,
+            "val_selected_acc": 48.47,
+            "val_metrics": {
+              "accuracy": 48.47,
+              "nll": 1.564689,
+              "brier": 0.686774,
+              "ece": 0.080412,
+              "margin": 0.215579
+            },
+            "gbest_loss": 1.559706,
+            "gbest_acc": 48.72,
+            "wall_time_sec": 4.0765,
+            "optimization_wall_time_sec": 3.9899,
+            "validation_wall_time_sec": 0.0866,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 1091760,
+            "throughput_samples_per_sec": 2406075.34,
+            "is_finite": true
+          }
+        ]
+      },
+      "pooled_six_seed_descriptive": {
+        "accuracy_mean": 48.76,
+        "accuracy_sd": 1.644117,
+        "nll_mean": 1.537958,
+        "nll_sd": 0.03346,
+        "accuracy_gain_vs_baseline_pp": -0.393333,
+        "relative_nll_reduction_vs_baseline_pct": -1.308828
+      }
+    },
+    "mnist_wide": {
+      "configuration": {
+        "ratio": 0.5,
+        "projection_mode": "explicit",
+        "projection_seed": 592157828
+      },
+      "baseline": {
+        "acc": 43.86,
+        "nll": 1.721259
+      },
+      "development_seeds_101_103": {
+        "accuracy_mean": 48.346667,
+        "accuracy_sd": 3.214052,
+        "nll_mean": 1.677712,
+        "nll_sd": 0.072138,
+        "state_ratio": 0.5,
+        "per_seed_runs": [
+          {
+            "seed": 101,
+            "projection_seed": 592157828,
+            "projection_salt": "",
+            "projection_scope": "global",
+            "projection_seed_mode": "explicit",
+            "val_selected_loss": 1.623417,
+            "val_selected_acc": 48.0,
+            "val_metrics": {
+              "accuracy": 48.0,
+              "nll": 1.623417,
+              "brier": 0.708517,
+              "ece": 0.166082,
+              "margin": 0.12829
+            },
+            "gbest_loss": 1.626397,
+            "gbest_acc": 47.44,
+            "wall_time_sec": 9.0689,
+            "optimization_wall_time_sec": 8.8759,
+            "validation_wall_time_sec": 0.193,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 6640560,
+            "throughput_samples_per_sec": 1081580.46,
+            "is_finite": true
+          },
+          {
+            "seed": 102,
+            "projection_seed": 592157828,
+            "projection_salt": "",
+            "projection_scope": "global",
+            "projection_seed_mode": "explicit",
+            "val_selected_loss": 1.650152,
+            "val_selected_acc": 51.72,
+            "val_metrics": {
+              "accuracy": 51.72,
+              "nll": 1.650152,
+              "brier": 0.684201,
+              "ece": 0.187814,
+              "margin": 0.162795
+            },
+            "gbest_loss": 1.651721,
+            "gbest_acc": 51.51,
+            "wall_time_sec": 8.9599,
+            "optimization_wall_time_sec": 8.7709,
+            "validation_wall_time_sec": 0.189,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 6640560,
+            "throughput_samples_per_sec": 1094528.5,
+            "is_finite": true
+          },
+          {
+            "seed": 103,
+            "projection_seed": 592157828,
+            "projection_salt": "",
+            "projection_scope": "global",
+            "projection_seed_mode": "explicit",
+            "val_selected_loss": 1.759568,
+            "val_selected_acc": 45.32,
+            "val_metrics": {
+              "accuracy": 45.32,
+              "nll": 1.759568,
+              "brier": 0.746379,
+              "ece": 0.172542,
+              "margin": 0.114347
+            },
+            "gbest_loss": 1.765249,
+            "gbest_acc": 45.42,
+            "wall_time_sec": 9.0561,
+            "optimization_wall_time_sec": 8.8638,
+            "validation_wall_time_sec": 0.1922,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 6640560,
+            "throughput_samples_per_sec": 1083056.93,
+            "is_finite": true
+          }
+        ]
+      },
+      "confirmation_seeds_111_113": {
+        "accuracy_mean": 45.723333,
+        "accuracy_sd": 1.05633,
+        "nll_mean": 1.734905,
+        "nll_sd": 0.034461,
+        "state_ratio": 0.5,
+        "per_seed_runs": [
+          {
+            "seed": 111,
+            "projection_seed": 592157828,
+            "projection_salt": "",
+            "projection_scope": "global",
+            "projection_seed_mode": "explicit",
+            "val_selected_loss": 1.774538,
+            "val_selected_acc": 45.04,
+            "val_metrics": {
+              "accuracy": 45.04,
+              "nll": 1.774538,
+              "brier": 0.750548,
+              "ece": 0.180957,
+              "margin": 0.105995
+            },
+            "gbest_loss": 1.776591,
+            "gbest_acc": 45.8,
+            "wall_time_sec": 9.1173,
+            "optimization_wall_time_sec": 8.9223,
+            "validation_wall_time_sec": 0.195,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 6640560,
+            "throughput_samples_per_sec": 1075955.75,
+            "is_finite": true
+          },
+          {
+            "seed": 112,
+            "projection_seed": 592157828,
+            "projection_salt": "",
+            "projection_scope": "global",
+            "projection_seed_mode": "explicit",
+            "val_selected_loss": 1.718164,
+            "val_selected_acc": 45.19,
+            "val_metrics": {
+              "accuracy": 45.19,
+              "nll": 1.718164,
+              "brier": 0.744937,
+              "ece": 0.160644,
+              "margin": 0.130123
+            },
+            "gbest_loss": 1.720852,
+            "gbest_acc": 45.65,
+            "wall_time_sec": 9.0242,
+            "optimization_wall_time_sec": 8.831,
+            "validation_wall_time_sec": 0.1932,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 6640560,
+            "throughput_samples_per_sec": 1087079.61,
+            "is_finite": true
+          },
+          {
+            "seed": 113,
+            "projection_seed": 592157828,
+            "projection_salt": "",
+            "projection_scope": "global",
+            "projection_seed_mode": "explicit",
+            "val_selected_loss": 1.712013,
+            "val_selected_acc": 46.94,
+            "val_metrics": {
+              "accuracy": 46.94,
+              "nll": 1.712013,
+              "brier": 0.726372,
+              "ece": 0.173083,
+              "margin": 0.130682
+            },
+            "gbest_loss": 1.722324,
+            "gbest_acc": 46.54,
+            "wall_time_sec": 9.0238,
+            "optimization_wall_time_sec": 8.8321,
+            "validation_wall_time_sec": 0.1917,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 6640560,
+            "throughput_samples_per_sec": 1086944.21,
+            "is_finite": true
+          }
+        ]
+      },
+      "pooled_six_seed_descriptive": {
+        "accuracy_mean": 47.035,
+        "accuracy_sd": 2.577392,
+        "nll_mean": 1.706309,
+        "nll_sd": 0.05948,
+        "accuracy_gain_vs_baseline_pp": 3.175,
+        "relative_nll_reduction_vs_baseline_pct": 0.86857
+      }
+    },
+    "fashion_compact": {
+      "configuration": {
+        "ratio": 0.5,
+        "projection_mode": "fixed",
+        "projection_seed": 1363313651
+      },
+      "baseline": {
+        "acc": 47.003333,
+        "nll": 1.511217
+      },
+      "development_seeds_101_103": {
+        "accuracy_mean": 50.796667,
+        "accuracy_sd": 3.095228,
+        "nll_mean": 1.385324,
+        "nll_sd": 0.035646,
+        "state_ratio": 0.4918032786885246,
+        "per_seed_runs": [
+          {
+            "seed": 101,
+            "projection_seed": 1363313651,
+            "projection_salt": "",
+            "projection_scope": "global",
+            "projection_seed_mode": "fixed",
+            "val_selected_loss": 1.354168,
+            "val_selected_acc": 53.87,
+            "val_metrics": {
+              "accuracy": 53.87,
+              "nll": 1.354168,
+              "brier": 0.602951,
+              "ece": 0.038927,
+              "margin": 0.311583
+            },
+            "gbest_loss": 1.343266,
+            "gbest_acc": 54.57,
+            "wall_time_sec": 4.8428,
+            "optimization_wall_time_sec": 4.7407,
+            "validation_wall_time_sec": 0.1021,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 1091760,
+            "throughput_samples_per_sec": 2025017.4,
+            "is_finite": true
+          },
+          {
+            "seed": 102,
+            "projection_seed": 1363313651,
+            "projection_salt": "",
+            "projection_scope": "global",
+            "projection_seed_mode": "fixed",
+            "val_selected_loss": 1.377608,
+            "val_selected_acc": 50.84,
+            "val_metrics": {
+              "accuracy": 50.84,
+              "nll": 1.377608,
+              "brier": 0.627903,
+              "ece": 0.032173,
+              "margin": 0.277591
+            },
+            "gbest_loss": 1.374537,
+            "gbest_acc": 51.05,
+            "wall_time_sec": 5.7967,
+            "optimization_wall_time_sec": 5.6875,
+            "validation_wall_time_sec": 0.1092,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 1091760,
+            "throughput_samples_per_sec": 1687912.09,
+            "is_finite": true
+          },
+          {
+            "seed": 103,
+            "projection_seed": 1363313651,
+            "projection_salt": "",
+            "projection_scope": "global",
+            "projection_seed_mode": "fixed",
+            "val_selected_loss": 1.424197,
+            "val_selected_acc": 47.68,
+            "val_metrics": {
+              "accuracy": 47.68,
+              "nll": 1.424197,
+              "brier": 0.658571,
+              "ece": 0.021549,
+              "margin": 0.268061
+            },
+            "gbest_loss": 1.426838,
+            "gbest_acc": 47.3,
+            "wall_time_sec": 4.7604,
+            "optimization_wall_time_sec": 4.6591,
+            "validation_wall_time_sec": 0.1013,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 1091760,
+            "throughput_samples_per_sec": 2060483.78,
+            "is_finite": true
+          }
+        ]
+      },
+      "confirmation_seeds_111_113": {
+        "accuracy_mean": 53.196667,
+        "accuracy_sd": 2.025669,
+        "nll_mean": 1.328168,
+        "nll_sd": 0.078488,
+        "state_ratio": 0.4918032786885246,
+        "per_seed_runs": [
+          {
+            "seed": 111,
+            "projection_seed": 1363313651,
+            "projection_salt": "",
+            "projection_scope": "global",
+            "projection_seed_mode": "fixed",
+            "val_selected_loss": 1.280875,
+            "val_selected_acc": 53.83,
+            "val_metrics": {
+              "accuracy": 53.83,
+              "nll": 1.280875,
+              "brier": 0.599374,
+              "ece": 0.040911,
+              "margin": 0.289031
+            },
+            "gbest_loss": 1.29506,
+            "gbest_acc": 52.88,
+            "wall_time_sec": 4.5221,
+            "optimization_wall_time_sec": 4.4262,
+            "validation_wall_time_sec": 0.0959,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 1091760,
+            "throughput_samples_per_sec": 2168903.35,
+            "is_finite": true
+          },
+          {
+            "seed": 112,
+            "projection_seed": 1363313651,
+            "projection_salt": "",
+            "projection_scope": "global",
+            "projection_seed_mode": "fixed",
+            "val_selected_loss": 1.284859,
+            "val_selected_acc": 54.83,
+            "val_metrics": {
+              "accuracy": 54.83,
+              "nll": 1.284859,
+              "brier": 0.588788,
+              "ece": 0.011783,
+              "margin": 0.363813
+            },
+            "gbest_loss": 1.281715,
+            "gbest_acc": 54.62,
+            "wall_time_sec": 4.5253,
+            "optimization_wall_time_sec": 4.4291,
+            "validation_wall_time_sec": 0.0962,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 1091760,
+            "throughput_samples_per_sec": 2167483.24,
+            "is_finite": true
+          },
+          {
+            "seed": 113,
+            "projection_seed": 1363313651,
+            "projection_salt": "",
+            "projection_scope": "global",
+            "projection_seed_mode": "fixed",
+            "val_selected_loss": 1.418769,
+            "val_selected_acc": 50.93,
+            "val_metrics": {
+              "accuracy": 50.93,
+              "nll": 1.418769,
+              "brier": 0.637337,
+              "ece": 0.047296,
+              "margin": 0.262931
+            },
+            "gbest_loss": 1.394867,
+            "gbest_acc": 51.93,
+            "wall_time_sec": 4.5414,
+            "optimization_wall_time_sec": 4.4438,
+            "validation_wall_time_sec": 0.0976,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 1091760,
+            "throughput_samples_per_sec": 2160313.25,
+            "is_finite": true
+          }
+        ]
+      },
+      "pooled_six_seed_descriptive": {
+        "accuracy_mean": 51.996667,
+        "accuracy_sd": 2.683562,
+        "nll_mean": 1.356746,
+        "nll_sd": 0.062869,
+        "accuracy_gain_vs_baseline_pp": 4.993334,
+        "relative_nll_reduction_vs_baseline_pct": 10.221629
+      }
+    },
+    "fashion_wide": {
+      "configuration": {
+        "ratio": 0.5,
+        "projection_mode": "fixed",
+        "projection_seed": 189641451
+      },
+      "baseline": {
+        "acc": 46.31,
+        "nll": 1.525747
+      },
+      "development_seeds_101_103": {
+        "accuracy_mean": 48.263333,
+        "accuracy_sd": 3.71862,
+        "nll_mean": 1.531421,
+        "nll_sd": 0.069986,
+        "state_ratio": 0.5,
+        "per_seed_runs": [
+          {
+            "seed": 101,
+            "projection_seed": 189641451,
+            "projection_salt": "",
+            "projection_scope": "global",
+            "projection_seed_mode": "fixed",
+            "val_selected_loss": 1.45314,
+            "val_selected_acc": 52.51,
+            "val_metrics": {
+              "accuracy": 52.51,
+              "nll": 1.45314,
+              "brier": 0.64443,
+              "ece": 0.127916,
+              "margin": 0.203178
+            },
+            "gbest_loss": 1.448002,
+            "gbest_acc": 53.03,
+            "wall_time_sec": 10.4888,
+            "optimization_wall_time_sec": 10.261,
+            "validation_wall_time_sec": 0.2277,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 6640560,
+            "throughput_samples_per_sec": 935581.33,
+            "is_finite": true
+          },
+          {
+            "seed": 102,
+            "projection_seed": 189641451,
+            "projection_salt": "",
+            "projection_scope": "global",
+            "projection_seed_mode": "fixed",
+            "val_selected_loss": 1.553182,
+            "val_selected_acc": 46.69,
+            "val_metrics": {
+              "accuracy": 46.69,
+              "nll": 1.553182,
+              "brier": 0.700904,
+              "ece": 0.135106,
+              "margin": 0.138265
+            },
+            "gbest_loss": 1.561158,
+            "gbest_acc": 46.59,
+            "wall_time_sec": 10.6202,
+            "optimization_wall_time_sec": 10.3968,
+            "validation_wall_time_sec": 0.2233,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 6640560,
+            "throughput_samples_per_sec": 923361.03,
+            "is_finite": true
+          },
+          {
+            "seed": 103,
+            "projection_seed": 189641451,
+            "projection_salt": "",
+            "projection_scope": "global",
+            "projection_seed_mode": "fixed",
+            "val_selected_loss": 1.587942,
+            "val_selected_acc": 45.59,
+            "val_metrics": {
+              "accuracy": 45.59,
+              "nll": 1.587942,
+              "brier": 0.712462,
+              "ece": 0.153597,
+              "margin": 0.107177
+            },
+            "gbest_loss": 1.592958,
+            "gbest_acc": 45.53,
+            "wall_time_sec": 10.3262,
+            "optimization_wall_time_sec": 10.1108,
+            "validation_wall_time_sec": 0.2154,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 6640560,
+            "throughput_samples_per_sec": 949479.76,
+            "is_finite": true
+          }
+        ]
+      },
+      "confirmation_seeds_111_113": {
+        "accuracy_mean": 49.476667,
+        "accuracy_sd": 4.250251,
+        "nll_mean": 1.513876,
+        "nll_sd": 0.067096,
+        "state_ratio": 0.5,
+        "per_seed_runs": [
+          {
+            "seed": 111,
+            "projection_seed": 189641451,
+            "projection_salt": "",
+            "projection_scope": "global",
+            "projection_seed_mode": "fixed",
+            "val_selected_loss": 1.571807,
+            "val_selected_acc": 44.57,
+            "val_metrics": {
+              "accuracy": 44.57,
+              "nll": 1.571807,
+              "brier": 0.71508,
+              "ece": 0.137347,
+              "margin": 0.098194
+            },
+            "gbest_loss": 1.565421,
+            "gbest_acc": 44.63,
+            "wall_time_sec": 9.0783,
+            "optimization_wall_time_sec": 8.8852,
+            "validation_wall_time_sec": 0.1931,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 6640560,
+            "throughput_samples_per_sec": 1080448.39,
+            "is_finite": true
+          },
+          {
+            "seed": 112,
+            "projection_seed": 189641451,
+            "projection_salt": "",
+            "projection_scope": "global",
+            "projection_seed_mode": "fixed",
+            "val_selected_loss": 1.529463,
+            "val_selected_acc": 51.84,
+            "val_metrics": {
+              "accuracy": 51.84,
+              "nll": 1.529463,
+              "brier": 0.667654,
+              "ece": 0.123789,
+              "margin": 0.207157
+            },
+            "gbest_loss": 1.520432,
+            "gbest_acc": 52.76,
+            "wall_time_sec": 8.9695,
+            "optimization_wall_time_sec": 8.78,
+            "validation_wall_time_sec": 0.1895,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 6640560,
+            "throughput_samples_per_sec": 1093394.08,
+            "is_finite": true
+          },
+          {
+            "seed": 113,
+            "projection_seed": 189641451,
+            "projection_salt": "",
+            "projection_scope": "global",
+            "projection_seed_mode": "fixed",
+            "val_selected_loss": 1.440358,
+            "val_selected_acc": 52.02,
+            "val_metrics": {
+              "accuracy": 52.02,
+              "nll": 1.440358,
+              "brier": 0.64715,
+              "ece": 0.129255,
+              "margin": 0.198592
+            },
+            "gbest_loss": 1.427173,
+            "gbest_acc": 52.41,
+            "wall_time_sec": 8.9934,
+            "optimization_wall_time_sec": 8.8035,
+            "validation_wall_time_sec": 0.1899,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 6640560,
+            "throughput_samples_per_sec": 1090475.38,
+            "is_finite": true
+          }
+        ]
+      },
+      "pooled_six_seed_descriptive": {
+        "accuracy_mean": 48.87,
+        "accuracy_sd": 3.63301,
+        "nll_mean": 1.522649,
+        "nll_sd": 0.062067,
+        "accuracy_gain_vs_baseline_pp": 2.56,
+        "relative_nll_reduction_vs_baseline_pct": 0.20307
+      }
+    }
+  },
+  "rejected_methods": [
+    "single shared global-hash ratio",
+    "projection-coupled workload-adaptive policy as robust",
+    "tensor-local proportional signed hashing",
+    "geometry multipliers 0.75 and 0.5"
+  ],
+  "resource_totals": {
+    "executed_runs": 312,
+    "total_queries": 299520,
+    "total_sample_evaluations": 2995200000,
+    "total_wall_time_sec": 2264.4978
+  },
+  "decision_log": ".omc/autoresearch/heavy-pso-progressive-improvement/runs/20260902T153426Z/decision-log.md",
+  "evaluator_contract": {
+    "version": "HEAVY-PSO-PARETO-EVALUATOR 1.0.0",
+    "command": "uv run --no-sync python test/evaluate_heavy_autoresearch.py --baseline benchmark_results/pso_v6_heavy_tasks.json --candidate <candidate.json> --output <evaluation.json>",
+    "required_output": {
+      "pass": "boolean",
+      "score": "number"
+    },
+    "baseline_policy": {
+      "mnist_compact": "G8",
+      "mnist_wide": "G5",
+      "fashion_compact": "G8",
+      "fashion_wide": "G5"
+    },
+    "matched_confirmation": {
+      "particles": 12,
+      "epochs": 80,
+      "objective_subset_size": 10000,
+      "seeds": [
+        101,
+        102,
+        103
+      ]
+    },
+    "hard_gates": {
+      "all_runs_finite": true,
+      "official_test_data_loaded": false,
+      "official_test_evaluations": 0,
+      "maximum_state_ratio_each_workload": 0.5,
+      "maximum_accuracy_regression_percentage_points_each_workload": 1.0,
+      "maximum_nll_regression_fraction_each_workload": 0.05,
+      "worst_baseline_workload": "mnist_wide",
+      "worst_workload_minimum_accuracy_gain_percentage_points": 2.0,
+      "worst_workload_minimum_nll_reduction_fraction": 0.05,
+      "worst_workload_improvement_logic": "accuracy_gain_or_nll_reduction"
+    },
+    "score": {
+      "formula": "mean_relative_nll_reduction_pct + mean_accuracy_gain_pp + 10*log2(1/max_state_ratio) - 100*failed_hard_gate_count",
+      "higher_is_better": true
+    }
+  },
+  "iteration_outcomes": [
+    {
+      "iteration": 1,
+      "method": "equalized global signed-hash ratios, recovered geometry",
+      "pass": false,
+      "selected_score": -159.733422,
+      "decision": "rejected"
+    },
+    {
+      "iteration": 2,
+      "method": "baseline-aligned geometry diagnostics",
+      "pass": false,
+      "selected_score": -154.242035,
+      "decision": "geometry mismatch resolved"
+    },
+    {
+      "iteration": 3,
+      "method": "workload-adaptive projection-coupled policy",
+      "pass": true,
+      "selected_score": 12.052443,
+      "decision": "provisional; projection replica required"
+    },
+    {
+      "iteration": 4,
+      "method": "independent projection replica",
+      "pass": false,
+      "selected_score": -189.945268,
+      "decision": "projection-fragile"
+    },
+    {
+      "iteration": 5,
+      "method": "tensor-local signed hashing",
+      "pass": false,
+      "selected_score": -274.949828,
+      "decision": "rejected"
+    },
+    {
+      "iteration": 6,
+      "method": "fixed projection across swarm seeds",
+      "pass": false,
+      "selected_score": -181.504378,
+      "decision": "three cells retained; MNIST Wide unresolved"
+    },
+    {
+      "iteration": 7,
+      "method": "explicit MNIST Wide projection confirmation",
+      "pass": true,
+      "selected_score": 15.550961,
+      "decision": "development pass; disjoint seeds required"
+    },
+    {
+      "iteration": 8,
+      "method": "fixed global hybrid v3 plus disjoint swarm seeds",
+      "pass": false,
+      "selected_score": -84.870352,
+      "decision": "development pass; confirmation missed one gate"
+    },
+    {
+      "iteration": 9,
+      "method": "geometry multipliers 0.75 and 0.5",
+      "pass": false,
+      "selected_score": -290.662892,
+      "decision": "rejected; stop branch"
+    }
+  ]
+}

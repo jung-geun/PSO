@@ -1,87 +1,110 @@
-# %%
-import json
-import os
-import sys
+import argparse
+import torch
+import torch.nn as nn
 
-import numpy as np
-import tensorflow as tf
-from keras.datasets import fashion_mnist
-from keras.layers import Conv2D, Dense, Dropout, Flatten, MaxPooling2D
-from keras.models import Sequential
-
-from pso import optimizer
-
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+from pso import Optimizer
+from cli import add_pso_args, build_optimizer_kwargs
 
 
-def get_data():
-    (x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
+def get_data(seed: int = 42):
+    from sklearn.decomposition import PCA
+    from torchvision.datasets import FashionMNIST
 
-    x_train, x_test = x_train / 255.0, x_test / 255.0
-    x_train = x_train.reshape((60000, 28, 28, 1))
-    x_test = x_test.reshape((10000, 28, 28, 1))
+    train_dataset = FashionMNIST(root="./data", train=True, download=True)
+    test_dataset = FashionMNIST(root="./data", train=False, download=True)
 
-    y_train, y_test = tf.one_hot(y_train, 10), tf.one_hot(y_test, 10)
+    x_train_raw = (train_dataset.data[:3000].float() / 255.0).reshape(3000, -1).numpy()
+    y_train = train_dataset.targets[:3000].long()
 
-    x_train, x_test = tf.convert_to_tensor(x_train), tf.convert_to_tensor(x_test)
-    y_train, y_test = tf.convert_to_tensor(y_train), tf.convert_to_tensor(y_test)
+    x_test_raw = (test_dataset.data[:1000].float() / 255.0).reshape(1000, -1).numpy()
+    y_test = test_dataset.targets[:1000].long()
 
-    print(f"x_train : {x_train[0].shape} | y_train : {y_train[0].shape}")
-    print(f"x_test : {x_test[0].shape} | y_test : {y_test[0].shape}")
+    pca = PCA(n_components=32, whiten=True, random_state=seed)
+    x_train_pca = pca.fit_transform(x_train_raw)
+    x_test_pca = pca.transform(x_test_raw)
+
+    x_train = torch.tensor(x_train_pca, dtype=torch.float32)
+    x_test = torch.tensor(x_test_pca, dtype=torch.float32)
+
+    print(f"x_train : {x_train.shape} | y_train : {y_train.shape}")
+    print(f"x_test : {x_test.shape} | y_test : {y_test.shape}")
 
     return x_train, y_train, x_test, y_test
 
 
-def make_model():
-    model = Sequential()
-    model.add(
-        Conv2D(32, kernel_size=(5, 5), activation="relu", input_shape=(28, 28, 1))
+def make_model(seed: int = 42):
+    torch.manual_seed(seed)
+    return nn.Linear(32, 10)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="PSO Fashion-MNIST Benchmark Script")
+    add_pso_args(
+        parser,
+        defaults={
+            "method": "original",
+            "initialization": "model_noise",
+            "evaluation": "fixed_subset",
+            "convergence": "particle_reset",
+            "refinement": "adam",
+            "n_particles": 30,
+            "c0": None,
+            "c1": None,
+            "w_min": None,
+            "w_max": None,
+            "negative_swarm": 0.0,
+            "mutation_swarm": 0.05,
+            "particle_min": -3.0,
+            "particle_max": 3.0,
+            "velocity_limit_ratio": 0.1,
+            "boundary_strategy": "reflect",
+            "seed": 42,
+            "epochs": 80,
+            "batch_size": 1000,
+            "fitness_size": 2000,
+            "renewal": "loss",
+            "output_dir": "output/fashion_mnist",
+            "checkpoint_interval": 25,
+            "refinement_epochs": 10,
+            "refinement_lr": 0.001,
+        },
     )
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Conv2D(64, kernel_size=(3, 3), activation="relu"))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Flatten())
-    model.add(Dropout(0.25))
-    model.add(Dense(256, activation="relu"))
-    model.add(Dense(128, activation="relu"))
-    model.add(Dense(10, activation="softmax"))
+    args = parser.parse_args()
 
-    return model
+    model = make_model(seed=args.seed)
+    x_train, y_train, x_test, y_test = get_data(seed=args.seed)
+
+    fitness_size = args.fitness_size if args.evaluation == "fixed_subset" else None
+    refinement_epochs = args.refinement_epochs if args.refinement == "adam" else 0
+
+    kwargs = build_optimizer_kwargs(
+        args,
+        model=model,
+        loss=nn.CrossEntropyLoss(),
+        task="multiclass",
+        inertia_profile={"c0": 0.7, "c1": 0.5, "w_min": 0.1, "w_max": 0.8},
+    )
+    pso_fashion = Optimizer(**kwargs)
+
+    print(f"Optimizer device: {pso_fashion.device}")
+
+    best_score = pso_fashion.fit(
+        x_train,
+        y_train,
+        epochs=args.epochs,
+        batch_size=args.batch_size,
+        fitness_size=fitness_size,
+        renewal=args.renewal,
+        validation_data=(x_test, y_test),
+        output_dir=args.output_dir,
+        checkpoint_interval=25,
+        save_info=True,
+        refinement_epochs=refinement_epochs,
+        refinement_lr=args.refinement_lr,
+    )
+
+    print(f"Done! Best score: {best_score}")
 
 
-# %%
-model = make_model()
-x_train, y_train, x_test, y_test = get_data()
-
-
-pso_mnist = optimizer(
-    model,
-    loss="categorical_crossentropy",
-    n_particles=200,
-    c0=0.7,
-    c1=0.5,
-    w_min=0.1,
-    w_max=0.8,
-    negative_swarm=0.0,
-    mutation_swarm=0.05,
-    convergence_reset=True,
-    convergence_reset_patience=10,
-    convergence_reset_monitor="loss",
-)
-
-best_score = pso_mnist.fit(
-    x_train,
-    y_train,
-    epochs=1000,
-    save_info=True,
-    log=2,
-    log_name="fashion_mnist",
-    renewal="loss",
-    check_point=25,
-    batch_size=5000,
-)
-
-print("Done!")
-
-sys.exit(0)
-
+if __name__ == "__main__":
+    main()

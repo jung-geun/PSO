@@ -1,0 +1,1440 @@
+{
+  "protocol_version": "HEAVY-PSO-CROSS-SPLIT-PUBLISH 1.0.0",
+  "pso_version": "4.0.0",
+  "timestamp": "2026-09-04T07:38:14Z",
+  "mission_contract": {
+    "phase": "development",
+    "official_test_data_loaded": false,
+    "official_test_evaluations": 0,
+    "confirmation_executed": false,
+    "retained_policy": null
+  },
+  "official_test_data_loaded": false,
+  "official_test_evaluations": 0,
+  "confirmation_executed": false,
+  "retained_policy": null,
+  "verdict": {
+    "status": "NO_RETAINED_POLICY_NO_CONFIRMATION",
+    "retained_policy": null,
+    "confirmation_executed": false,
+    "official_test_data_loaded": false,
+    "official_test_evaluations": 0,
+    "best_observed_variant_id": "iteration-0005-development",
+    "best_observed_score": -185.61068572934795,
+    "description": "All 9 development candidates failed the frozen evaluator gates (specifically maximum accuracy regression and/or development wide CNN improvement). No candidate qualified for confirmation. Confirmation split 20260907 and official test data remained completely unexecuted and sealed."
+  },
+  "source_provenance": {
+    "source_dir": ".omc/autoresearch/heavy-pso-cross-split-robustness/runs/20260903T162504Z",
+    "n_variants": 9,
+    "candidate_files": [
+      "iteration-0001-development.json",
+      "iteration-0002-development.json",
+      "iteration-0003-replica1-development.json",
+      "iteration-0003-replica2-development.json",
+      "iteration-0004-development.json",
+      "iteration-0005-development.json",
+      "iteration-0006-development.json",
+      "iteration-0007-development.json",
+      "iteration-0008-development.json"
+    ],
+    "evaluation_files": [
+      "iteration-0001-development.json",
+      "iteration-0002-development.json",
+      "iteration-0003-replica1-development.json",
+      "iteration-0003-replica2-development.json",
+      "iteration-0004-development.json",
+      "iteration-0005-development.json",
+      "iteration-0006-development.json",
+      "iteration-0007-development.json",
+      "iteration-0008-development.json"
+    ]
+  },
+  "cumulative_resources": {
+    "n_variants": 9,
+    "total_runs": 432,
+    "total_queries": 414720,
+    "total_sample_evaluations": 4147200000,
+    "official_test_evaluations": 0,
+    "best_observed_variant_id": "iteration-0005-development",
+    "wall_time_sec": 3162.9717,
+    "best_observed_score": -185.61068572934795
+  },
+  "total_runs": 432,
+  "total_wall_time_sec": 3162.9717,
+  "total_queries": 414720,
+  "total_sample_evaluations": 4147200000,
+  "variants": [
+    {
+      "variant_id": "iteration-0001-development",
+      "candidate_file": "iteration-0001-development.json",
+      "evaluation_file": "iteration-0001-development.json",
+      "phase": "development",
+      "candidate_config": {
+        "ratio": 0.5,
+        "geometry_policy": "baseline_aligned",
+        "projection_scope": "global",
+        "projection_seed_mode": "explicit",
+        "projection_seed": {
+          "mnist_compact": 1800044939,
+          "mnist_wide": 592157828,
+          "fashion_compact": 1363313651,
+          "fashion_wide": 189641451
+        },
+        "geometry_multiplier": 1.0,
+        "particles": 12,
+        "epochs": 80,
+        "subset_size": 10000
+      },
+      "score": -289.2921035434933,
+      "pass": false,
+      "development_pass": false,
+      "eligible_for_confirmation": false,
+      "failed_hard_gate_count": 4,
+      "failed_gates": [
+        "maximum_accuracy_regression_percentage_points_each_split_workload",
+        "maximum_nll_regression_fraction_each_split_workload",
+        "development_mnist_wide_improvement",
+        "confirmation_executed"
+      ],
+      "is_best_observed": false,
+      "summary_metrics": {
+        "development_cells": 8,
+        "confirmation_cells": 0,
+        "development_grand_mean_accuracy_gain_pp": 0.15333312499999963,
+        "development_grand_mean_nll_reduction_fraction": 0.005545633315067132,
+        "development_mnist_wide_accuracy_gain_pp": -0.3616670000000006,
+        "development_mnist_wide_nll_reduction_fraction": -0.024599621226530297
+      },
+      "state_ratios": {
+        "development": {
+          "mnist_compact": 0.4918032786885246,
+          "mnist_wide": 0.5,
+          "fashion_compact": 0.4918032786885246,
+          "fashion_wide": 0.5
+        },
+        "confirmation": null
+      },
+      "cell_metrics": [
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "mnist_compact",
+          "baseline_acc": 50.713333,
+          "candidate_acc": 50.723333,
+          "baseline_nll": 1.534298,
+          "candidate_nll": 1.492805,
+          "acc_gain_pp": 0.00999999999999801,
+          "nll_reduction_fraction": 0.0270436381980554
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "mnist_wide",
+          "baseline_acc": 46.656667,
+          "candidate_acc": 46.04,
+          "baseline_nll": 1.677872,
+          "candidate_nll": 1.675644,
+          "acc_gain_pp": -0.6166669999999996,
+          "nll_reduction_fraction": 0.0013278724479579603
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "fashion_compact",
+          "baseline_acc": 46.366667,
+          "candidate_acc": 49.576667,
+          "baseline_nll": 1.497844,
+          "candidate_nll": 1.400574,
+          "acc_gain_pp": 3.210000000000001,
+          "nll_reduction_fraction": 0.06494000710354347
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "fashion_wide",
+          "baseline_acc": 48.516667,
+          "candidate_acc": 45.01,
+          "baseline_nll": 1.490304,
+          "candidate_nll": 1.584923,
+          "acc_gain_pp": -3.506667,
+          "nll_reduction_fraction": -0.06348973095422142
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "mnist_compact",
+          "baseline_acc": 46.81,
+          "candidate_acc": 51.663333,
+          "baseline_nll": 1.58986,
+          "candidate_nll": 1.436337,
+          "acc_gain_pp": 4.853332999999999,
+          "nll_reduction_fraction": 0.09656384838916639
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "mnist_wide",
+          "baseline_acc": 44.936667,
+          "candidate_acc": 44.83,
+          "baseline_nll": 1.665007,
+          "candidate_nll": 1.749135,
+          "acc_gain_pp": -0.10666700000000162,
+          "nll_reduction_fraction": -0.050527114901018556
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "fashion_compact",
+          "baseline_acc": 44.193333,
+          "candidate_acc": 48.753333,
+          "baseline_nll": 1.553097,
+          "candidate_nll": 1.375751,
+          "acc_gain_pp": 4.559999999999995,
+          "nll_reduction_fraction": 0.11418861796784104
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "fashion_wide",
+          "baseline_acc": 48.37,
+          "candidate_acc": 41.193333,
+          "baseline_nll": 1.490657,
+          "candidate_nll": 1.707819,
+          "acc_gain_pp": -7.176666999999995,
+          "nll_reduction_fraction": -0.14568207173078723
+        }
+      ],
+      "resources": {
+        "runs": 48,
+        "queries": 46080,
+        "sample_evaluations": 460800000,
+        "wall_time_sec": 345.2731,
+        "official_test_evaluations": 0
+      }
+    },
+    {
+      "variant_id": "iteration-0002-development",
+      "candidate_file": "iteration-0002-development.json",
+      "evaluation_file": "iteration-0002-development.json",
+      "phase": "development",
+      "candidate_config": {
+        "ratio": 0.5,
+        "geometry_policy": "baseline_aligned",
+        "projection_scope": {
+          "mnist_compact": "global",
+          "mnist_wide": "balanced_global",
+          "fashion_compact": "global",
+          "fashion_wide": "balanced_global"
+        },
+        "projection_seed_mode": "explicit",
+        "projection_seed": {
+          "mnist_compact": 1800044939,
+          "mnist_wide": 592157828,
+          "fashion_compact": 1363313651,
+          "fashion_wide": 189641451
+        },
+        "geometry_multiplier": 1.0,
+        "particles": 12,
+        "epochs": 80,
+        "subset_size": 10000
+      },
+      "score": -186.3459040597986,
+      "pass": false,
+      "development_pass": false,
+      "eligible_for_confirmation": false,
+      "failed_hard_gate_count": 3,
+      "failed_gates": [
+        "maximum_accuracy_regression_percentage_points_each_split_workload",
+        "development_mnist_wide_improvement",
+        "confirmation_executed"
+      ],
+      "is_best_observed": false,
+      "summary_metrics": {
+        "development_cells": 8,
+        "confirmation_cells": 0,
+        "development_grand_mean_accuracy_gain_pp": 1.0591663750000002,
+        "development_grand_mean_nll_reduction_fraction": 0.025949295652013885,
+        "development_mnist_wide_accuracy_gain_pp": -0.6550004999999963,
+        "development_mnist_wide_nll_reduction_fraction": -0.03737641704538702
+      },
+      "state_ratios": {
+        "development": {
+          "mnist_compact": 0.4918032786885246,
+          "mnist_wide": 0.5,
+          "fashion_compact": 0.4918032786885246,
+          "fashion_wide": 0.5
+        },
+        "confirmation": null
+      },
+      "cell_metrics": [
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "mnist_compact",
+          "baseline_acc": 50.713333,
+          "candidate_acc": 50.723333,
+          "baseline_nll": 1.534298,
+          "candidate_nll": 1.492805,
+          "acc_gain_pp": 0.00999999999999801,
+          "nll_reduction_fraction": 0.0270436381980554
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "mnist_wide",
+          "baseline_acc": 46.656667,
+          "candidate_acc": 45.193333,
+          "baseline_nll": 1.677872,
+          "candidate_nll": 1.733563,
+          "acc_gain_pp": -1.4633339999999961,
+          "nll_reduction_fraction": -0.03319144726176963
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "fashion_compact",
+          "baseline_acc": 46.366667,
+          "candidate_acc": 49.576667,
+          "baseline_nll": 1.497844,
+          "candidate_nll": 1.400574,
+          "acc_gain_pp": 3.210000000000001,
+          "nll_reduction_fraction": 0.06494000710354347
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "fashion_wide",
+          "baseline_acc": 48.516667,
+          "candidate_acc": 47.223333,
+          "baseline_nll": 1.490304,
+          "candidate_nll": 1.536216,
+          "acc_gain_pp": -1.2933340000000015,
+          "nll_reduction_fraction": -0.03080713733573818
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "mnist_compact",
+          "baseline_acc": 46.81,
+          "candidate_acc": 51.663333,
+          "baseline_nll": 1.58986,
+          "candidate_nll": 1.436337,
+          "acc_gain_pp": 4.853332999999999,
+          "nll_reduction_fraction": 0.09656384838916639
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "mnist_wide",
+          "baseline_acc": 44.936667,
+          "candidate_acc": 45.09,
+          "baseline_nll": 1.665007,
+          "candidate_nll": 1.734207,
+          "acc_gain_pp": 0.1533330000000035,
+          "nll_reduction_fraction": -0.04156138682900441
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "fashion_compact",
+          "baseline_acc": 44.193333,
+          "candidate_acc": 48.753333,
+          "baseline_nll": 1.553097,
+          "candidate_nll": 1.375751,
+          "acc_gain_pp": 4.559999999999995,
+          "nll_reduction_fraction": 0.11418861796784104
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "fashion_wide",
+          "baseline_acc": 48.37,
+          "candidate_acc": 46.813333,
+          "baseline_nll": 1.490657,
+          "candidate_nll": 1.475127,
+          "acc_gain_pp": -1.5566669999999974,
+          "nll_reduction_fraction": 0.010418224984016995
+        }
+      ],
+      "resources": {
+        "runs": 48,
+        "queries": 46080,
+        "sample_evaluations": 460800000,
+        "wall_time_sec": 356.2424,
+        "official_test_evaluations": 0
+      }
+    },
+    {
+      "variant_id": "iteration-0003-replica1-development",
+      "candidate_file": "iteration-0003-replica1-development.json",
+      "evaluation_file": "iteration-0003-replica1-development.json",
+      "phase": "development",
+      "candidate_config": {
+        "ratio": 0.5,
+        "geometry_policy": "baseline_aligned",
+        "projection_scope": {
+          "mnist_compact": "global",
+          "mnist_wide": "balanced_global",
+          "fashion_compact": "global",
+          "fashion_wide": "balanced_global"
+        },
+        "projection_seed_mode": "explicit",
+        "projection_seed": {
+          "mnist_compact": 1800044939,
+          "mnist_wide": 1170674349,
+          "fashion_compact": 1363313651,
+          "fashion_wide": 1196992285
+        },
+        "geometry_multiplier": 1.0,
+        "particles": 12,
+        "epochs": 80,
+        "subset_size": 10000
+      },
+      "score": -287.7250973286179,
+      "pass": false,
+      "development_pass": false,
+      "eligible_for_confirmation": false,
+      "failed_hard_gate_count": 4,
+      "failed_gates": [
+        "maximum_accuracy_regression_percentage_points_each_split_workload",
+        "maximum_nll_regression_fraction_each_split_workload",
+        "development_mnist_wide_improvement",
+        "confirmation_executed"
+      ],
+      "is_best_observed": false,
+      "summary_metrics": {
+        "development_cells": 8,
+        "confirmation_cells": 0,
+        "development_grand_mean_accuracy_gain_pp": 0.5999997499999994,
+        "development_grand_mean_nll_reduction_fraction": 0.016749029213820897,
+        "development_mnist_wide_accuracy_gain_pp": -2.278334000000001,
+        "development_mnist_wide_nll_reduction_fraction": -0.029660445675769923
+      },
+      "state_ratios": {
+        "development": {
+          "mnist_compact": 0.4918032786885246,
+          "mnist_wide": 0.5,
+          "fashion_compact": 0.4918032786885246,
+          "fashion_wide": 0.5
+        },
+        "confirmation": null
+      },
+      "cell_metrics": [
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "mnist_compact",
+          "baseline_acc": 50.713333,
+          "candidate_acc": 50.723333,
+          "baseline_nll": 1.534298,
+          "candidate_nll": 1.492805,
+          "acc_gain_pp": 0.00999999999999801,
+          "nll_reduction_fraction": 0.0270436381980554
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "mnist_wide",
+          "baseline_acc": 46.656667,
+          "candidate_acc": 44.923333,
+          "baseline_nll": 1.677872,
+          "candidate_nll": 1.728906,
+          "acc_gain_pp": -1.7333339999999993,
+          "nll_reduction_fraction": -0.030415907768888223
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "fashion_compact",
+          "baseline_acc": 46.366667,
+          "candidate_acc": 49.576667,
+          "baseline_nll": 1.497844,
+          "candidate_nll": 1.400574,
+          "acc_gain_pp": 3.210000000000001,
+          "nll_reduction_fraction": 0.06494000710354347
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "fashion_wide",
+          "baseline_acc": 48.516667,
+          "candidate_acc": 47.176667,
+          "baseline_nll": 1.490304,
+          "candidate_nll": 1.56267,
+          "acc_gain_pp": -1.3399999999999963,
+          "nll_reduction_fraction": -0.048557878124194744
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "mnist_compact",
+          "baseline_acc": 46.81,
+          "candidate_acc": 51.663333,
+          "baseline_nll": 1.58986,
+          "candidate_nll": 1.436337,
+          "acc_gain_pp": 4.853332999999999,
+          "nll_reduction_fraction": 0.09656384838916639
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "mnist_wide",
+          "baseline_acc": 44.936667,
+          "candidate_acc": 42.113333,
+          "baseline_nll": 1.665007,
+          "candidate_nll": 1.713134,
+          "acc_gain_pp": -2.8233340000000027,
+          "nll_reduction_fraction": -0.028904983582651624
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "fashion_compact",
+          "baseline_acc": 44.193333,
+          "candidate_acc": 48.753333,
+          "baseline_nll": 1.553097,
+          "candidate_nll": 1.375751,
+          "acc_gain_pp": 4.559999999999995,
+          "nll_reduction_fraction": 0.11418861796784104
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "fashion_wide",
+          "baseline_acc": 48.37,
+          "candidate_acc": 46.433333,
+          "baseline_nll": 1.490657,
+          "candidate_nll": 1.581386,
+          "acc_gain_pp": -1.936667,
+          "nll_reduction_fraction": -0.06086510847230454
+        }
+      ],
+      "resources": {
+        "runs": 48,
+        "queries": 46080,
+        "sample_evaluations": 460800000,
+        "wall_time_sec": 333.3569,
+        "official_test_evaluations": 0
+      }
+    },
+    {
+      "variant_id": "iteration-0003-replica2-development",
+      "candidate_file": "iteration-0003-replica2-development.json",
+      "evaluation_file": "iteration-0003-replica2-development.json",
+      "phase": "development",
+      "candidate_config": {
+        "ratio": 0.5,
+        "geometry_policy": "baseline_aligned",
+        "projection_scope": {
+          "mnist_compact": "global",
+          "mnist_wide": "balanced_global",
+          "fashion_compact": "global",
+          "fashion_wide": "balanced_global"
+        },
+        "projection_seed_mode": "explicit",
+        "projection_seed": {
+          "mnist_compact": 1800044939,
+          "mnist_wide": 1993337128,
+          "fashion_compact": 1363313651,
+          "fashion_wide": 663492771
+        },
+        "geometry_multiplier": 1.0,
+        "particles": 12,
+        "epochs": 80,
+        "subset_size": 10000
+      },
+      "score": -286.97652369317115,
+      "pass": false,
+      "development_pass": false,
+      "eligible_for_confirmation": false,
+      "failed_hard_gate_count": 4,
+      "failed_gates": [
+        "maximum_accuracy_regression_percentage_points_each_split_workload",
+        "maximum_nll_regression_fraction_each_split_workload",
+        "development_mnist_wide_improvement",
+        "confirmation_executed"
+      ],
+      "is_best_observed": false,
+      "summary_metrics": {
+        "development_cells": 8,
+        "confirmation_cells": 0,
+        "development_grand_mean_accuracy_gain_pp": 0.7808331249999991,
+        "development_grand_mean_nll_reduction_fraction": 0.02242643181828852,
+        "development_mnist_wide_accuracy_gain_pp": -2.0133335000000017,
+        "development_mnist_wide_nll_reduction_fraction": -0.056248381748622824
+      },
+      "state_ratios": {
+        "development": {
+          "mnist_compact": 0.4918032786885246,
+          "mnist_wide": 0.5,
+          "fashion_compact": 0.4918032786885246,
+          "fashion_wide": 0.5
+        },
+        "confirmation": null
+      },
+      "cell_metrics": [
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "mnist_compact",
+          "baseline_acc": 50.713333,
+          "candidate_acc": 50.723333,
+          "baseline_nll": 1.534298,
+          "candidate_nll": 1.492805,
+          "acc_gain_pp": 0.00999999999999801,
+          "nll_reduction_fraction": 0.0270436381980554
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "mnist_wide",
+          "baseline_acc": 46.656667,
+          "candidate_acc": 46.01,
+          "baseline_nll": 1.677872,
+          "candidate_nll": 1.72888,
+          "acc_gain_pp": -0.6466670000000008,
+          "nll_reduction_fraction": -0.0304004119503752
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "fashion_compact",
+          "baseline_acc": 46.366667,
+          "candidate_acc": 49.576667,
+          "baseline_nll": 1.497844,
+          "candidate_nll": 1.400574,
+          "acc_gain_pp": 3.210000000000001,
+          "nll_reduction_fraction": 0.06494000710354347
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "fashion_wide",
+          "baseline_acc": 48.516667,
+          "candidate_acc": 48.613333,
+          "baseline_nll": 1.490304,
+          "candidate_nll": 1.48049,
+          "acc_gain_pp": 0.09666599999999903,
+          "nll_reduction_fraction": 0.006585233616765431
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "mnist_compact",
+          "baseline_acc": 46.81,
+          "candidate_acc": 51.663333,
+          "baseline_nll": 1.58986,
+          "candidate_nll": 1.436337,
+          "acc_gain_pp": 4.853332999999999,
+          "nll_reduction_fraction": 0.09656384838916639
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "mnist_wide",
+          "baseline_acc": 44.936667,
+          "candidate_acc": 41.556667,
+          "baseline_nll": 1.665007,
+          "candidate_nll": 1.801698,
+          "acc_gain_pp": -3.3800000000000026,
+          "nll_reduction_fraction": -0.08209635154687045
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "fashion_compact",
+          "baseline_acc": 44.193333,
+          "candidate_acc": 48.753333,
+          "baseline_nll": 1.553097,
+          "candidate_nll": 1.375751,
+          "acc_gain_pp": 4.559999999999995,
+          "nll_reduction_fraction": 0.11418861796784104
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "fashion_wide",
+          "baseline_acc": 48.37,
+          "candidate_acc": 45.913333,
+          "baseline_nll": 1.490657,
+          "candidate_nll": 1.516614,
+          "acc_gain_pp": -2.456666999999996,
+          "nll_reduction_fraction": -0.017413127231817923
+        }
+      ],
+      "resources": {
+        "runs": 48,
+        "queries": 46080,
+        "sample_evaluations": 460800000,
+        "wall_time_sec": 340.8067,
+        "official_test_evaluations": 0
+      }
+    },
+    {
+      "variant_id": "iteration-0004-development",
+      "candidate_file": "iteration-0004-development.json",
+      "evaluation_file": "iteration-0004-development.json",
+      "phase": "development",
+      "candidate_config": {
+        "ratio": 0.5,
+        "geometry_policy": "baseline_aligned",
+        "projection_scope": {
+          "mnist_compact": "global",
+          "mnist_wide": "two_hash_global",
+          "fashion_compact": "global",
+          "fashion_wide": "two_hash_global"
+        },
+        "projection_seed_mode": "explicit",
+        "projection_seed": {
+          "mnist_compact": 1800044939,
+          "mnist_wide": 592157828,
+          "fashion_compact": 1363313651,
+          "fashion_wide": 189641451
+        },
+        "geometry_multiplier": 1.0,
+        "particles": 12,
+        "epochs": 80,
+        "subset_size": 10000
+      },
+      "score": -390.14004501856266,
+      "pass": false,
+      "development_pass": false,
+      "eligible_for_confirmation": false,
+      "failed_hard_gate_count": 5,
+      "failed_gates": [
+        "maximum_accuracy_regression_percentage_points_each_split_workload",
+        "maximum_nll_regression_fraction_each_split_workload",
+        "development_grand_mean_accuracy_gain_minimum_pp",
+        "development_mnist_wide_improvement",
+        "confirmation_executed"
+      ],
+      "is_best_observed": false,
+      "summary_metrics": {
+        "development_cells": 8,
+        "confirmation_cells": 0,
+        "development_grand_mean_accuracy_gain_pp": -0.4275001249999999,
+        "development_grand_mean_nll_reduction_fraction": 0.002874551064373243,
+        "development_mnist_wide_accuracy_gain_pp": -3.941666999999999,
+        "development_mnist_wide_nll_reduction_fraction": -0.05273851995206307
+      },
+      "state_ratios": {
+        "development": {
+          "mnist_compact": 0.4918032786885246,
+          "mnist_wide": 0.5,
+          "fashion_compact": 0.4918032786885246,
+          "fashion_wide": 0.5
+        },
+        "confirmation": null
+      },
+      "cell_metrics": [
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "mnist_compact",
+          "baseline_acc": 50.713333,
+          "candidate_acc": 50.723333,
+          "baseline_nll": 1.534298,
+          "candidate_nll": 1.492805,
+          "acc_gain_pp": 0.00999999999999801,
+          "nll_reduction_fraction": 0.0270436381980554
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "mnist_wide",
+          "baseline_acc": 46.656667,
+          "candidate_acc": 44.763333,
+          "baseline_nll": 1.677872,
+          "candidate_nll": 1.698999,
+          "acc_gain_pp": -1.8933339999999959,
+          "nll_reduction_fraction": -0.012591544527830428
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "fashion_compact",
+          "baseline_acc": 46.366667,
+          "candidate_acc": 49.576667,
+          "baseline_nll": 1.497844,
+          "candidate_nll": 1.400574,
+          "acc_gain_pp": 3.210000000000001,
+          "nll_reduction_fraction": 0.06494000710354347
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "fashion_wide",
+          "baseline_acc": 48.516667,
+          "candidate_acc": 44.816667,
+          "baseline_nll": 1.490304,
+          "candidate_nll": 1.582588,
+          "acc_gain_pp": -3.6999999999999957,
+          "nll_reduction_fraction": -0.06192293652838617
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "mnist_compact",
+          "baseline_acc": 46.81,
+          "candidate_acc": 51.663333,
+          "baseline_nll": 1.58986,
+          "candidate_nll": 1.436337,
+          "acc_gain_pp": 4.853332999999999,
+          "nll_reduction_fraction": 0.09656384838916639
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "mnist_wide",
+          "baseline_acc": 44.936667,
+          "candidate_acc": 38.946667,
+          "baseline_nll": 1.665007,
+          "candidate_nll": 1.819662,
+          "acc_gain_pp": -5.990000000000002,
+          "nll_reduction_fraction": -0.09288549537629572
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "fashion_compact",
+          "baseline_acc": 44.193333,
+          "candidate_acc": 48.753333,
+          "baseline_nll": 1.553097,
+          "candidate_nll": 1.375751,
+          "acc_gain_pp": 4.559999999999995,
+          "nll_reduction_fraction": 0.11418861796784104
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "fashion_wide",
+          "baseline_acc": 48.37,
+          "candidate_acc": 43.9,
+          "baseline_nll": 1.490657,
+          "candidate_nll": 1.658117,
+          "acc_gain_pp": -4.469999999999999,
+          "nll_reduction_fraction": -0.11233972671110803
+        }
+      ],
+      "resources": {
+        "runs": 48,
+        "queries": 46080,
+        "sample_evaluations": 460800000,
+        "wall_time_sec": 341.0849,
+        "official_test_evaluations": 0
+      }
+    },
+    {
+      "variant_id": "iteration-0005-development",
+      "candidate_file": "iteration-0005-development.json",
+      "evaluation_file": "iteration-0005-development.json",
+      "phase": "development",
+      "candidate_config": {
+        "ratio": 0.5,
+        "geometry_policy": "baseline_aligned",
+        "projection_scope": {
+          "mnist_compact": "global",
+          "mnist_wide": "largest_tensor_hash",
+          "fashion_compact": "global",
+          "fashion_wide": "largest_tensor_hash"
+        },
+        "projection_seed_mode": "explicit",
+        "projection_seed": {
+          "mnist_compact": 1800044939,
+          "mnist_wide": 592157828,
+          "fashion_compact": 1363313651,
+          "fashion_wide": 189641451
+        },
+        "geometry_multiplier": 1.0,
+        "particles": 12,
+        "epochs": 80,
+        "subset_size": 10000
+      },
+      "score": -185.61068572934795,
+      "pass": false,
+      "development_pass": false,
+      "eligible_for_confirmation": false,
+      "failed_hard_gate_count": 3,
+      "failed_gates": [
+        "maximum_accuracy_regression_percentage_points_each_split_workload",
+        "development_mnist_wide_improvement",
+        "confirmation_executed"
+      ],
+      "is_best_observed": true,
+      "summary_metrics": {
+        "development_cells": 8,
+        "confirmation_cells": 0,
+        "development_grand_mean_accuracy_gain_pp": 0.43999974999999925,
+        "development_grand_mean_nll_reduction_fraction": 0.03949314520652041,
+        "development_mnist_wide_accuracy_gain_pp": -2.6633340000000025,
+        "development_mnist_wide_nll_reduction_fraction": -0.02187403189962274
+      },
+      "state_ratios": {
+        "development": {
+          "mnist_compact": 0.4918032786885246,
+          "mnist_wide": 0.5,
+          "fashion_compact": 0.4918032786885246,
+          "fashion_wide": 0.5
+        },
+        "confirmation": null
+      },
+      "cell_metrics": [
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "mnist_compact",
+          "baseline_acc": 50.713333,
+          "candidate_acc": 50.723333,
+          "baseline_nll": 1.534298,
+          "candidate_nll": 1.492805,
+          "acc_gain_pp": 0.00999999999999801,
+          "nll_reduction_fraction": 0.0270436381980554
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "mnist_wide",
+          "baseline_acc": 46.656667,
+          "candidate_acc": 43.723333,
+          "baseline_nll": 1.677872,
+          "candidate_nll": 1.675155,
+          "acc_gain_pp": -2.933334000000002,
+          "nll_reduction_fraction": 0.0016193130346057866
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "fashion_compact",
+          "baseline_acc": 46.366667,
+          "candidate_acc": 49.576667,
+          "baseline_nll": 1.497844,
+          "candidate_nll": 1.400574,
+          "acc_gain_pp": 3.210000000000001,
+          "nll_reduction_fraction": 0.06494000710354347
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "fashion_wide",
+          "baseline_acc": 48.516667,
+          "candidate_acc": 45.45,
+          "baseline_nll": 1.490304,
+          "candidate_nll": 1.441667,
+          "acc_gain_pp": -3.0666669999999954,
+          "nll_reduction_fraction": 0.03263562333591002
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "mnist_compact",
+          "baseline_acc": 46.81,
+          "candidate_acc": 51.663333,
+          "baseline_nll": 1.58986,
+          "candidate_nll": 1.436337,
+          "acc_gain_pp": 4.853332999999999,
+          "nll_reduction_fraction": 0.09656384838916639
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "mnist_wide",
+          "baseline_acc": 44.936667,
+          "candidate_acc": 42.543333,
+          "baseline_nll": 1.665007,
+          "candidate_nll": 1.740544,
+          "acc_gain_pp": -2.393334000000003,
+          "nll_reduction_fraction": -0.04536737683385127
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "fashion_compact",
+          "baseline_acc": 44.193333,
+          "candidate_acc": 48.753333,
+          "baseline_nll": 1.553097,
+          "candidate_nll": 1.375751,
+          "acc_gain_pp": 4.559999999999995,
+          "nll_reduction_fraction": 0.11418861796784104
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "fashion_wide",
+          "baseline_acc": 48.37,
+          "candidate_acc": 47.65,
+          "baseline_nll": 1.490657,
+          "candidate_nll": 1.454402,
+          "acc_gain_pp": -0.7199999999999989,
+          "nll_reduction_fraction": 0.02432149045689245
+        }
+      ],
+      "resources": {
+        "runs": 48,
+        "queries": 46080,
+        "sample_evaluations": 460800000,
+        "wall_time_sec": 342.0566,
+        "official_test_evaluations": 0
+      }
+    },
+    {
+      "variant_id": "iteration-0006-development",
+      "candidate_file": "iteration-0006-development.json",
+      "evaluation_file": "iteration-0006-development.json",
+      "phase": "development",
+      "candidate_config": {
+        "ratio": 0.5,
+        "geometry_policy": "baseline_aligned",
+        "projection_scope": {
+          "mnist_compact": "global",
+          "mnist_wide": "largest_tensor_row_hash",
+          "fashion_compact": "global",
+          "fashion_wide": "largest_tensor_row_hash"
+        },
+        "projection_seed_mode": "explicit",
+        "projection_seed": {
+          "mnist_compact": 1800044939,
+          "mnist_wide": 592157828,
+          "fashion_compact": 1363313651,
+          "fashion_wide": 189641451
+        },
+        "geometry_multiplier": 1.0,
+        "particles": 12,
+        "epochs": 80,
+        "subset_size": 10000
+      },
+      "score": -186.8633001166316,
+      "pass": false,
+      "development_pass": false,
+      "eligible_for_confirmation": false,
+      "failed_hard_gate_count": 3,
+      "failed_gates": [
+        "maximum_accuracy_regression_percentage_points_each_split_workload",
+        "development_mnist_wide_improvement",
+        "confirmation_executed"
+      ],
+      "is_best_observed": false,
+      "summary_metrics": {
+        "development_cells": 8,
+        "confirmation_cells": 0,
+        "development_grand_mean_accuracy_gain_pp": 0.37833324999999984,
+        "development_grand_mean_nll_reduction_fraction": 0.027583666333684136,
+        "development_mnist_wide_accuracy_gain_pp": -4.3733334999999975,
+        "development_mnist_wide_nll_reduction_fraction": -0.04283278305566589
+      },
+      "state_ratios": {
+        "development": {
+          "mnist_compact": 0.4918032786885246,
+          "mnist_wide": 0.5,
+          "fashion_compact": 0.4918032786885246,
+          "fashion_wide": 0.5
+        },
+        "confirmation": null
+      },
+      "cell_metrics": [
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "mnist_compact",
+          "baseline_acc": 50.713333,
+          "candidate_acc": 50.723333,
+          "baseline_nll": 1.534298,
+          "candidate_nll": 1.492805,
+          "acc_gain_pp": 0.00999999999999801,
+          "nll_reduction_fraction": 0.0270436381980554
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "mnist_wide",
+          "baseline_acc": 46.656667,
+          "candidate_acc": 42.006667,
+          "baseline_nll": 1.677872,
+          "candidate_nll": 1.749895,
+          "acc_gain_pp": -4.649999999999999,
+          "nll_reduction_fraction": -0.04292520525999596
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "fashion_compact",
+          "baseline_acc": 46.366667,
+          "candidate_acc": 49.576667,
+          "baseline_nll": 1.497844,
+          "candidate_nll": 1.400574,
+          "acc_gain_pp": 3.210000000000001,
+          "nll_reduction_fraction": 0.06494000710354347
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "fashion_wide",
+          "baseline_acc": 48.516667,
+          "candidate_acc": 49.08,
+          "baseline_nll": 1.490304,
+          "candidate_nll": 1.466855,
+          "acc_gain_pp": 0.5633330000000001,
+          "nll_reduction_fraction": 0.015734373657991962
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "mnist_compact",
+          "baseline_acc": 46.81,
+          "candidate_acc": 51.663333,
+          "baseline_nll": 1.58986,
+          "candidate_nll": 1.436337,
+          "acc_gain_pp": 4.853332999999999,
+          "nll_reduction_fraction": 0.09656384838916639
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "mnist_wide",
+          "baseline_acc": 44.936667,
+          "candidate_acc": 40.84,
+          "baseline_nll": 1.665007,
+          "candidate_nll": 1.73617,
+          "acc_gain_pp": -4.0966669999999965,
+          "nll_reduction_fraction": -0.04274036085133581
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "fashion_compact",
+          "baseline_acc": 44.193333,
+          "candidate_acc": 48.753333,
+          "baseline_nll": 1.553097,
+          "candidate_nll": 1.375751,
+          "acc_gain_pp": 4.559999999999995,
+          "nll_reduction_fraction": 0.11418861796784104
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "fashion_wide",
+          "baseline_acc": 48.37,
+          "candidate_acc": 46.946667,
+          "baseline_nll": 1.490657,
+          "candidate_nll": 1.508747,
+          "acc_gain_pp": -1.4233329999999995,
+          "nll_reduction_fraction": -0.012135588535793386
+        }
+      ],
+      "resources": {
+        "runs": 48,
+        "queries": 46080,
+        "sample_evaluations": 460800000,
+        "wall_time_sec": 371.7913,
+        "official_test_evaluations": 0
+      }
+    },
+    {
+      "variant_id": "iteration-0007-development",
+      "candidate_file": "iteration-0007-development.json",
+      "evaluation_file": "iteration-0007-development.json",
+      "phase": "development",
+      "candidate_config": {
+        "ratio": 0.5,
+        "geometry_policy": "baseline_aligned",
+        "projection_scope": {
+          "mnist_compact": "global",
+          "mnist_wide": "adjacent_pair",
+          "fashion_compact": "global",
+          "fashion_wide": "adjacent_pair"
+        },
+        "projection_seed_mode": "explicit",
+        "projection_seed": {
+          "mnist_compact": 1800044939,
+          "mnist_wide": 592157828,
+          "fashion_compact": 1363313651,
+          "fashion_wide": 189641451
+        },
+        "geometry_multiplier": 1.0,
+        "particles": 12,
+        "epochs": 80,
+        "subset_size": 10000
+      },
+      "score": -391.33742460463645,
+      "pass": false,
+      "development_pass": false,
+      "eligible_for_confirmation": false,
+      "failed_hard_gate_count": 5,
+      "failed_gates": [
+        "maximum_accuracy_regression_percentage_points_each_split_workload",
+        "maximum_nll_regression_fraction_each_split_workload",
+        "development_grand_mean_accuracy_gain_minimum_pp",
+        "development_mnist_wide_improvement",
+        "confirmation_executed"
+      ],
+      "is_best_observed": false,
+      "summary_metrics": {
+        "development_cells": 8,
+        "confirmation_cells": 0,
+        "development_grand_mean_accuracy_gain_pp": -1.462500125000001,
+        "development_grand_mean_nll_reduction_fraction": 0.0012507552036354948,
+        "development_mnist_wide_accuracy_gain_pp": -4.938333500000002,
+        "development_mnist_wide_nll_reduction_fraction": -0.06456567243825684
+      },
+      "state_ratios": {
+        "development": {
+          "mnist_compact": 0.4918032786885246,
+          "mnist_wide": 0.5,
+          "fashion_compact": 0.4918032786885246,
+          "fashion_wide": 0.5
+        },
+        "confirmation": null
+      },
+      "cell_metrics": [
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "mnist_compact",
+          "baseline_acc": 50.713333,
+          "candidate_acc": 50.723333,
+          "baseline_nll": 1.534298,
+          "candidate_nll": 1.492805,
+          "acc_gain_pp": 0.00999999999999801,
+          "nll_reduction_fraction": 0.0270436381980554
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "mnist_wide",
+          "baseline_acc": 46.656667,
+          "candidate_acc": 41.05,
+          "baseline_nll": 1.677872,
+          "candidate_nll": 1.794261,
+          "acc_gain_pp": -5.606667000000002,
+          "nll_reduction_fraction": -0.06936703157332626
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "fashion_compact",
+          "baseline_acc": 46.366667,
+          "candidate_acc": 49.576667,
+          "baseline_nll": 1.497844,
+          "candidate_nll": 1.400574,
+          "acc_gain_pp": 3.210000000000001,
+          "nll_reduction_fraction": 0.06494000710354347
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "fashion_wide",
+          "baseline_acc": 48.516667,
+          "candidate_acc": 42.513333,
+          "baseline_nll": 1.490304,
+          "candidate_nll": 1.615206,
+          "acc_gain_pp": -6.003333999999995,
+          "nll_reduction_fraction": -0.08380974619943303
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "mnist_compact",
+          "baseline_acc": 46.81,
+          "candidate_acc": 51.663333,
+          "baseline_nll": 1.58986,
+          "candidate_nll": 1.436337,
+          "acc_gain_pp": 4.853332999999999,
+          "nll_reduction_fraction": 0.09656384838916639
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "mnist_wide",
+          "baseline_acc": 44.936667,
+          "candidate_acc": 40.666667,
+          "baseline_nll": 1.665007,
+          "candidate_nll": 1.764515,
+          "acc_gain_pp": -4.270000000000003,
+          "nll_reduction_fraction": -0.059764313303187405
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "fashion_compact",
+          "baseline_acc": 44.193333,
+          "candidate_acc": 48.753333,
+          "baseline_nll": 1.553097,
+          "candidate_nll": 1.375751,
+          "acc_gain_pp": 4.559999999999995,
+          "nll_reduction_fraction": 0.11418861796784104
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "fashion_wide",
+          "baseline_acc": 48.37,
+          "candidate_acc": 39.916667,
+          "baseline_nll": 1.490657,
+          "candidate_nll": 1.609595,
+          "acc_gain_pp": -8.453333,
+          "nll_reduction_fraction": -0.07978897895357565
+        }
+      ],
+      "resources": {
+        "runs": 48,
+        "queries": 46080,
+        "sample_evaluations": 460800000,
+        "wall_time_sec": 356.7982,
+        "official_test_evaluations": 0
+      }
+    },
+    {
+      "variant_id": "iteration-0008-development",
+      "candidate_file": "iteration-0008-development.json",
+      "evaluation_file": "iteration-0008-development.json",
+      "phase": "development",
+      "candidate_config": {
+        "ratio": 0.5,
+        "geometry_policy": "baseline_aligned",
+        "projection_scope": {
+          "mnist_compact": "global",
+          "mnist_wide": "adjacent_difference",
+          "fashion_compact": "global",
+          "fashion_wide": "adjacent_difference"
+        },
+        "projection_seed_mode": "explicit",
+        "projection_seed": {
+          "mnist_compact": 1800044939,
+          "mnist_wide": 592157828,
+          "fashion_compact": 1363313651,
+          "fashion_wide": 189641451
+        },
+        "geometry_multiplier": 1.0,
+        "particles": 12,
+        "epochs": 80,
+        "subset_size": 10000
+      },
+      "score": -390.14811518493707,
+      "pass": false,
+      "development_pass": false,
+      "eligible_for_confirmation": false,
+      "failed_hard_gate_count": 5,
+      "failed_gates": [
+        "maximum_accuracy_regression_percentage_points_each_split_workload",
+        "maximum_nll_regression_fraction_each_split_workload",
+        "development_grand_mean_accuracy_gain_minimum_pp",
+        "development_mnist_wide_improvement",
+        "confirmation_executed"
+      ],
+      "is_best_observed": false,
+      "summary_metrics": {
+        "development_cells": 8,
+        "confirmation_cells": 0,
+        "development_grand_mean_accuracy_gain_pp": -0.7670833750000003,
+        "development_grand_mean_nll_reduction_fraction": 0.006189681900629345,
+        "development_mnist_wide_accuracy_gain_pp": -5.428333500000001,
+        "development_mnist_wide_nll_reduction_fraction": -0.050613618488390404
+      },
+      "state_ratios": {
+        "development": {
+          "mnist_compact": 0.4918032786885246,
+          "mnist_wide": 0.5,
+          "fashion_compact": 0.4918032786885246,
+          "fashion_wide": 0.5
+        },
+        "confirmation": null
+      },
+      "cell_metrics": [
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "mnist_compact",
+          "baseline_acc": 50.713333,
+          "candidate_acc": 50.723333,
+          "baseline_nll": 1.534298,
+          "candidate_nll": 1.492805,
+          "acc_gain_pp": 0.00999999999999801,
+          "nll_reduction_fraction": 0.0270436381980554
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "mnist_wide",
+          "baseline_acc": 46.656667,
+          "candidate_acc": 41.14,
+          "baseline_nll": 1.677872,
+          "candidate_nll": 1.748292,
+          "acc_gain_pp": -5.516666999999998,
+          "nll_reduction_fraction": -0.041969828449369154
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "fashion_compact",
+          "baseline_acc": 46.366667,
+          "candidate_acc": 49.576667,
+          "baseline_nll": 1.497844,
+          "candidate_nll": 1.400574,
+          "acc_gain_pp": 3.210000000000001,
+          "nll_reduction_fraction": 0.06494000710354347
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260905,
+          "workload_id": "fashion_wide",
+          "baseline_acc": 48.516667,
+          "candidate_acc": 45.726667,
+          "baseline_nll": 1.490304,
+          "candidate_nll": 1.558163,
+          "acc_gain_pp": -2.789999999999999,
+          "nll_reduction_fraction": -0.04553366293051612
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "mnist_compact",
+          "baseline_acc": 46.81,
+          "candidate_acc": 51.663333,
+          "baseline_nll": 1.58986,
+          "candidate_nll": 1.436337,
+          "acc_gain_pp": 4.853332999999999,
+          "nll_reduction_fraction": 0.09656384838916639
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "mnist_wide",
+          "baseline_acc": 44.936667,
+          "candidate_acc": 39.596667,
+          "baseline_nll": 1.665007,
+          "candidate_nll": 1.763671,
+          "acc_gain_pp": -5.340000000000003,
+          "nll_reduction_fraction": -0.059257408527411654
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "fashion_compact",
+          "baseline_acc": 44.193333,
+          "candidate_acc": 48.753333,
+          "baseline_nll": 1.553097,
+          "candidate_nll": 1.375751,
+          "acc_gain_pp": 4.559999999999995,
+          "nll_reduction_fraction": 0.11418861796784104
+        },
+        {
+          "phase": "development",
+          "split_seed": 20260906,
+          "workload_id": "fashion_wide",
+          "baseline_acc": 48.37,
+          "candidate_acc": 43.246667,
+          "baseline_nll": 1.490657,
+          "candidate_nll": 1.649349,
+          "acc_gain_pp": -5.123332999999995,
+          "nll_reduction_fraction": -0.10645775654627461
+        }
+      ],
+      "resources": {
+        "runs": 48,
+        "queries": 46080,
+        "sample_evaluations": 460800000,
+        "wall_time_sec": 375.5616,
+        "official_test_evaluations": 0
+      }
+    }
+  ]
+}

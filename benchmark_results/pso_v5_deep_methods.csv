@@ -1,0 +1,10 @@
+section,metric,value
+protocol,version,MNIST-PSO-RAW-V5 1.0.0
+pilot,selected_dimension,full
+single_model,test_accuracy,83.23
+single_model,test_nll,0.556332
+single_model,test_brier,0.253921
+single_model,test_ece,0.085242
+ensemble,test_accuracy,87.0
+ensemble,test_nll,0.535928
+ensemble,pairwise_disagreement,0.1585

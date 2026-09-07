@@ -1,0 +1,2080 @@
+{
+  "protocol_version": "HEAVY-TASK-PSO-V6 1.0.0",
+  "timestamp": "2026-09-02T14:52:52Z",
+  "hardware": {
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "system": "Darwin",
+    "machine": "arm64",
+    "processor": "arm",
+    "python_version": "3.11.15",
+    "torch_version": "2.13.0",
+    "pso_version": "4.0.0",
+    "device_type": "mps",
+    "device_str": "mps",
+    "mps_available": true
+  },
+  "pso_version": "4.0.0",
+  "official_test_data_loaded": false,
+  "official_test_evaluations": 0,
+  "study_design": {
+    "screen": {
+      "methods": [
+        "G0",
+        "G5",
+        "G6",
+        "G8"
+      ],
+      "subset_size": 2000,
+      "particles": 12,
+      "epochs": 40,
+      "seed": 91,
+      "cells": 16
+    },
+    "confirmation": {
+      "methods_per_workload": {
+        "mnist_compact": [
+          "G8",
+          "G6"
+        ],
+        "mnist_wide": [
+          "G8",
+          "G5"
+        ],
+        "fashion_compact": [
+          "G8",
+          "G6"
+        ],
+        "fashion_wide": [
+          "G8",
+          "G5"
+        ]
+      },
+      "subset_size": 10000,
+      "particles": 12,
+      "epochs": 80,
+      "seeds": [
+        101,
+        102,
+        103
+      ]
+    },
+    "selection": {
+      "candidates": [
+        "G0",
+        "G5",
+        "G6"
+      ],
+      "ranking": [
+        "validation_nll_ascending",
+        "validation_accuracy_descending"
+      ],
+      "confirmation_reference": "G8"
+    },
+    "feasibility_contract": {
+      "execution": "all_confirmed_runs_complete_with_finite_metrics",
+      "minimum_validation_nll_reduction_fraction": 0.2,
+      "minimum_validation_accuracy_gain_percentage_points": 20.0,
+      "requires_both_optimization_thresholds": true
+    },
+    "validation": {
+      "source": "official_training_split_only",
+      "split": "50000_search_10000_validation_stratified",
+      "split_seed": 20260902,
+      "official_test_split_used": false
+    }
+  },
+  "method_configs": {
+    "G0": {
+      "config_id": "G0",
+      "scale_type": "per_tensor_sd",
+      "init_position_mode": "antithetic",
+      "position_radius": 0.5,
+      "initial_velocity_radius": 0.0,
+      "mutation_prob": 0.0,
+      "reset_velocity_radius": 0.02,
+      "reflective_bound": 3.0,
+      "projection_seed": null,
+      "latent_dim": "full",
+      "description": "exact V5 control"
+    },
+    "G5": {
+      "config_id": "G5",
+      "scale_type": "per_tensor_sd",
+      "init_position_mode": "antithetic",
+      "position_radius": 0.5,
+      "initial_velocity_radius": 0.5,
+      "mutation_prob": 0.02,
+      "reset_velocity_radius": 0.02,
+      "reflective_bound": 6.0,
+      "projection_seed": null,
+      "latent_dim": "full",
+      "description": "test sufficient bound expansion"
+    },
+    "G6": {
+      "config_id": "G6",
+      "scale_type": "per_tensor_sd",
+      "init_position_mode": "antithetic",
+      "position_radius": 1.5,
+      "initial_velocity_radius": 0.5,
+      "mutation_prob": 0.02,
+      "reset_velocity_radius": 0.02,
+      "reflective_bound": 6.0,
+      "projection_seed": null,
+      "latent_dim": "full",
+      "description": "test broader normalized initialization"
+    },
+    "G8": {
+      "config_id": "G8",
+      "scale_type": "optimizer_default",
+      "init_position_mode": "independent",
+      "position_radius": 0.05,
+      "initial_velocity_radius": 0.05,
+      "mutation_prob": 0.02,
+      "reset_velocity_radius": 0.02,
+      "reflective_bound": 3.0,
+      "projection_seed": null,
+      "latent_dim": "full",
+      "description": "retained semantic control (public Optimizer)"
+    }
+  },
+  "workloads": {
+    "mnist_compact": {
+      "workload_id": "mnist_compact",
+      "dataset_name": "mnist",
+      "model_name": "compact_cnn",
+      "parameter_count": 9098,
+      "model_fingerprint": "d0eee0ffd33088ed",
+      "data_fingerprint": "26bd2ed5f27e7d24",
+      "split_fingerprint": "51b289d9f503a9f3",
+      "description": "MNIST dataset with CompactCNN (9,098 params control)"
+    },
+    "mnist_wide": {
+      "workload_id": "mnist_wide",
+      "dataset_name": "mnist",
+      "model_name": "wide_cnn",
+      "parameter_count": 55338,
+      "model_fingerprint": "d474d0ab7cc9f83d",
+      "data_fingerprint": "26bd2ed5f27e7d24",
+      "split_fingerprint": "51b289d9f503a9f3",
+      "description": "MNIST dataset with WideCNN (~55k params larger model axis)"
+    },
+    "fashion_compact": {
+      "workload_id": "fashion_compact",
+      "dataset_name": "fashion_mnist",
+      "model_name": "compact_cnn",
+      "parameter_count": 9098,
+      "model_fingerprint": "d0eee0ffd33088ed",
+      "data_fingerprint": "804ce8cb7d21089f",
+      "split_fingerprint": "9b30a85c7ff86e4a",
+      "description": "FashionMNIST dataset with CompactCNN (harder data axis)"
+    },
+    "fashion_wide": {
+      "workload_id": "fashion_wide",
+      "dataset_name": "fashion_mnist",
+      "model_name": "wide_cnn",
+      "parameter_count": 55338,
+      "model_fingerprint": "d474d0ab7cc9f83d",
+      "data_fingerprint": "804ce8cb7d21089f",
+      "split_fingerprint": "9b30a85c7ff86e4a",
+      "description": "FashionMNIST dataset with WideCNN (harder data + larger model axis)"
+    }
+  },
+  "untrained_baselines": {
+    "mnist_compact": {
+      "val_nll": 2.325095,
+      "val_accuracy": 6.65,
+      "val_brier": 0.904644,
+      "val_ece": 0.060849,
+      "val_margin": 0.0109,
+      "objective_loss": 2.325288,
+      "objective_accuracy": 7.05
+    },
+    "mnist_wide": {
+      "val_nll": 2.32458,
+      "val_accuracy": 9.31,
+      "val_brier": 0.904232,
+      "val_ece": 0.025719,
+      "val_margin": 0.006578,
+      "objective_loss": 2.322588,
+      "objective_accuracy": 9.85
+    },
+    "fashion_compact": {
+      "val_nll": 2.320302,
+      "val_accuracy": 8.08,
+      "val_brier": 0.903272,
+      "val_ece": 0.037873,
+      "val_margin": 0.005784,
+      "objective_loss": 2.317111,
+      "objective_accuracy": 8.65
+    },
+    "fashion_wide": {
+      "val_nll": 2.311222,
+      "val_accuracy": 8.77,
+      "val_brier": 0.901676,
+      "val_ece": 0.029384,
+      "val_margin": 0.004878,
+      "objective_loss": 2.311339,
+      "objective_accuracy": 9.3
+    }
+  },
+  "screen_results": [
+    {
+      "workload_id": "mnist_compact",
+      "method_id": "G0",
+      "dataset_name": "mnist",
+      "model_name": "compact_cnn",
+      "parameter_count": 9098,
+      "subset_size": 2000,
+      "particles": 12,
+      "epochs": 40,
+      "seed": 91,
+      "gbest_loss": 2.014459,
+      "gbest_acc": 34.4,
+      "gbest_val_loss": 2.019988,
+      "gbest_val_acc": 33.32,
+      "val_selected_particle_idx": 1,
+      "val_selected_loss": 2.019988,
+      "val_selected_acc": 33.32,
+      "val_metrics": {
+        "accuracy": 33.32,
+        "nll": 2.019988,
+        "brier": 0.834431,
+        "ece": 0.139305,
+        "margin": 0.049729
+      },
+      "wall_time_sec": 0.9417,
+      "optimization_wall_time_sec": 0.8673,
+      "validation_wall_time_sec": 0.0744,
+      "total_queries": 480,
+      "total_sample_evaluations": 960000,
+      "validation_evaluations": 17,
+      "official_test_evaluations": 0,
+      "core_swarm_state_bytes": 2183520,
+      "throughput_samples_per_sec": 1106883.43,
+      "is_finite": true
+    },
+    {
+      "workload_id": "mnist_compact",
+      "method_id": "G5",
+      "dataset_name": "mnist",
+      "model_name": "compact_cnn",
+      "parameter_count": 9098,
+      "subset_size": 2000,
+      "particles": 12,
+      "epochs": 40,
+      "seed": 91,
+      "gbest_loss": 1.971574,
+      "gbest_acc": 32.35,
+      "gbest_val_loss": 1.959743,
+      "gbest_val_acc": 33.95,
+      "val_selected_particle_idx": 9,
+      "val_selected_loss": 1.959743,
+      "val_selected_acc": 33.95,
+      "val_metrics": {
+        "accuracy": 33.95,
+        "nll": 1.959743,
+        "brier": 0.814657,
+        "ece": 0.092241,
+        "margin": 0.081765
+      },
+      "wall_time_sec": 0.9124,
+      "optimization_wall_time_sec": 0.8425,
+      "validation_wall_time_sec": 0.0699,
+      "total_queries": 480,
+      "total_sample_evaluations": 960000,
+      "validation_evaluations": 17,
+      "official_test_evaluations": 0,
+      "core_swarm_state_bytes": 2183520,
+      "throughput_samples_per_sec": 1139465.88,
+      "is_finite": true
+    },
+    {
+      "workload_id": "mnist_compact",
+      "method_id": "G6",
+      "dataset_name": "mnist",
+      "model_name": "compact_cnn",
+      "parameter_count": 9098,
+      "subset_size": 2000,
+      "particles": 12,
+      "epochs": 40,
+      "seed": 91,
+      "gbest_loss": 1.941859,
+      "gbest_acc": 35.35,
+      "gbest_val_loss": 1.958177,
+      "gbest_val_acc": 35.03,
+      "val_selected_particle_idx": 11,
+      "val_selected_loss": 1.957307,
+      "val_selected_acc": 35.11,
+      "val_metrics": {
+        "accuracy": 35.11,
+        "nll": 1.957307,
+        "brier": 0.80199,
+        "ece": 0.079196,
+        "margin": 0.101943
+      },
+      "wall_time_sec": 0.7827,
+      "optimization_wall_time_sec": 0.7159,
+      "validation_wall_time_sec": 0.0668,
+      "total_queries": 480,
+      "total_sample_evaluations": 960000,
+      "validation_evaluations": 17,
+      "official_test_evaluations": 0,
+      "core_swarm_state_bytes": 2183520,
+      "throughput_samples_per_sec": 1340969.41,
+      "is_finite": true
+    },
+    {
+      "workload_id": "mnist_compact",
+      "method_id": "G8",
+      "dataset_name": "mnist",
+      "model_name": "compact_cnn",
+      "parameter_count": 9098,
+      "subset_size": 2000,
+      "particles": 12,
+      "epochs": 40,
+      "seed": 91,
+      "gbest_loss": 1.675063,
+      "gbest_acc": 43.6,
+      "gbest_val_loss": null,
+      "gbest_val_acc": null,
+      "val_selected_particle_idx": null,
+      "val_selected_loss": 1.690442,
+      "val_selected_acc": 43.88,
+      "val_metrics": {
+        "accuracy": 43.88,
+        "nll": 1.690442,
+        "brier": 0.721828,
+        "ece": 0.046373,
+        "margin": 0.20173
+      },
+      "wall_time_sec": 1.1597,
+      "optimization_wall_time_sec": 0.975,
+      "validation_wall_time_sec": 0.1847,
+      "total_queries": 480,
+      "total_sample_evaluations": 960000,
+      "validation_evaluations": 13,
+      "official_test_evaluations": 0,
+      "core_swarm_state_bytes": 2219912,
+      "throughput_samples_per_sec": 984615.38,
+      "is_finite": true
+    },
+    {
+      "workload_id": "mnist_wide",
+      "method_id": "G0",
+      "dataset_name": "mnist",
+      "model_name": "wide_cnn",
+      "parameter_count": 55338,
+      "subset_size": 2000,
+      "particles": 12,
+      "epochs": 40,
+      "seed": 91,
+      "gbest_loss": 2.087951,
+      "gbest_acc": 32.45,
+      "gbest_val_loss": 2.088156,
+      "gbest_val_acc": 33.19,
+      "val_selected_particle_idx": 1,
+      "val_selected_loss": 2.088156,
+      "val_selected_acc": 33.19,
+      "val_metrics": {
+        "accuracy": 33.19,
+        "nll": 2.088156,
+        "brier": 0.841868,
+        "ece": 0.149299,
+        "margin": 0.048573
+      },
+      "wall_time_sec": 1.8103,
+      "optimization_wall_time_sec": 1.6122,
+      "validation_wall_time_sec": 0.1981,
+      "total_queries": 480,
+      "total_sample_evaluations": 960000,
+      "validation_evaluations": 17,
+      "official_test_evaluations": 0,
+      "core_swarm_state_bytes": 13281120,
+      "throughput_samples_per_sec": 595459.62,
+      "is_finite": true
+    },
+    {
+      "workload_id": "mnist_wide",
+      "method_id": "G5",
+      "dataset_name": "mnist",
+      "model_name": "wide_cnn",
+      "parameter_count": 55338,
+      "subset_size": 2000,
+      "particles": 12,
+      "epochs": 40,
+      "seed": 91,
+      "gbest_loss": 1.924357,
+      "gbest_acc": 39.5,
+      "gbest_val_loss": 1.913567,
+      "gbest_val_acc": 39.87,
+      "val_selected_particle_idx": 1,
+      "val_selected_loss": 1.913566,
+      "val_selected_acc": 39.87,
+      "val_metrics": {
+        "accuracy": 39.87,
+        "nll": 1.913566,
+        "brier": 0.788297,
+        "ece": 0.114298,
+        "margin": 0.113113
+      },
+      "wall_time_sec": 1.4089,
+      "optimization_wall_time_sec": 1.2427,
+      "validation_wall_time_sec": 0.1662,
+      "total_queries": 480,
+      "total_sample_evaluations": 960000,
+      "validation_evaluations": 17,
+      "official_test_evaluations": 0,
+      "core_swarm_state_bytes": 13281120,
+      "throughput_samples_per_sec": 772511.47,
+      "is_finite": true
+    },
+    {
+      "workload_id": "mnist_wide",
+      "method_id": "G6",
+      "dataset_name": "mnist",
+      "model_name": "wide_cnn",
+      "parameter_count": 55338,
+      "subset_size": 2000,
+      "particles": 12,
+      "epochs": 40,
+      "seed": 91,
+      "gbest_loss": 2.014518,
+      "gbest_acc": 27.8,
+      "gbest_val_loss": 2.017511,
+      "gbest_val_acc": 29.46,
+      "val_selected_particle_idx": 2,
+      "val_selected_loss": 2.017511,
+      "val_selected_acc": 29.46,
+      "val_metrics": {
+        "accuracy": 29.46,
+        "nll": 2.017511,
+        "brier": 0.836293,
+        "ece": 0.08699,
+        "margin": 0.050265
+      },
+      "wall_time_sec": 1.4093,
+      "optimization_wall_time_sec": 1.2355,
+      "validation_wall_time_sec": 0.1738,
+      "total_queries": 480,
+      "total_sample_evaluations": 960000,
+      "validation_evaluations": 17,
+      "official_test_evaluations": 0,
+      "core_swarm_state_bytes": 13281120,
+      "throughput_samples_per_sec": 777013.35,
+      "is_finite": true
+    },
+    {
+      "workload_id": "mnist_wide",
+      "method_id": "G8",
+      "dataset_name": "mnist",
+      "model_name": "wide_cnn",
+      "parameter_count": 55338,
+      "subset_size": 2000,
+      "particles": 12,
+      "epochs": 40,
+      "seed": 91,
+      "gbest_loss": 2.062368,
+      "gbest_acc": 20.3,
+      "gbest_val_loss": null,
+      "gbest_val_acc": null,
+      "val_selected_particle_idx": null,
+      "val_selected_loss": 2.056341,
+      "val_selected_acc": 20.43,
+      "val_metrics": {
+        "accuracy": 20.43,
+        "nll": 2.056341,
+        "brier": 0.850317,
+        "ece": 0.022169,
+        "margin": 0.052276
+      },
+      "wall_time_sec": 1.3145,
+      "optimization_wall_time_sec": 1.1228,
+      "validation_wall_time_sec": 0.1917,
+      "total_queries": 480,
+      "total_sample_evaluations": 960000,
+      "validation_evaluations": 13,
+      "official_test_evaluations": 0,
+      "core_swarm_state_bytes": 13502472,
+      "throughput_samples_per_sec": 855005.34,
+      "is_finite": true
+    },
+    {
+      "workload_id": "fashion_compact",
+      "method_id": "G0",
+      "dataset_name": "fashion_mnist",
+      "model_name": "compact_cnn",
+      "parameter_count": 9098,
+      "subset_size": 2000,
+      "particles": 12,
+      "epochs": 40,
+      "seed": 91,
+      "gbest_loss": 1.96974,
+      "gbest_acc": 28.15,
+      "gbest_val_loss": 1.969548,
+      "gbest_val_acc": 28.25,
+      "val_selected_particle_idx": 0,
+      "val_selected_loss": 1.969548,
+      "val_selected_acc": 28.25,
+      "val_metrics": {
+        "accuracy": 28.25,
+        "nll": 1.969548,
+        "brier": 0.831504,
+        "ece": 0.090757,
+        "margin": 0.055678
+      },
+      "wall_time_sec": 0.8633,
+      "optimization_wall_time_sec": 0.7869,
+      "validation_wall_time_sec": 0.0764,
+      "total_queries": 480,
+      "total_sample_evaluations": 960000,
+      "validation_evaluations": 17,
+      "official_test_evaluations": 0,
+      "core_swarm_state_bytes": 2183520,
+      "throughput_samples_per_sec": 1219977.13,
+      "is_finite": true
+    },
+    {
+      "workload_id": "fashion_compact",
+      "method_id": "G5",
+      "dataset_name": "fashion_mnist",
+      "model_name": "compact_cnn",
+      "parameter_count": 9098,
+      "subset_size": 2000,
+      "particles": 12,
+      "epochs": 40,
+      "seed": 91,
+      "gbest_loss": 1.874629,
+      "gbest_acc": 36.6,
+      "gbest_val_loss": 1.893233,
+      "gbest_val_acc": 35.54,
+      "val_selected_particle_idx": 3,
+      "val_selected_loss": 1.892402,
+      "val_selected_acc": 34.31,
+      "val_metrics": {
+        "accuracy": 34.31,
+        "nll": 1.892402,
+        "brier": 0.798486,
+        "ece": 0.105844,
+        "margin": 0.071749
+      },
+      "wall_time_sec": 0.9283,
+      "optimization_wall_time_sec": 0.8554,
+      "validation_wall_time_sec": 0.073,
+      "total_queries": 480,
+      "total_sample_evaluations": 960000,
+      "validation_evaluations": 17,
+      "official_test_evaluations": 0,
+      "core_swarm_state_bytes": 2183520,
+      "throughput_samples_per_sec": 1122281.97,
+      "is_finite": true
+    },
+    {
+      "workload_id": "fashion_compact",
+      "method_id": "G6",
+      "dataset_name": "fashion_mnist",
+      "model_name": "compact_cnn",
+      "parameter_count": 9098,
+      "subset_size": 2000,
+      "particles": 12,
+      "epochs": 40,
+      "seed": 91,
+      "gbest_loss": 1.844914,
+      "gbest_acc": 33.5,
+      "gbest_val_loss": 1.824273,
+      "gbest_val_acc": 35.2,
+      "val_selected_particle_idx": 8,
+      "val_selected_loss": 1.824273,
+      "val_selected_acc": 35.2,
+      "val_metrics": {
+        "accuracy": 35.2,
+        "nll": 1.824273,
+        "brier": 0.787638,
+        "ece": 0.046928,
+        "margin": 0.169004
+      },
+      "wall_time_sec": 0.9054,
+      "optimization_wall_time_sec": 0.8331,
+      "validation_wall_time_sec": 0.0723,
+      "total_queries": 480,
+      "total_sample_evaluations": 960000,
+      "validation_evaluations": 17,
+      "official_test_evaluations": 0,
+      "core_swarm_state_bytes": 2183520,
+      "throughput_samples_per_sec": 1152322.65,
+      "is_finite": true
+    },
+    {
+      "workload_id": "fashion_compact",
+      "method_id": "G8",
+      "dataset_name": "fashion_mnist",
+      "model_name": "compact_cnn",
+      "parameter_count": 9098,
+      "subset_size": 2000,
+      "particles": 12,
+      "epochs": 40,
+      "seed": 91,
+      "gbest_loss": 1.895269,
+      "gbest_acc": 28.85,
+      "gbest_val_loss": null,
+      "gbest_val_acc": null,
+      "val_selected_particle_idx": null,
+      "val_selected_loss": 1.88018,
+      "val_selected_acc": 30.85,
+      "val_metrics": {
+        "accuracy": 30.85,
+        "nll": 1.88018,
+        "brier": 0.800592,
+        "ece": 0.043279,
+        "margin": 0.16498
+      },
+      "wall_time_sec": 1.0335,
+      "optimization_wall_time_sec": 0.8046,
+      "validation_wall_time_sec": 0.2289,
+      "total_queries": 480,
+      "total_sample_evaluations": 960000,
+      "validation_evaluations": 13,
+      "official_test_evaluations": 0,
+      "core_swarm_state_bytes": 2219912,
+      "throughput_samples_per_sec": 1193139.45,
+      "is_finite": true
+    },
+    {
+      "workload_id": "fashion_wide",
+      "method_id": "G0",
+      "dataset_name": "fashion_mnist",
+      "model_name": "wide_cnn",
+      "parameter_count": 55338,
+      "subset_size": 2000,
+      "particles": 12,
+      "epochs": 40,
+      "seed": 91,
+      "gbest_loss": 1.98436,
+      "gbest_acc": 36.05,
+      "gbest_val_loss": 1.981317,
+      "gbest_val_acc": 36.39,
+      "val_selected_particle_idx": 8,
+      "val_selected_loss": 1.981316,
+      "val_selected_acc": 36.39,
+      "val_metrics": {
+        "accuracy": 36.39,
+        "nll": 1.981316,
+        "brier": 0.826711,
+        "ece": 0.180482,
+        "margin": 0.042564
+      },
+      "wall_time_sec": 1.9694,
+      "optimization_wall_time_sec": 1.7767,
+      "validation_wall_time_sec": 0.1927,
+      "total_queries": 480,
+      "total_sample_evaluations": 960000,
+      "validation_evaluations": 17,
+      "official_test_evaluations": 0,
+      "core_swarm_state_bytes": 13281120,
+      "throughput_samples_per_sec": 540327.57,
+      "is_finite": true
+    },
+    {
+      "workload_id": "fashion_wide",
+      "method_id": "G5",
+      "dataset_name": "fashion_mnist",
+      "model_name": "wide_cnn",
+      "parameter_count": 55338,
+      "subset_size": 2000,
+      "particles": 12,
+      "epochs": 40,
+      "seed": 91,
+      "gbest_loss": 1.938569,
+      "gbest_acc": 33.3,
+      "gbest_val_loss": 1.945862,
+      "gbest_val_acc": 31.97,
+      "val_selected_particle_idx": 0,
+      "val_selected_loss": 1.945862,
+      "val_selected_acc": 31.97,
+      "val_metrics": {
+        "accuracy": 31.97,
+        "nll": 1.945862,
+        "brier": 0.818283,
+        "ece": 0.114404,
+        "margin": 0.049718
+      },
+      "wall_time_sec": 1.335,
+      "optimization_wall_time_sec": 1.189,
+      "validation_wall_time_sec": 0.146,
+      "total_queries": 480,
+      "total_sample_evaluations": 960000,
+      "validation_evaluations": 17,
+      "official_test_evaluations": 0,
+      "core_swarm_state_bytes": 13281120,
+      "throughput_samples_per_sec": 807401.18,
+      "is_finite": true
+    },
+    {
+      "workload_id": "fashion_wide",
+      "method_id": "G6",
+      "dataset_name": "fashion_mnist",
+      "model_name": "wide_cnn",
+      "parameter_count": 55338,
+      "subset_size": 2000,
+      "particles": 12,
+      "epochs": 40,
+      "seed": 91,
+      "gbest_loss": 1.960139,
+      "gbest_acc": 28.1,
+      "gbest_val_loss": 1.975825,
+      "gbest_val_acc": 28.64,
+      "val_selected_particle_idx": 10,
+      "val_selected_loss": 1.975825,
+      "val_selected_acc": 28.64,
+      "val_metrics": {
+        "accuracy": 28.64,
+        "nll": 1.975825,
+        "brier": 0.825556,
+        "ece": 0.038186,
+        "margin": 0.084988
+      },
+      "wall_time_sec": 1.4862,
+      "optimization_wall_time_sec": 1.3055,
+      "validation_wall_time_sec": 0.1807,
+      "total_queries": 480,
+      "total_sample_evaluations": 960000,
+      "validation_evaluations": 17,
+      "official_test_evaluations": 0,
+      "core_swarm_state_bytes": 13281120,
+      "throughput_samples_per_sec": 735350.44,
+      "is_finite": true
+    },
+    {
+      "workload_id": "fashion_wide",
+      "method_id": "G8",
+      "dataset_name": "fashion_mnist",
+      "model_name": "wide_cnn",
+      "parameter_count": 55338,
+      "subset_size": 2000,
+      "particles": 12,
+      "epochs": 40,
+      "seed": 91,
+      "gbest_loss": 1.976977,
+      "gbest_acc": 28.45,
+      "gbest_val_loss": null,
+      "gbest_val_acc": null,
+      "val_selected_particle_idx": null,
+      "val_selected_loss": 1.987923,
+      "val_selected_acc": 28.69,
+      "val_metrics": {
+        "accuracy": 28.69,
+        "nll": 1.987923,
+        "brier": 0.829408,
+        "ece": 0.053144,
+        "margin": 0.069324
+      },
+      "wall_time_sec": 1.2958,
+      "optimization_wall_time_sec": 1.1088,
+      "validation_wall_time_sec": 0.187,
+      "total_queries": 480,
+      "total_sample_evaluations": 960000,
+      "validation_evaluations": 13,
+      "official_test_evaluations": 0,
+      "core_swarm_state_bytes": 13502472,
+      "throughput_samples_per_sec": 865800.87,
+      "is_finite": true
+    }
+  ],
+  "normalized_method_selections": {
+    "mnist_compact": "G6",
+    "mnist_wide": "G5",
+    "fashion_compact": "G6",
+    "fashion_wide": "G5"
+  },
+  "confirmation_results": {
+    "mnist_compact": {
+      "G8": {
+        "workload_id": "mnist_compact",
+        "method_id": "G8",
+        "subset_size": 10000,
+        "particles": 12,
+        "epochs": 80,
+        "seeds": [
+          101,
+          102,
+          103
+        ],
+        "stats": {
+          "val_acc": {
+            "mean": 49.153333,
+            "std": 1.320656,
+            "median": 48.96,
+            "iqr": 1.31,
+            "ci95_t": 3.280728
+          },
+          "val_nll": {
+            "mean": 1.518089,
+            "std": 0.061523,
+            "median": 1.512633,
+            "iqr": 0.061342,
+            "ci95_t": 0.152834
+          },
+          "val_brier": {
+            "mean": 0.663921,
+            "std": 0.024244,
+            "median": 0.659644,
+            "iqr": 0.02396,
+            "ci95_t": 0.060226
+          },
+          "val_ece": {
+            "mean": 0.066236,
+            "std": 0.050095,
+            "median": 0.060988,
+            "iqr": 0.049888,
+            "ci95_t": 0.124443
+          },
+          "gbest_loss": {
+            "mean": 1.518602,
+            "std": 0.062467,
+            "median": 1.509299,
+            "iqr": 0.061945,
+            "ci95_t": 0.155179
+          },
+          "gbest_acc": {
+            "mean": 48.96,
+            "std": 1.407551,
+            "median": 49.28,
+            "iqr": 1.38,
+            "ci95_t": 3.496589
+          },
+          "wall_time_sec": {
+            "mean": 4.530167,
+            "std": 0.073436,
+            "median": 4.5186,
+            "iqr": 0.07275,
+            "ci95_t": 0.182428
+          },
+          "optimization_wall_time_sec": {
+            "mean": 4.3879,
+            "std": 0.064886,
+            "median": 4.3684,
+            "iqr": 0.06265,
+            "ci95_t": 0.161188
+          },
+          "throughput_samples_per_sec": {
+            "mean": 2188151.803333,
+            "std": 32164.042335,
+            "median": 2197600.95,
+            "iqr": 31105.64,
+            "ci95_t": 79900.788332
+          }
+        },
+        "per_seed_runs": [
+          {
+            "seed": 101,
+            "val_selected_loss": 1.459476,
+            "val_selected_acc": 50.56,
+            "val_metrics": {
+              "accuracy": 50.56,
+              "nll": 1.459476,
+              "brier": 0.6421,
+              "ece": 0.018972,
+              "margin": 0.29628
+            },
+            "gbest_loss": 1.461308,
+            "gbest_acc": 50.18,
+            "wall_time_sec": 4.5186,
+            "optimization_wall_time_sec": 4.3684,
+            "validation_wall_time_sec": 0.1502,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 13,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 2219912,
+            "throughput_samples_per_sec": 2197600.95
+          },
+          {
+            "seed": 102,
+            "val_selected_loss": 1.582159,
+            "val_selected_acc": 47.94,
+            "val_metrics": {
+              "accuracy": 47.94,
+              "nll": 1.582159,
+              "brier": 0.690019,
+              "ece": 0.118748,
+              "margin": 0.178296
+            },
+            "gbest_loss": 1.585199,
+            "gbest_acc": 47.42,
+            "wall_time_sec": 4.4632,
+            "optimization_wall_time_sec": 4.335,
+            "validation_wall_time_sec": 0.1282,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 13,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 2219912,
+            "throughput_samples_per_sec": 2214532.87
+          },
+          {
+            "seed": 103,
+            "val_selected_loss": 1.512633,
+            "val_selected_acc": 48.96,
+            "val_metrics": {
+              "accuracy": 48.96,
+              "nll": 1.512633,
+              "brier": 0.659644,
+              "ece": 0.060988,
+              "margin": 0.242224
+            },
+            "gbest_loss": 1.509299,
+            "gbest_acc": 49.28,
+            "wall_time_sec": 4.6087,
+            "optimization_wall_time_sec": 4.4603,
+            "validation_wall_time_sec": 0.1484,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 13,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 2219912,
+            "throughput_samples_per_sec": 2152321.59
+          }
+        ]
+      },
+      "G6": {
+        "workload_id": "mnist_compact",
+        "method_id": "G6",
+        "subset_size": 10000,
+        "particles": 12,
+        "epochs": 80,
+        "seeds": [
+          101,
+          102,
+          103
+        ],
+        "stats": {
+          "val_acc": {
+            "mean": 45.966667,
+            "std": 3.545438,
+            "median": 46.62,
+            "iqr": 3.5,
+            "ci95_t": 8.807454
+          },
+          "val_nll": {
+            "mean": 1.642081,
+            "std": 0.091398,
+            "median": 1.610062,
+            "iqr": 0.08709,
+            "ci95_t": 0.227048
+          },
+          "val_brier": {
+            "mean": 0.704608,
+            "std": 0.0315,
+            "median": 0.68996,
+            "iqr": 0.028833,
+            "ci95_t": 0.07825
+          },
+          "val_ece": {
+            "mean": 0.115422,
+            "std": 0.039961,
+            "median": 0.116838,
+            "iqr": 0.039942,
+            "ci95_t": 0.09927
+          },
+          "gbest_loss": {
+            "mean": 1.641447,
+            "std": 0.089036,
+            "median": 1.60673,
+            "iqr": 0.083806,
+            "ci95_t": 0.22118
+          },
+          "gbest_acc": {
+            "mean": 46.056667,
+            "std": 3.536444,
+            "median": 46.45,
+            "iqr": 3.52,
+            "ci95_t": 8.785109
+          },
+          "wall_time_sec": {
+            "mean": 5.2706,
+            "std": 1.015911,
+            "median": 4.8932,
+            "iqr": 0.9619,
+            "ci95_t": 2.52369
+          },
+          "optimization_wall_time_sec": {
+            "mean": 5.159533,
+            "std": 0.984816,
+            "median": 4.7957,
+            "iqr": 0.93305,
+            "ci95_t": 2.446446
+          },
+          "throughput_samples_per_sec": {
+            "mean": 1903152.163333,
+            "std": 334907.322507,
+            "median": 2001793.27,
+            "iqr": 323829.22,
+            "ci95_t": 831965.049903
+          }
+        },
+        "per_seed_runs": [
+          {
+            "seed": 101,
+            "val_selected_loss": 1.745181,
+            "val_selected_acc": 42.14,
+            "val_metrics": {
+              "accuracy": 42.14,
+              "nll": 1.745181,
+              "brier": 0.740764,
+              "ece": 0.116838,
+              "margin": 0.131853
+            },
+            "gbest_loss": 1.742612,
+            "gbest_acc": 42.34,
+            "wall_time_sec": 4.8932,
+            "optimization_wall_time_sec": 4.7957,
+            "validation_wall_time_sec": 0.0975,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 2183520,
+            "throughput_samples_per_sec": 2001793.27
+          },
+          {
+            "seed": 102,
+            "val_selected_loss": 1.610062,
+            "val_selected_acc": 49.14,
+            "val_metrics": {
+              "accuracy": 49.14,
+              "nll": 1.610062,
+              "brier": 0.68996,
+              "ece": 0.154657,
+              "margin": 0.160339
+            },
+            "gbest_loss": 1.60673,
+            "gbest_acc": 49.38,
+            "wall_time_sec": 6.4212,
+            "optimization_wall_time_sec": 6.2745,
+            "validation_wall_time_sec": 0.1467,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 2183520,
+            "throughput_samples_per_sec": 1530002.39
+          },
+          {
+            "seed": 103,
+            "val_selected_loss": 1.571001,
+            "val_selected_acc": 46.62,
+            "val_metrics": {
+              "accuracy": 46.62,
+              "nll": 1.571001,
+              "brier": 0.683099,
+              "ece": 0.074772,
+              "margin": 0.208291
+            },
+            "gbest_loss": 1.575,
+            "gbest_acc": 46.45,
+            "wall_time_sec": 4.4974,
+            "optimization_wall_time_sec": 4.4084,
+            "validation_wall_time_sec": 0.089,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 2183520,
+            "throughput_samples_per_sec": 2177660.83
+          }
+        ]
+      }
+    },
+    "mnist_wide": {
+      "G8": {
+        "workload_id": "mnist_wide",
+        "method_id": "G8",
+        "subset_size": 10000,
+        "particles": 12,
+        "epochs": 80,
+        "seeds": [
+          101,
+          102,
+          103
+        ],
+        "stats": {
+          "val_acc": {
+            "mean": 41.03,
+            "std": 4.055083,
+            "median": 41.36,
+            "iqr": 4.045,
+            "ci95_t": 10.073496
+          },
+          "val_nll": {
+            "mean": 1.733351,
+            "std": 0.084331,
+            "median": 1.733455,
+            "iqr": 0.08433,
+            "ci95_t": 0.209491
+          },
+          "val_brier": {
+            "mean": 0.739941,
+            "std": 0.029512,
+            "median": 0.734463,
+            "iqr": 0.029129,
+            "ci95_t": 0.073314
+          },
+          "val_ece": {
+            "mean": 0.088906,
+            "std": 0.015336,
+            "median": 0.083434,
+            "iqr": 0.014586,
+            "ci95_t": 0.038097
+          },
+          "gbest_loss": {
+            "mean": 1.732307,
+            "std": 0.09299,
+            "median": 1.720824,
+            "iqr": 0.092456,
+            "ci95_t": 0.231002
+          },
+          "gbest_acc": {
+            "mean": 40.866667,
+            "std": 3.390197,
+            "median": 40.44,
+            "iqr": 3.37,
+            "ci95_t": 8.421808
+          },
+          "wall_time_sec": {
+            "mean": 9.4569,
+            "std": 0.542029,
+            "median": 9.5612,
+            "iqr": 0.53445,
+            "ci95_t": 1.34649
+          },
+          "optimization_wall_time_sec": {
+            "mean": 9.2436,
+            "std": 0.534734,
+            "median": 9.3462,
+            "iqr": 0.5273,
+            "ci95_t": 1.328367
+          },
+          "throughput_samples_per_sec": {
+            "mean": 1040918.586667,
+            "std": 61275.63655,
+            "median": 1027155.42,
+            "iqr": 60105.2,
+            "ci95_t": 152218.791868
+          }
+        },
+        "per_seed_runs": [
+          {
+            "seed": 101,
+            "val_selected_loss": 1.733455,
+            "val_selected_acc": 41.36,
+            "val_metrics": {
+              "accuracy": 41.36,
+              "nll": 1.733455,
+              "brier": 0.734463,
+              "ece": 0.077057,
+              "margin": 0.152205
+            },
+            "gbest_loss": 1.720824,
+            "gbest_acc": 40.44,
+            "wall_time_sec": 8.8703,
+            "optimization_wall_time_sec": 8.665,
+            "validation_wall_time_sec": 0.2053,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 13,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 13502472,
+            "throughput_samples_per_sec": 1107905.37
+          },
+          {
+            "seed": 102,
+            "val_selected_loss": 1.648968,
+            "val_selected_acc": 44.91,
+            "val_metrics": {
+              "accuracy": 44.91,
+              "nll": 1.648968,
+              "brier": 0.713552,
+              "ece": 0.106228,
+              "margin": 0.14736
+            },
+            "gbest_loss": 1.645592,
+            "gbest_acc": 44.45,
+            "wall_time_sec": 9.5612,
+            "optimization_wall_time_sec": 9.3462,
+            "validation_wall_time_sec": 0.215,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 13,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 13502472,
+            "throughput_samples_per_sec": 1027155.42
+          },
+          {
+            "seed": 103,
+            "val_selected_loss": 1.817629,
+            "val_selected_acc": 36.82,
+            "val_metrics": {
+              "accuracy": 36.82,
+              "nll": 1.817629,
+              "brier": 0.771809,
+              "ece": 0.083434,
+              "margin": 0.112362
+            },
+            "gbest_loss": 1.830505,
+            "gbest_acc": 37.71,
+            "wall_time_sec": 9.9392,
+            "optimization_wall_time_sec": 9.7196,
+            "validation_wall_time_sec": 0.2196,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 13,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 13502472,
+            "throughput_samples_per_sec": 987694.97
+          }
+        ]
+      },
+      "G5": {
+        "workload_id": "mnist_wide",
+        "method_id": "G5",
+        "subset_size": 10000,
+        "particles": 12,
+        "epochs": 80,
+        "seeds": [
+          101,
+          102,
+          103
+        ],
+        "stats": {
+          "val_acc": {
+            "mean": 43.86,
+            "std": 3.512222,
+            "median": 43.1,
+            "iqr": 3.45,
+            "ci95_t": 8.724938
+          },
+          "val_nll": {
+            "mean": 1.721259,
+            "std": 0.098656,
+            "median": 1.66647,
+            "iqr": 0.086496,
+            "ci95_t": 0.245077
+          },
+          "val_brier": {
+            "mean": 0.734178,
+            "std": 0.034098,
+            "median": 0.737217,
+            "iqr": 0.033996,
+            "ci95_t": 0.084704
+          },
+          "val_ece": {
+            "mean": 0.150847,
+            "std": 0.013927,
+            "median": 0.144481,
+            "iqr": 0.012789,
+            "ci95_t": 0.034596
+          },
+          "gbest_loss": {
+            "mean": 1.716147,
+            "std": 0.098467,
+            "median": 1.667192,
+            "iqr": 0.088872,
+            "ci95_t": 0.244608
+          },
+          "gbest_acc": {
+            "mean": 44.03,
+            "std": 4.013776,
+            "median": 43.43,
+            "iqr": 3.98,
+            "ci95_t": 9.970883
+          },
+          "wall_time_sec": {
+            "mean": 9.868467,
+            "std": 0.070779,
+            "median": 9.8397,
+            "iqr": 0.06625,
+            "ci95_t": 0.175827
+          },
+          "optimization_wall_time_sec": {
+            "mean": 9.6602,
+            "std": 0.069128,
+            "median": 9.6324,
+            "iqr": 0.0648,
+            "ci95_t": 0.171725
+          },
+          "throughput_samples_per_sec": {
+            "mean": 993802.05,
+            "std": 7086.000756,
+            "median": 996636.35,
+            "iqr": 6647.29,
+            "ci95_t": 17602.795091
+          }
+        },
+        "per_seed_runs": [
+          {
+            "seed": 101,
+            "val_selected_loss": 1.66647,
+            "val_selected_acc": 43.1,
+            "val_metrics": {
+              "accuracy": 43.1,
+              "nll": 1.66647,
+              "brier": 0.737217,
+              "ece": 0.144481,
+              "margin": 0.102556
+            },
+            "gbest_loss": 1.667192,
+            "gbest_acc": 43.43,
+            "wall_time_sec": 9.9491,
+            "optimization_wall_time_sec": 9.7389,
+            "validation_wall_time_sec": 0.2102,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 13281120,
+            "throughput_samples_per_sec": 985737.61
+          },
+          {
+            "seed": 102,
+            "val_selected_loss": 1.662158,
+            "val_selected_acc": 47.69,
+            "val_metrics": {
+              "accuracy": 47.69,
+              "nll": 1.662158,
+              "brier": 0.698663,
+              "ece": 0.166819,
+              "margin": 0.156783
+            },
+            "gbest_loss": 1.651753,
+            "gbest_acc": 48.31,
+            "wall_time_sec": 9.8166,
+            "optimization_wall_time_sec": 9.6093,
+            "validation_wall_time_sec": 0.2073,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 13281120,
+            "throughput_samples_per_sec": 999032.19
+          },
+          {
+            "seed": 103,
+            "val_selected_loss": 1.83515,
+            "val_selected_acc": 40.79,
+            "val_metrics": {
+              "accuracy": 40.79,
+              "nll": 1.83515,
+              "brier": 0.766655,
+              "ece": 0.141241,
+              "margin": 0.108132
+            },
+            "gbest_loss": 1.829497,
+            "gbest_acc": 40.35,
+            "wall_time_sec": 9.8397,
+            "optimization_wall_time_sec": 9.6324,
+            "validation_wall_time_sec": 0.2073,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 13281120,
+            "throughput_samples_per_sec": 996636.35
+          }
+        ]
+      }
+    },
+    "fashion_compact": {
+      "G8": {
+        "workload_id": "fashion_compact",
+        "method_id": "G8",
+        "subset_size": 10000,
+        "particles": 12,
+        "epochs": 80,
+        "seeds": [
+          101,
+          102,
+          103
+        ],
+        "stats": {
+          "val_acc": {
+            "mean": 47.003333,
+            "std": 5.2259,
+            "median": 44.5,
+            "iqr": 4.755,
+            "ci95_t": 12.981998
+          },
+          "val_nll": {
+            "mean": 1.511217,
+            "std": 0.168628,
+            "median": 1.593665,
+            "iqr": 0.152765,
+            "ci95_t": 0.4189
+          },
+          "val_brier": {
+            "mean": 0.670829,
+            "std": 0.047121,
+            "median": 0.69484,
+            "iqr": 0.042284,
+            "ci95_t": 0.117055
+          },
+          "val_ece": {
+            "mean": 0.051117,
+            "std": 0.028629,
+            "median": 0.042956,
+            "iqr": 0.027743,
+            "ci95_t": 0.071118
+          },
+          "gbest_loss": {
+            "mean": 1.505129,
+            "std": 0.173608,
+            "median": 1.585615,
+            "iqr": 0.159001,
+            "ci95_t": 0.431271
+          },
+          "gbest_acc": {
+            "mean": 47.446667,
+            "std": 5.162212,
+            "median": 44.87,
+            "iqr": 4.655,
+            "ci95_t": 12.823787
+          },
+          "wall_time_sec": {
+            "mean": 5.0146,
+            "std": 0.07329,
+            "median": 4.9742,
+            "iqr": 0.0644,
+            "ci95_t": 0.182065
+          },
+          "optimization_wall_time_sec": {
+            "mean": 4.860267,
+            "std": 0.074059,
+            "median": 4.8208,
+            "iqr": 0.0657,
+            "ci95_t": 0.183974
+          },
+          "throughput_samples_per_sec": {
+            "mean": 1975503.406667,
+            "std": 29841.726913,
+            "median": 1991370.73,
+            "iqr": 26489.615,
+            "ci95_t": 74131.773634
+          }
+        },
+        "per_seed_runs": [
+          {
+            "seed": 101,
+            "val_selected_loss": 1.317228,
+            "val_selected_acc": 53.01,
+            "val_metrics": {
+              "accuracy": 53.01,
+              "nll": 1.317228,
+              "brier": 0.616539,
+              "ece": 0.042956,
+              "margin": 0.295591
+            },
+            "gbest_loss": 1.305885,
+            "gbest_acc": 53.39,
+            "wall_time_sec": 4.9704,
+            "optimization_wall_time_sec": 4.8143,
+            "validation_wall_time_sec": 0.1561,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 13,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 2219912,
+            "throughput_samples_per_sec": 1994059.36
+          },
+          {
+            "seed": 102,
+            "val_selected_loss": 1.593665,
+            "val_selected_acc": 43.5,
+            "val_metrics": {
+              "accuracy": 43.5,
+              "nll": 1.593665,
+              "brier": 0.69484,
+              "ece": 0.027455,
+              "margin": 0.271024
+            },
+            "gbest_loss": 1.585615,
+            "gbest_acc": 44.08,
+            "wall_time_sec": 5.0992,
+            "optimization_wall_time_sec": 4.9457,
+            "validation_wall_time_sec": 0.1534,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 13,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 2219912,
+            "throughput_samples_per_sec": 1941080.13
+          },
+          {
+            "seed": 103,
+            "val_selected_loss": 1.622758,
+            "val_selected_acc": 44.5,
+            "val_metrics": {
+              "accuracy": 44.5,
+              "nll": 1.622758,
+              "brier": 0.701107,
+              "ece": 0.08294,
+              "margin": 0.177938
+            },
+            "gbest_loss": 1.623887,
+            "gbest_acc": 44.87,
+            "wall_time_sec": 4.9742,
+            "optimization_wall_time_sec": 4.8208,
+            "validation_wall_time_sec": 0.1534,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 13,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 2219912,
+            "throughput_samples_per_sec": 1991370.73
+          }
+        ]
+      },
+      "G6": {
+        "workload_id": "fashion_compact",
+        "method_id": "G6",
+        "subset_size": 10000,
+        "particles": 12,
+        "epochs": 80,
+        "seeds": [
+          101,
+          102,
+          103
+        ],
+        "stats": {
+          "val_acc": {
+            "mean": 45.616667,
+            "std": 3.585392,
+            "median": 44.86,
+            "iqr": 3.525,
+            "ci95_t": 8.906704
+          },
+          "val_nll": {
+            "mean": 1.584443,
+            "std": 0.053077,
+            "median": 1.593562,
+            "iqr": 0.052487,
+            "ci95_t": 0.131853
+          },
+          "val_brier": {
+            "mean": 0.699684,
+            "std": 0.023018,
+            "median": 0.699068,
+            "iqr": 0.023011,
+            "ci95_t": 0.05718
+          },
+          "val_ece": {
+            "mean": 0.098265,
+            "std": 0.040761,
+            "median": 0.075459,
+            "iqr": 0.035656,
+            "ci95_t": 0.101256
+          },
+          "gbest_loss": {
+            "mean": 1.577682,
+            "std": 0.060531,
+            "median": 1.589026,
+            "iqr": 0.059728,
+            "ci95_t": 0.150369
+          },
+          "gbest_acc": {
+            "mean": 45.83,
+            "std": 3.77342,
+            "median": 44.62,
+            "iqr": 3.625,
+            "ci95_t": 9.373798
+          },
+          "wall_time_sec": {
+            "mean": 4.839267,
+            "std": 0.025908,
+            "median": 4.8501,
+            "iqr": 0.02415,
+            "ci95_t": 0.064361
+          },
+          "optimization_wall_time_sec": {
+            "mean": 4.7373,
+            "std": 0.0259,
+            "median": 4.7484,
+            "iqr": 0.02405,
+            "ci95_t": 0.06434
+          },
+          "throughput_samples_per_sec": {
+            "mean": 2026511.273333,
+            "std": 11111.347421,
+            "median": 2021733.64,
+            "iqr": 10312.26,
+            "ci95_t": 27602.420402
+          }
+        },
+        "per_seed_runs": [
+          {
+            "seed": 101,
+            "val_selected_loss": 1.593562,
+            "val_selected_acc": 44.86,
+            "val_metrics": {
+              "accuracy": 44.86,
+              "nll": 1.593562,
+              "brier": 0.699068,
+              "ece": 0.075459,
+              "margin": 0.179908
+            },
+            "gbest_loss": 1.589026,
+            "gbest_acc": 44.62,
+            "wall_time_sec": 4.8501,
+            "optimization_wall_time_sec": 4.7484,
+            "validation_wall_time_sec": 0.1017,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 2183520,
+            "throughput_samples_per_sec": 2021733.64
+          },
+          {
+            "seed": 102,
+            "val_selected_loss": 1.63237,
+            "val_selected_acc": 42.47,
+            "val_metrics": {
+              "accuracy": 42.47,
+              "nll": 1.63237,
+              "brier": 0.723003,
+              "ece": 0.074012,
+              "margin": 0.176538
+            },
+            "gbest_loss": 1.631738,
+            "gbest_acc": 42.81,
+            "wall_time_sec": 4.8097,
+            "optimization_wall_time_sec": 4.7077,
+            "validation_wall_time_sec": 0.102,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 2183520,
+            "throughput_samples_per_sec": 2039212.35
+          },
+          {
+            "seed": 103,
+            "val_selected_loss": 1.527397,
+            "val_selected_acc": 49.52,
+            "val_metrics": {
+              "accuracy": 49.52,
+              "nll": 1.527397,
+              "brier": 0.67698,
+              "ece": 0.145324,
+              "margin": 0.156547
+            },
+            "gbest_loss": 1.512281,
+            "gbest_acc": 50.06,
+            "wall_time_sec": 4.858,
+            "optimization_wall_time_sec": 4.7558,
+            "validation_wall_time_sec": 0.1022,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 2183520,
+            "throughput_samples_per_sec": 2018587.83
+          }
+        ]
+      }
+    },
+    "fashion_wide": {
+      "G8": {
+        "workload_id": "fashion_wide",
+        "method_id": "G8",
+        "subset_size": 10000,
+        "particles": 12,
+        "epochs": 80,
+        "seeds": [
+          101,
+          102,
+          103
+        ],
+        "stats": {
+          "val_acc": {
+            "mean": 41.666667,
+            "std": 2.269016,
+            "median": 40.94,
+            "iqr": 2.18,
+            "ci95_t": 5.63661
+          },
+          "val_nll": {
+            "mean": 1.615937,
+            "std": 0.036692,
+            "median": 1.617185,
+            "iqr": 0.036676,
+            "ci95_t": 0.091149
+          },
+          "val_brier": {
+            "mean": 0.716583,
+            "std": 0.015392,
+            "median": 0.719193,
+            "iqr": 0.015226,
+            "ci95_t": 0.038237
+          },
+          "val_ece": {
+            "mean": 0.039104,
+            "std": 0.003431,
+            "median": 0.039736,
+            "iqr": 0.003387,
+            "ci95_t": 0.008523
+          },
+          "gbest_loss": {
+            "mean": 1.612987,
+            "std": 0.031992,
+            "median": 1.612069,
+            "iqr": 0.031983,
+            "ci95_t": 0.079474
+          },
+          "gbest_acc": {
+            "mean": 41.346667,
+            "std": 2.309899,
+            "median": 40.59,
+            "iqr": 2.215,
+            "ci95_t": 5.73817
+          },
+          "wall_time_sec": {
+            "mean": 9.499333,
+            "std": 0.068809,
+            "median": 9.5038,
+            "iqr": 0.0687,
+            "ci95_t": 0.170932
+          },
+          "optimization_wall_time_sec": {
+            "mean": 9.280267,
+            "std": 0.067396,
+            "median": 9.2862,
+            "iqr": 0.0672,
+            "ci95_t": 0.167423
+          },
+          "throughput_samples_per_sec": {
+            "mean": 1034489.443333,
+            "std": 7520.124937,
+            "median": 1033792.08,
+            "iqr": 7495.835,
+            "ci95_t": 18681.231187
+          }
+        },
+        "per_seed_runs": [
+          {
+            "seed": 101,
+            "val_selected_loss": 1.617185,
+            "val_selected_acc": 40.94,
+            "val_metrics": {
+              "accuracy": 40.94,
+              "nll": 1.617185,
+              "brier": 0.719193,
+              "ece": 0.039736,
+              "margin": 0.182429
+            },
+            "gbest_loss": 1.612069,
+            "gbest_acc": 40.59,
+            "wall_time_sec": 9.4284,
+            "optimization_wall_time_sec": 9.2101,
+            "validation_wall_time_sec": 0.2183,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 13,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 13502472,
+            "throughput_samples_per_sec": 1042333.96
+          },
+          {
+            "seed": 102,
+            "val_selected_loss": 1.651989,
+            "val_selected_acc": 39.85,
+            "val_metrics": {
+              "accuracy": 39.85,
+              "nll": 1.651989,
+              "brier": 0.730504,
+              "ece": 0.035401,
+              "margin": 0.165291
+            },
+            "gbest_loss": 1.645429,
+            "gbest_acc": 39.51,
+            "wall_time_sec": 9.5038,
+            "optimization_wall_time_sec": 9.2862,
+            "validation_wall_time_sec": 0.2176,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 13,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 13502472,
+            "throughput_samples_per_sec": 1033792.08
+          },
+          {
+            "seed": 103,
+            "val_selected_loss": 1.578637,
+            "val_selected_acc": 44.21,
+            "val_metrics": {
+              "accuracy": 44.21,
+              "nll": 1.578637,
+              "brier": 0.700053,
+              "ece": 0.042175,
+              "margin": 0.190905
+            },
+            "gbest_loss": 1.581464,
+            "gbest_acc": 43.94,
+            "wall_time_sec": 9.5658,
+            "optimization_wall_time_sec": 9.3445,
+            "validation_wall_time_sec": 0.2213,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 13,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 13502472,
+            "throughput_samples_per_sec": 1027342.29
+          }
+        ]
+      },
+      "G5": {
+        "workload_id": "fashion_wide",
+        "method_id": "G5",
+        "subset_size": 10000,
+        "particles": 12,
+        "epochs": 80,
+        "seeds": [
+          101,
+          102,
+          103
+        ],
+        "stats": {
+          "val_acc": {
+            "mean": 46.31,
+            "std": 7.568494,
+            "median": 48.76,
+            "iqr": 7.265,
+            "ci95_t": 18.801388
+          },
+          "val_nll": {
+            "mean": 1.525747,
+            "std": 0.149706,
+            "median": 1.459695,
+            "iqr": 0.138346,
+            "ci95_t": 0.371893
+          },
+          "val_brier": {
+            "mean": 0.695206,
+            "std": 0.057206,
+            "median": 0.675207,
+            "iqr": 0.054522,
+            "ci95_t": 0.14211
+          },
+          "val_ece": {
+            "mean": 0.135458,
+            "std": 0.015271,
+            "median": 0.132617,
+            "iqr": 0.015072,
+            "ci95_t": 0.037936
+          },
+          "gbest_loss": {
+            "mean": 1.524557,
+            "std": 0.150724,
+            "median": 1.462688,
+            "iqr": 0.14088,
+            "ci95_t": 0.374424
+          },
+          "gbest_acc": {
+            "mean": 46.256667,
+            "std": 8.185019,
+            "median": 49.01,
+            "iqr": 7.83,
+            "ci95_t": 20.332937
+          },
+          "wall_time_sec": {
+            "mean": 10.038833,
+            "std": 0.159562,
+            "median": 10.0574,
+            "iqr": 0.15875,
+            "ci95_t": 0.396379
+          },
+          "optimization_wall_time_sec": {
+            "mean": 9.8224,
+            "std": 0.154476,
+            "median": 9.8419,
+            "iqr": 0.15355,
+            "ci95_t": 0.383744
+          },
+          "throughput_samples_per_sec": {
+            "mean": 977519.543333,
+            "std": 15420.239061,
+            "median": 975421.41,
+            "iqr": 15312.81,
+            "ci95_t": 38306.418218
+          }
+        },
+        "per_seed_runs": [
+          {
+            "seed": 101,
+            "val_selected_loss": 1.420427,
+            "val_selected_acc": 52.35,
+            "val_metrics": {
+              "accuracy": 52.35,
+              "nll": 1.420427,
+              "brier": 0.650684,
+              "ece": 0.15195,
+              "margin": 0.168393
+            },
+            "gbest_loss": 1.414612,
+            "gbest_acc": 52.71,
+            "wall_time_sec": 9.8708,
+            "optimization_wall_time_sec": 9.6591,
+            "validation_wall_time_sec": 0.2117,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 13281120,
+            "throughput_samples_per_sec": 993881.42
+          },
+          {
+            "seed": 102,
+            "val_selected_loss": 1.459695,
+            "val_selected_acc": 48.76,
+            "val_metrics": {
+              "accuracy": 48.76,
+              "nll": 1.459695,
+              "brier": 0.675207,
+              "ece": 0.132617,
+              "margin": 0.141615
+            },
+            "gbest_loss": 1.462688,
+            "gbest_acc": 49.01,
+            "wall_time_sec": 10.0574,
+            "optimization_wall_time_sec": 9.8419,
+            "validation_wall_time_sec": 0.2155,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 13281120,
+            "throughput_samples_per_sec": 975421.41
+          },
+          {
+            "seed": 103,
+            "val_selected_loss": 1.697119,
+            "val_selected_acc": 37.82,
+            "val_metrics": {
+              "accuracy": 37.82,
+              "nll": 1.697119,
+              "brier": 0.759727,
+              "ece": 0.121807,
+              "margin": 0.068249
+            },
+            "gbest_loss": 1.696371,
+            "gbest_acc": 37.05,
+            "wall_time_sec": 10.1883,
+            "optimization_wall_time_sec": 9.9662,
+            "validation_wall_time_sec": 0.2221,
+            "total_queries": 960,
+            "total_sample_evaluations": 9600000,
+            "validation_evaluations": 21,
+            "official_test_evaluations": 0,
+            "core_swarm_state_bytes": 13281120,
+            "throughput_samples_per_sec": 963255.8
+          }
+        ]
+      }
+    }
+  },
+  "feasibility_evaluations": {
+    "mnist_compact": {
+      "G8": {
+        "execution_feasible": true,
+        "optimization_feasible": true,
+        "baseline_val_nll": 2.325095,
+        "target_val_nll_threshold": 1.860076,
+        "baseline_val_acc": 6.65,
+        "target_val_acc_threshold": 26.65,
+        "mean_val_nll": 1.518089,
+        "mean_val_acc": 49.1533
+      },
+      "G6": {
+        "execution_feasible": true,
+        "optimization_feasible": true,
+        "baseline_val_nll": 2.325095,
+        "target_val_nll_threshold": 1.860076,
+        "baseline_val_acc": 6.65,
+        "target_val_acc_threshold": 26.65,
+        "mean_val_nll": 1.642081,
+        "mean_val_acc": 45.9667
+      }
+    },
+    "mnist_wide": {
+      "G8": {
+        "execution_feasible": true,
+        "optimization_feasible": true,
+        "baseline_val_nll": 2.32458,
+        "target_val_nll_threshold": 1.859664,
+        "baseline_val_acc": 9.31,
+        "target_val_acc_threshold": 29.31,
+        "mean_val_nll": 1.733351,
+        "mean_val_acc": 41.03
+      },
+      "G5": {
+        "execution_feasible": true,
+        "optimization_feasible": true,
+        "baseline_val_nll": 2.32458,
+        "target_val_nll_threshold": 1.859664,
+        "baseline_val_acc": 9.31,
+        "target_val_acc_threshold": 29.31,
+        "mean_val_nll": 1.721259,
+        "mean_val_acc": 43.86
+      }
+    },
+    "fashion_compact": {
+      "G8": {
+        "execution_feasible": true,
+        "optimization_feasible": true,
+        "baseline_val_nll": 2.320302,
+        "target_val_nll_threshold": 1.856242,
+        "baseline_val_acc": 8.08,
+        "target_val_acc_threshold": 28.08,
+        "mean_val_nll": 1.511217,
+        "mean_val_acc": 47.0033
+      },
+      "G6": {
+        "execution_feasible": true,
+        "optimization_feasible": true,
+        "baseline_val_nll": 2.320302,
+        "target_val_nll_threshold": 1.856242,
+        "baseline_val_acc": 8.08,
+        "target_val_acc_threshold": 28.08,
+        "mean_val_nll": 1.584443,
+        "mean_val_acc": 45.6167
+      }
+    },
+    "fashion_wide": {
+      "G8": {
+        "execution_feasible": true,
+        "optimization_feasible": true,
+        "baseline_val_nll": 2.311222,
+        "target_val_nll_threshold": 1.848978,
+        "baseline_val_acc": 8.77,
+        "target_val_acc_threshold": 28.77,
+        "mean_val_nll": 1.615937,
+        "mean_val_acc": 41.6667
+      },
+      "G5": {
+        "execution_feasible": true,
+        "optimization_feasible": true,
+        "baseline_val_nll": 2.311222,
+        "target_val_nll_threshold": 1.848978,
+        "baseline_val_acc": 8.77,
+        "target_val_acc_threshold": 28.77,
+        "mean_val_nll": 1.525747,
+        "mean_val_acc": 46.31
+      }
+    }
+  },
+  "resource_totals": {
+    "total_queries": 30720,
+    "total_sample_evaluations": 245760000,
+    "summed_optimization_wall_time_sec": 188.7283,
+    "summed_validation_wall_time_sec": 6.3826,
+    "summed_recorded_run_wall_time_sec": 195.1109,
+    "elapsed_current_process_wall_time_sec": 176.3431
+  }
+}

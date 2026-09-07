@@ -1,0 +1,21 @@
+protocol_version,MNIST-PSO-RAW-V6 1.0.0
+
+--- Phase B Screen Results ---
+config_id,description,val_nll,val_acc_%,queries,sample_evals,wall_time_sec
+G0,exact V5 control,1.183117,67.73,4800,9600000,8.4356
+G1,isolate anisotropic per-tensor scaling,1.437604,62.32,4800,9600000,6.6136
+G2,isolate nonzero launch velocity,1.296105,60.72,4800,9600000,6.6528
+G3,isolate mutation,1.130839,68.07,4800,9600000,6.4943
+G4,velocity x mutation interaction,1.11628,65.76,4800,9600000,6.4837
+G5,test sufficient bound expansion,0.90151,70.93,4800,9600000,6.76
+G6,test broader normalized initialization,0.96129,69.56,4800,9600000,6.7408
+G7,isolate antithetic position coupling against G2,1.291266,58.79,4800,9600000,6.4273
+G8,retained semantic control (public Optimizer),0.883557,70.99,4800,9600000,8.7632
+
+--- Phase B Confirmation Aggregates ---
+config_id,mean_val_acc_%,std_val_acc,mean_val_nll,std_val_nll,num_seeds
+G0,79.526667,0.576397,0.689687,0.008079,3
+G1,76.953333,2.490067,0.833759,0.123667,3
+G5,84.236667,0.903678,0.510297,0.024899,3
+G6,84.25,0.219317,0.503809,0.015789,3
+G8,84.916667,0.988804,0.48144,0.029447,3
