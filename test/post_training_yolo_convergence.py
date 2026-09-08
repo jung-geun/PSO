@@ -11,6 +11,7 @@ import copy
 import csv
 import dataclasses
 import hashlib
+import gc
 import json
 import math
 import os
@@ -1729,12 +1730,12 @@ class YoloConvergenceAdapter:
             self.result.get("baselines", {})
         )
         for base_seed in BASE_SEEDS:
-            model = make_yolo11n(device=self.device)
             trainer = StrictScratchTrainer(device=self.device, batch=16)
             baseline = baselines.get(str(base_seed))
             if not _checkpoint_record_valid(self.run_root, baseline):
+                training_model = make_yolo11n(device=self.device)
                 baseline = train_baseline(
-                    model=model,
+                    model=training_model,
                     yaml_path=str(yaml_path),
                     trainer=trainer,
                     run_root=self.run_root,
@@ -1743,7 +1744,11 @@ class YoloConvergenceAdapter:
                 baselines[str(base_seed)] = baseline
                 self.result["baselines"] = baselines
                 self._save()
-            detector = model.model
+                del training_model
+                gc.collect()
+                if self.device == "cuda":
+                    torch.cuda.empty_cache()
+            detector = make_yolo11n(device=self.device).model
             state = torch.load(
                 _resolve_run_path(
                     self.run_root,
@@ -1916,49 +1921,52 @@ class YoloConvergenceAdapter:
                     ] = record
                     arm_record[f"{method}:{swarm_seed}"] = record
                     self._save()
-            feature_detector = make_yolo11n(device=self.device).model
-            feature_detector.load_state_dict(pristine_state, strict=True)
-            head_detector = make_yolo11n(device=self.device).model
-            head_detector.load_state_dict(pristine_state, strict=True)
-            feature_names = selected_block_names(feature_detector)
-            feature_codec = SelectedResidualCodec(
-                feature_detector,
-                feature_names,
-                projection_seed=PROJECTION_SEED,
-            )
-            feature_bounds = {
-                name: RESIDUAL_BOUND * scale
-                for name, scale in zip(
-                    feature_codec.names,
-                    feature_codec.scales,
+            for method in ("feature_adam", "head_adam"):
+                existing = self.result["arms"].get(method, {}).get(
+                    str(base_seed)
                 )
-            }
-            feature_adam = run_bounded_adam(
-                feature_detector,
-                feature_names,
-                lambda backward, detector=feature_detector, cache=cache:
-                cached_detection_loss_tensor(
-                    detector,
-                    cache,
-                    model_device=self.device,
-                    backward=backward,
-                ),
-                bounds=feature_bounds,
-            )
-            head_adam = run_head_adam(
-                head_detector,
-                lambda backward, detector=head_detector, cache=cache:
-                cached_detection_loss_tensor(
-                    detector,
-                    cache,
-                    model_device=self.device,
-                    backward=backward,
-                ),
-            )
-            for method, control_model, record in (
-                ("feature_adam", feature_detector, feature_adam),
-                ("head_adam", head_detector, head_adam),
-            ):
+                if _checkpoint_record_valid(self.run_root, existing):
+                    arm_record[method] = existing
+                    continue
+                control_model = make_yolo11n(device=self.device).model
+                control_model.load_state_dict(pristine_state, strict=True)
+                if method == "feature_adam":
+                    parameter_names = selected_block_names(control_model)
+                    feature_codec = SelectedResidualCodec(
+                        control_model,
+                        parameter_names,
+                        projection_seed=PROJECTION_SEED,
+                    )
+                    feature_bounds = {
+                        name: RESIDUAL_BOUND * scale
+                        for name, scale in zip(
+                            feature_codec.names,
+                            feature_codec.scales,
+                        )
+                    }
+                    record = run_bounded_adam(
+                        control_model,
+                        parameter_names,
+                        lambda backward, detector=control_model, cache=cache:
+                        cached_detection_loss_tensor(
+                            detector,
+                            cache,
+                            model_device=self.device,
+                            backward=backward,
+                        ),
+                        bounds=feature_bounds,
+                    )
+                else:
+                    record = run_head_adam(
+                        control_model,
+                        lambda backward, detector=control_model, cache=cache:
+                        cached_detection_loss_tensor(
+                            detector,
+                            cache,
+                            model_device=self.device,
+                            backward=backward,
+                        ),
+                    )
                 selection_metrics, _ = evaluate_detection_records(
                     control_model,
                     selection_records,
@@ -1983,6 +1991,11 @@ class YoloConvergenceAdapter:
                     str(base_seed)
                 ] = record
                 arm_record[method] = record
+                self._save()
+                del control_model
+                gc.collect()
+                if self.device == "cuda":
+                    torch.cuda.empty_cache()
             selected: dict[str, Any] = {}
             for method in ("feature_pso", "feature_random"):
                 records = self.result["arms"][method][str(base_seed)]
@@ -2006,6 +2019,10 @@ class YoloConvergenceAdapter:
             self.result["development_selection"][str(base_seed)] = selected
             arm_path = self.root / "arms" / str(base_seed) / "record.json"
             atomic_write_json(arm_path, arm_record)
+            del detector, cache, objective
+            gc.collect()
+            if self.device == "cuda":
+                torch.cuda.empty_cache()
         pool_records = objective_records + selection_records
         member_rows = [[] for _ in pool_records]
         for baseline in baselines.values():
