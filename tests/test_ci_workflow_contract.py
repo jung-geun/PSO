@@ -125,10 +125,20 @@ def _uses_refs(text: str, action: str) -> list[str]:
     return re.findall(rf"uses:\s*{re.escape(action)}@(\S+)", text)
 
 
+def test_workflows_use_setup_uv() -> None:
+    # Guards the pin check below against passing vacuously; a workflow that
+    # does not need uv (labeler, stale bot, ...) is fine on its own.
+    refs = [
+        ref
+        for workflow in _workflow_files()
+        for ref in _uses_refs(workflow.read_text(encoding="utf-8"), "astral-sh/setup-uv")
+    ]
+    assert refs, "no workflow uses astral-sh/setup-uv; update this contract"
+
+
 @pytest.mark.parametrize("workflow", _workflow_files(), ids=lambda p: p.name)
 def test_setup_uv_is_pinned_to_an_exact_release(workflow: Path) -> None:
     refs = _uses_refs(workflow.read_text(encoding="utf-8"), "astral-sh/setup-uv")
-    assert refs, f"{workflow.name} does not use astral-sh/setup-uv"
     for ref in refs:
         assert EXACT_TAG.fullmatch(ref) or FULL_SHA.fullmatch(ref), (
             f"{workflow.name}: astral-sh/setup-uv@{ref} must be an exact vX.Y.Z "
