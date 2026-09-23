@@ -11,6 +11,10 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-22.04
+    env:
+      # Use only uv-managed interpreters, never the runner's /usr/bin/python3.10.
+      # Ubuntu's stdlib ships a regular `test` package; uv-managed builds do not.
+      UV_MANAGED_PYTHON: "1"
     strategy:
       matrix:
         python-version: ["3.10", "3.11"]
@@ -23,6 +27,9 @@ jobs:
           version: "0.12.7"
           python-version: ${{ matrix.python-version }}
           enable-cache: true
+          # Keep only locally built wheels; the default uploads the whole uv
+          # cache, including several GB of torch/CUDA wheels per leg.
+          prune-cache: true
       - name: Sync dependencies
         run: uv sync --locked --group dev --extra examples
       - name: Run tests
@@ -35,6 +42,8 @@ jobs:
   publish:
     needs: test
     runs-on: ubuntu-22.04
+    env:
+      UV_MANAGED_PYTHON: "1"
     steps:
       - uses: actions/checkout@v4
       - name: Install uv and Python 3.11
@@ -43,6 +52,7 @@ jobs:
           version: "0.12.7"
           python-version: "3.11"
           enable-cache: true
+          prune-cache: true
       - name: Sync dependencies
         run: uv sync --locked --group dev
       - name: Build package
@@ -50,6 +60,7 @@ jobs:
       - name: Check package distribution
         run: uv run --no-sync twine check dist/*
       - name: Publish package to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        # release/v1 resolved to this commit (v1.14.2) on 2026-09-24.
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
         with:
           password: ${{ secrets.PYPI_TOKEN }}
